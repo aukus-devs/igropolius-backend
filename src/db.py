@@ -35,3 +35,8 @@ def get_session():
         yield db
     finally:
         db.close()
+
+
+if __name__ == "__main__":
+    init_db()
+    print("Database initialized successfully.")
