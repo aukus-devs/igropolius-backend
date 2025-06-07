@@ -7,3 +7,5 @@ DATABASE_URL = (
     if ENV == "local"
     else "postgresql://user:password@localhost/db"
 )
+
+TOKEN_SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
