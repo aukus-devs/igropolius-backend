@@ -1,8 +1,12 @@
-from typing import Union
+from typing import Annotated, Union
 
 from fastapi import FastAPI
+from fastapi.params import Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
+from src.api_models import UsersList
+from src.db import get_db
 from src.db_models import User
 
 app = FastAPI()
@@ -13,10 +17,10 @@ class Item(BaseModel):
     price: float
 
 
-@app.get("/api/users")
-def get_users():
-  User.query.all()
-  
+@app.get("/api/users", response_model=UsersList)
+def get_users(db: Annotated[Session, Depends(get_db)]):
+    users = list(db.query(User).all())
+    return {"users": users}
 
 
 @app.get("/items/{item_id}")

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.types import (
+from src.enums import (
     BonusCardEventType,
     GameCompletionType,
     MainBonusCardType,
@@ -48,6 +48,10 @@ class UserSummary(BaseModel):
     bonus_cards: list[BonusCard] = []
 
 
+class UsersList(BaseModel):
+    users: list[UserSummary] = []
+
+
 class CurrentUser(BaseModel):
     id: int
     url_handle: str
@@ -68,7 +72,7 @@ class UserEventBase(BaseModel):
 
 
 class MoveEvent(UserEventBase):
-    event_type = "player-move"
+    event_type: str = "player-move"
     subtype: PlayerMoveType
     sector_from: int
     sector_to: int
@@ -78,7 +82,7 @@ class MoveEvent(UserEventBase):
 
 
 class ScoreChangeEvent(UserEventBase):
-    event_type = "score-changed"
+    event_type: str = "score-changed"
     subtype: ScoreChangeType
     score_change: float
     reason: str
@@ -86,17 +90,21 @@ class ScoreChangeEvent(UserEventBase):
 
 
 class BonusCardEvent(UserEventBase):
-    event_type = "bonus-card"
+    event_type: str = "bonus-card"
     subtype: BonusCardEventType
     bonus_type: MainBonusCardType
     sector_id: int
 
 
 class GameEvent(UserEventBase):
-    event_type = "game"
+    event_type: str = "game"
     subtype: GameCompletionType
     game_title: str
     sector_id: int
+
+
+class EventsList(BaseModel):
+    events: list[GameEvent | BonusCardEvent | ScoreChangeEvent | MoveEvent] = []
 
 
 class GiveBonusCard(BaseModel):
@@ -107,7 +115,7 @@ class UseBonusCard(BaseModel):
     bonus_type: MainBonusCardType
 
 
-class MakeMove(BaseModel):
+class MakePlayerMove(BaseModel):
     type: PlayerMoveType
     dice_roll_id: int | None = None
     bonuss_used: list[MainBonusCardType] = []
