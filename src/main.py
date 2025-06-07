@@ -1,20 +1,57 @@
 from typing import Annotated, Union
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Response, status
 from fastapi.params import Depends
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from src.api_models import UsersList
 from src.db import get_db
 from src.db_models import User
+from src.utils.jwt import create_access_token, verify_password
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://igropolus.onrender.com/"
+    ],  # Adjust as needed for production
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],  # Adjust as needed for production
+)
 
 
 class Item(BaseModel):
     name: str
     price: float
+
+
+@app.post("/login")
+def login(
+    response: Response,
+    username: str,
+    password: str,
+    db: Annotated[Session, Depends(get_db)],
+):
+    user = db.query(User).filter(User.nickname == username).first()
+    if not user or not verify_password(password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
+
+    token = create_access_token({"sub": user.nickname})
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        max_age=60 * 60 * 24 * 12,  # 12 days
+        secure=True,  # Set to True if using HTTPS
+        samesite="none",  # Adjust as needed
+    )
+    return {"status": "ok"}
 
 
 @app.get("/api/users", response_model=UsersList)

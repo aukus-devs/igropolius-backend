@@ -2,7 +2,7 @@
 from sqlalchemy import Integer, String, Float
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 
-from src.utils import utc_now_ts
+from src.utils.common import utc_now_ts
 
 Base = declarative_base()
 
