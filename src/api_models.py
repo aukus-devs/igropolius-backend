@@ -49,7 +49,7 @@ class UserSummary(BaseModel):
 
 
 class UsersList(BaseModel):
-    users: list[UserSummary] = []
+    players: list[UserSummary] = []
 
 
 class CurrentUser(BaseModel):

@@ -54,7 +54,7 @@ def fetch_current_user(current_user: Annotated[User, Depends(get_current_user)])
 @app.get("/api/players", response_model=UsersList)
 def get_users(db: Annotated[Session, Depends(get_db)]):
     users = list(db.query(User).all())
-    return {"users": users}
+    return {"players": users}
 
 
 @app.get("/items/{item_id}")
