@@ -28,7 +28,7 @@ class UserSummary(BaseModel):
     nickname: str
     first_name: str
     url_handle: str
-    is_onilne: bool
+    is_online: bool
     current_game: str | None = None
     current_game_updated_at: int | None = None
     online_count: int = 0

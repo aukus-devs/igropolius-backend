@@ -1,4 +1,5 @@
 # database.py
+from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -24,9 +25,13 @@ def get_db():
 
 
 def init_db():
-    print("Initializing database...")
     db_models.Base.metadata.create_all(bind=engine)
 
 
-if __name__ == "__main__":
-    init_db()
+@contextmanager
+def get_session():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
