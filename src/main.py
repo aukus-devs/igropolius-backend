@@ -4,7 +4,8 @@ from fastapi import FastAPI, HTTPException, Response, status
 from fastapi.params import Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import CurrentUser, LoginRequest, UsersList
 from src.db import get_db
@@ -32,12 +33,13 @@ class Item(BaseModel):
 
 
 @app.post("/api/login")
-def login(
+async def login(
     request: LoginRequest,
     response: Response,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    user = db.query(User).filter(User.username == request.username).first()
+    query = await db.execute(select(User).filter(User.username == request.username))
+    user = query.scalars().first()
     if not user or not verify_password(request.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
@@ -52,8 +54,9 @@ def fetch_current_user(current_user: Annotated[User, Depends(get_current_user)])
 
 
 @app.get("/api/players", response_model=UsersList)
-def get_users(db: Annotated[Session, Depends(get_db)]):
-    users = list(db.query(User).all())
+async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(User))
+    users = result.scalars().all()
     return {"players": users}
 
 

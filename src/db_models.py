@@ -1,14 +1,13 @@
 # models.py
 from sqlalchemy import Integer, String, Float
-from sqlalchemy.orm import Mapped, declarative_base, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
+from src.db import DbBase
 from src.enums import PlayerTurnState
 from src.utils.common import utc_now_ts
 
-Base = declarative_base()
 
-
-class User(Base):
+class User(DbBase):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -38,7 +37,7 @@ class User(Base):
     maps_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
 
-class PlayerGame(Base):
+class PlayerGame(DbBase):
     __tablename__ = "player_games"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -57,7 +56,7 @@ class PlayerGame(Base):
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
-class PlayerScoreChange(Base):
+class PlayerScoreChange(DbBase):
     __tablename__ = "player_score_changes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -71,7 +70,7 @@ class PlayerScoreChange(Base):
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
-class PlayerCard(Base):
+class PlayerCard(DbBase):
     __tablename__ = "player_cards"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -89,7 +88,7 @@ class PlayerCard(Base):
     lost_on_sector: Mapped[int] = mapped_column(Integer, nullable=True)
 
 
-class PlayerMove(Base):
+class PlayerMove(DbBase):
     __tablename__ = "player_moves"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)

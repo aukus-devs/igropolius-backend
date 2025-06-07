@@ -1,42 +1,32 @@
 # database.py
-from contextlib import contextmanager
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from contextlib import asynccontextmanager
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.orm.decl_api import declarative_base
 
-from src import db_models
+from .config import DATABASE_URL, IS_LOCAL
 
-from .config import DATABASE_URL
-
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False}
-    if DATABASE_URL.startswith("sqlite")
-    else {},
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+is_sqlite = DATABASE_URL.startswith("sqlite")
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+engine = create_async_engine(DATABASE_URL, echo=IS_LOCAL)
+SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
+
+DbBase = declarative_base()
 
 
-def init_db():
-    db_models.Base.metadata.create_all(bind=engine)
+async def get_db():
+    async with SessionLocal() as session:
+        yield session
 
 
-@contextmanager
-def get_session():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def init_db_async():
+    import src.db_models as _db_models  # noqa: F401
+
+    async with engine.begin() as conn:
+        await conn.run_sync(DbBase.metadata.create_all)
 
 
-if __name__ == "__main__":
-    init_db()
-    print("Database initialized successfully.")
+@asynccontextmanager
+async def get_session():
+    async with SessionLocal() as session:
+        yield session

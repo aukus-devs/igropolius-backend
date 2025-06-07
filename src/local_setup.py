@@ -1,4 +1,7 @@
-from src.db import get_session, init_db
+import asyncio
+
+from sqlalchemy import func, select
+from src.db import get_session, init_db_async
 from src.db_models import User
 from src.enums import PlayerTurnState
 from src.utils.jwt import hash_password
@@ -35,14 +38,19 @@ def create_test_user(db, id: int):
     )
 
 
-if __name__ == "__main__":
-    init_db()
+async def create_users():
+    async with get_session() as db:
+        query = await db.execute(select(func.count()).select_from(User))
+        users_count = query.scalar_one()
+        if users_count == 0:
+            for i in range(1, 9):
+                create_test_user(db, i)
+            await db.commit()
 
+
+if __name__ == "__main__":
+    asyncio.run(init_db_async())
     print("Database initialized successfully.")
 
-    with get_session() as db:
-        users_count = db.query(User).count()
-        if users_count == 0:
-            [create_test_user(db, i + 1) for i in range(8)]
-            db.commit()
-            print("Test users created successfully.")
+    asyncio.run(create_users())
+    print("Test users created successfully.")
