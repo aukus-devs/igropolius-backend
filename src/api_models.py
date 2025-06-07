@@ -25,7 +25,7 @@ class BonusCard(BaseModel):
 
 class UserSummary(BaseModel):
     id: int
-    nickname: str
+    username: str
     first_name: str
     url_handle: str
     is_online: bool
@@ -55,7 +55,7 @@ class UsersList(BaseModel):
 class CurrentUser(BaseModel):
     id: int
     url_handle: str
-    nickname: str
+    username: str
     moder_for: int | None = None
     sector_id: int
     total_score: float = 0.0

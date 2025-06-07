@@ -12,7 +12,7 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    nickname: Mapped[str] = mapped_column(String, unique=True)
+    username: Mapped[str] = mapped_column(String, unique=True)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     url_handle: Mapped[str] = mapped_column(String, unique=True, nullable=False)

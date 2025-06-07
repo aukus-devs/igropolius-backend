@@ -36,13 +36,13 @@ def login(
     response: Response,
     db: Annotated[Session, Depends(get_db)],
 ):
-    user = db.query(User).filter(User.nickname == request.username).first()
+    user = db.query(User).filter(User.username == request.username).first()
     if not user or not verify_password(request.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
 
-    token = create_access_token({"sub": user.nickname})
+    token = create_access_token({"sub": user.username})
     response.set_cookie(
         key="access_token",
         value=token,

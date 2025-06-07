@@ -9,7 +9,7 @@ def create_test_user(db, id: int):
     hashed = hash_password(password)
     db.add(
         User(
-            nickname=f"user_{id}",
+            username=f"user_{id}",
             password_hash=hashed,
             first_name=f"User_{id}",
             url_handle=f"user{id}",
