@@ -1,4 +1,4 @@
-from fastapi import Depends, Cookie, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 from jose import JWTError
 from sqlalchemy.orm import Session
 from src.db import get_db
@@ -7,14 +7,16 @@ from src.utils.jwt import decode_access_token
 
 
 def get_current_user(
-    access_token: str | None = Cookie(default=None), db: Session = Depends(get_db)
+    authorization: str | None = Header(default=None), db: Session = Depends(get_db)
 ):
-    if access_token is None:
+    if authorization is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
         )
+
+    token = authorization.removeprefix("Bearer ").strip()
     try:
-        payload = decode_access_token(access_token)
+        payload = decode_access_token(token)
         username: str | None = payload.get("sub")
         if username is None:
             raise HTTPException(

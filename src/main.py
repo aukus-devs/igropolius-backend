@@ -17,10 +17,11 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://igropolus.onrender.com/"
+        "https://igropolus.onrender.com",
+        "http://localhost:5200",
     ],  # Adjust as needed for production
-    allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_credentials=False,
+    allow_methods=["*"],
     allow_headers=["*"],  # Adjust as needed for production
 )
 
@@ -30,7 +31,7 @@ class Item(BaseModel):
     price: float
 
 
-@app.post("/login")
+@app.post("/api/login")
 def login(
     request: LoginRequest,
     response: Response,
@@ -41,25 +42,16 @@ def login(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
-
     token = create_access_token({"sub": user.username})
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        max_age=60 * 60 * 24 * 12,  # 12 days
-        secure=True,  # Set to True if using HTTPS
-        samesite="none",  # Adjust as needed
-    )
-    return {"status": "ok"}
+    return {"token": token}
 
 
-@app.get("/api/users/current", response_model=CurrentUser)
+@app.get("/api/players/current", response_model=CurrentUser)
 def fetch_current_user(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
 
 
-@app.get("/api/users", response_model=UsersList)
+@app.get("/api/players", response_model=UsersList)
 def get_users(db: Annotated[Session, Depends(get_db)]):
     users = list(db.query(User).all())
     return {"users": users}
