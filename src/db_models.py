@@ -2,6 +2,7 @@
 from sqlalchemy import Integer, String, Float
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 
+from src.enums import PlayerTurnState
 from src.utils.common import utc_now_ts
 
 Base = declarative_base()
@@ -30,7 +31,9 @@ class User(Base):
     is_active: Mapped[int] = mapped_column(Integer, default=True)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     total_score: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
-    turn_state: Mapped[str] = mapped_column(String, default="INITIAL")
+    turn_state: Mapped[str] = mapped_column(
+        String, default=PlayerTurnState.INITIAL.value, nullable=False
+    )
     last_dice_roll_id: Mapped[int] = mapped_column(Integer, nullable=True)
     maps_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 

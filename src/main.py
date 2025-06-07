@@ -6,9 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from src.api_models import UsersList
+from src.api_models import CurrentUser, LoginRequest, UsersList
 from src.db import get_db
 from src.db_models import User
+from src.utils.auth import get_current_user
 from src.utils.jwt import create_access_token, verify_password
 
 app = FastAPI()
@@ -31,13 +32,12 @@ class Item(BaseModel):
 
 @app.post("/login")
 def login(
+    request: LoginRequest,
     response: Response,
-    username: str,
-    password: str,
     db: Annotated[Session, Depends(get_db)],
 ):
-    user = db.query(User).filter(User.nickname == username).first()
-    if not user or not verify_password(password, user.password_hash):
+    user = db.query(User).filter(User.nickname == request.username).first()
+    if not user or not verify_password(request.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
@@ -52,6 +52,11 @@ def login(
         samesite="none",  # Adjust as needed
     )
     return {"status": "ok"}
+
+
+@app.get("/api/users/current", response_model=CurrentUser)
+def fetch_current_user(current_user: Annotated[User, Depends(get_current_user)]):
+    return current_user
 
 
 @app.get("/api/users", response_model=UsersList)

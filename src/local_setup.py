@@ -1,12 +1,16 @@
 from src.db import get_session, init_db
 from src.db_models import User
+from src.enums import PlayerTurnState
+from src.utils.jwt import hash_password
 
 
-def create_user(db, id: int):
+def create_test_user(db, id: int):
+    password = "pass"
+    hashed = hash_password(password)
     db.add(
         User(
             nickname=f"user_{id}",
-            password_hash="hashed_password",
+            password_hash=hashed,
             first_name=f"User_{id}",
             url_handle=f"user{id}",
             is_online=0,
@@ -24,7 +28,7 @@ def create_user(db, id: int):
             is_active=1,
             sector_id=1,
             total_score=0.0,
-            turn_state="INITIAL",
+            turn_state=PlayerTurnState.INITIAL.value,
             last_dice_roll_id=None,
             maps_completed=0,
         )
@@ -39,6 +43,6 @@ if __name__ == "__main__":
     with get_session() as db:
         users_count = db.query(User).count()
         if users_count == 0:
-            [create_user(db, i + 1) for i in range(8)]
+            [create_test_user(db, i + 1) for i in range(8)]
             db.commit()
             print("Test users created successfully.")

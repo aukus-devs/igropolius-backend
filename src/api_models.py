@@ -56,7 +56,6 @@ class CurrentUser(BaseModel):
     id: int
     url_handle: str
     nickname: str
-    role: str
     moder_for: int | None = None
     sector_id: int
     total_score: float = 0.0
@@ -148,3 +147,8 @@ class EditPlayerGame(BaseModel):
     game_title: str
     game_review: str
     vod_links: str | None = None
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
