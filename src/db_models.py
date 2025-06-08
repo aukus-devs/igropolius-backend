@@ -1,10 +1,12 @@
 # models.py
 from sqlalchemy import Integer, String, Float
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm.decl_api import declarative_base
 
-from src.db import DbBase
 from src.enums import PlayerTurnState
 from src.utils.common import utc_now_ts
+
+DbBase = declarative_base()
 
 
 class User(DbBase):
