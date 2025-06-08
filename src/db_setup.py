@@ -29,13 +29,13 @@ defined_users = [
         telegram_link="https://t.me/praden",
         donation_link="https://praden.donationalerts.com/",
     ),
-    UserData(username="user_2", first_name="User_2"),
-    UserData(username="user_3", first_name="User_3"),
-    UserData(username="user_4", first_name="User_4"),
-    UserData(username="user_5", first_name="User_5"),
-    UserData(username="user_6", first_name="User_6"),
-    UserData(username="user_7", first_name="User_7"),
-    UserData(username="user_8", first_name="User_8"),
+    UserData(username="Player-2", first_name="Player2"),
+    UserData(username="Player-3", first_name="Player3"),
+    UserData(username="Player-4", first_name="Player4"),
+    UserData(username="Player-5", first_name="Player5"),
+    UserData(username="Player-6", first_name="Player6"),
+    UserData(username="Player-7", first_name="Player7"),
+    UserData(username="Player-8", first_name="Player8"),
 ]
 
 
