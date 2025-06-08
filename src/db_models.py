@@ -1,5 +1,5 @@
 # models.py
-from sqlalchemy import Integer, String, Float
+from sqlalchemy import Integer, String, Float, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.decl_api import declarative_base
 
@@ -13,27 +13,27 @@ class User(DbBase):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    username: Mapped[str] = mapped_column(String, unique=True)
-    password_hash: Mapped[str] = mapped_column(String, nullable=False)
-    first_name: Mapped[str] = mapped_column(String, nullable=False)
-    url_handle: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    username: Mapped[str] = mapped_column(String(255), unique=True)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    first_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    url_handle: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     is_online: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    current_game: Mapped[str] = mapped_column(String, nullable=True)
+    current_game: Mapped[str] = mapped_column(String(255), nullable=True)
     current_game_updated_at: Mapped[int] = mapped_column(Integer, nullable=True)
     online_count: Mapped[int] = mapped_column(Integer, default=0)
     current_auc_total_sum: Mapped[float] = mapped_column(Float, nullable=True)
     current_auc_started_at: Mapped[int] = mapped_column(Integer, nullable=True)
-    pointauc_token: Mapped[str] = mapped_column(String, nullable=True)
-    twitch_stream_link: Mapped[str] = mapped_column(String, nullable=True)
-    vk_stream_link: Mapped[str] = mapped_column(String, nullable=True)
-    kick_stream_link: Mapped[str] = mapped_column(String, nullable=True)
-    telegram_link: Mapped[str] = mapped_column(String, nullable=True)
-    donation_link: Mapped[str] = mapped_column(String, nullable=True)
+    pointauc_token: Mapped[str] = mapped_column(String(255), nullable=True)
+    twitch_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)
+    vk_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)
+    kick_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)
+    telegram_link: Mapped[str] = mapped_column(String(255), nullable=True)
+    donation_link: Mapped[str] = mapped_column(String(255), nullable=True)
     is_active: Mapped[int] = mapped_column(Integer, default=True)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     total_score: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
     turn_state: Mapped[str] = mapped_column(
-        String, default=PlayerTurnState.INITIAL.value, nullable=False
+        String(255), default=PlayerTurnState.INITIAL.value, nullable=False
     )
     last_dice_roll_id: Mapped[int] = mapped_column(Integer, nullable=True)
     maps_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -49,12 +49,12 @@ class PlayerGame(DbBase):
     )
     duration: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     player_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    type: Mapped[str] = mapped_column(String, nullable=False)
-    item_title: Mapped[str] = mapped_column(String, nullable=False)
-    item_review: Mapped[str] = mapped_column(String, nullable=False)
+    type: Mapped[str] = mapped_column(String(255), nullable=False)
+    item_title: Mapped[str] = mapped_column(String(255), nullable=False)
+    item_review: Mapped[str] = mapped_column(Text, nullable=False)
     item_rating: Mapped[float] = mapped_column(Integer, nullable=False)
-    item_length: Mapped[str] = mapped_column(String, nullable=False)
-    vod_links: Mapped[str] = mapped_column(String, nullable=True)
+    item_length: Mapped[str] = mapped_column(String(255), nullable=False)
+    vod_links: Mapped[str] = mapped_column(String(255), nullable=True)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
@@ -68,7 +68,7 @@ class PlayerScoreChange(DbBase):
     )
     player_id: Mapped[int] = mapped_column(Integer, nullable=False)
     score_change: Mapped[int] = mapped_column(Integer, nullable=False)
-    reason: Mapped[str] = mapped_column(String, nullable=False)
+    reason: Mapped[str] = mapped_column(String(255), nullable=False)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
@@ -81,10 +81,10 @@ class PlayerCard(DbBase):
         Integer, default=utc_now_ts, onupdate=utc_now_ts
     )
     player_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    card_type: Mapped[str] = mapped_column(String, nullable=False)
+    card_type: Mapped[str] = mapped_column(String(255), nullable=False)
     used_at: Mapped[int] = mapped_column(Integer, nullable=True)
     lost_at: Mapped[int] = mapped_column(Integer, nullable=True)
-    status: Mapped[str] = mapped_column(String, nullable=False, default="active")
+    status: Mapped[str] = mapped_column(String(255), nullable=False, default="active")
     received_on_sector: Mapped[int] = mapped_column(Integer, nullable=False)
     used_on_sector: Mapped[int] = mapped_column(Integer, nullable=True)
     lost_on_sector: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -103,5 +103,5 @@ class PlayerMove(DbBase):
     random_org_roll: Mapped[int] = mapped_column(Integer, nullable=False)
     sector_from: Mapped[int] = mapped_column(Integer, nullable=False)
     sector_to: Mapped[int] = mapped_column(Integer, nullable=False)
-    move_type: Mapped[str] = mapped_column(String, nullable=False)
+    move_type: Mapped[str] = mapped_column(String(255), nullable=False)
     map_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

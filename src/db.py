@@ -12,20 +12,20 @@ is_sqlite = DATABASE_URL.startswith("sqlite")
 print(f"Using database URL: {DATABASE_URL}")
 
 
-def make_statement_name():
-    """Generate a unique statement name for asyncpg."""
-    return f"__asyncpg_{uuid4()}__"
+# def make_statement_name():
+#     """Generate a unique statement name for asyncpg."""
+#     return f"__asyncpg_{uuid4()}__"
 
 
 engine = create_async_engine(
     DATABASE_URL,
     echo=True,
-    connect_args={
-        "statement_cache_size": 0,
-        "prepared_statement_cache_size": 0,
-        "ssl": "require",
-        "prepared_statement_name_func": make_statement_name,
-    },
+    # connect_args={
+    #     "statement_cache_size": 0,
+    #     "prepared_statement_cache_size": 0,
+    #     "ssl": "require",
+    #     "prepared_statement_name_func": make_statement_name,
+    # },
 )
 SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
