@@ -8,7 +8,7 @@ from .config import DATABASE_URL, IS_LOCAL
 is_sqlite = DATABASE_URL.startswith("sqlite")
 
 
-engine = create_async_engine(DATABASE_URL, echo=IS_LOCAL)
+engine = create_async_engine(DATABASE_URL, echo=True)
 SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 DbBase = declarative_base()
