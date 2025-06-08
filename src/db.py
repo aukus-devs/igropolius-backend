@@ -1,5 +1,6 @@
 # database.py
 from contextlib import asynccontextmanager
+from sqlalchemy import make_url
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from src.db_models import DbBase
 from .config import DATABASE_URL, IS_LOCAL
@@ -34,8 +35,9 @@ async def init_db_async():
 
 
 async def test_connection():
-    print("Testing database connection...")
-    conn = await asyncpg.connect(DATABASE_URL, statement_cache_size=0)
+    pure_url = str(make_url(DATABASE_URL).set(drivername="postgresql"))
+    print(f"Testing database connection: {pure_url}")
+    conn = await asyncpg.connect(pure_url, statement_cache_size=0)
     version = await conn.fetchval("SELECT version();")
     print(f"Connected! PostgreSQL version: {version}")
     await conn.close()
