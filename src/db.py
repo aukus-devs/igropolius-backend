@@ -36,6 +36,7 @@ async def init_db_async():
 
 async def test_connection():
     pure_url = str(make_url(DATABASE_URL).set(drivername="postgresql"))
+    print(f"Using database URL: {DATABASE_URL}")
     print(f"Testing database connection: {pure_url}")
     conn = await asyncpg.connect(pure_url, statement_cache_size=0)
     version = await conn.fetchval("SELECT version();")
