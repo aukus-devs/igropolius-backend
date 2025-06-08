@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class PlayerTurnState(Enum):
-    INITIAL = "initial"
     ROLLING_DICE = "rolling-dice"
     USING_DICE_BONUSES = "using-dice-bonuses"
     USING_SECTOR_BONUSES = "using-sector-bonuses"

@@ -33,7 +33,7 @@ class User(DbBase):
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     total_score: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
     turn_state: Mapped[str] = mapped_column(
-        String(255), default=PlayerTurnState.INITIAL.value, nullable=False
+        String(255), default=PlayerTurnState.ROLLING_DICE.value, nullable=False
     )
     last_dice_roll_id: Mapped[int] = mapped_column(Integer, nullable=True)
     maps_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

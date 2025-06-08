@@ -1,7 +1,8 @@
 import asyncio
 
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session, init_db_async
 from src.db_models import User
 from src.enums import PlayerTurnState
@@ -39,34 +40,52 @@ defined_users = [
 ]
 
 
-def create_user(db, user_data: UserData):
+def make_user(user_data: UserData):
     password = "pass"
     hashed = hash_password(password)
-    db.add(
-        User(
-            username=user_data.username,
-            password_hash=hashed,
-            first_name=user_data.first_name,
-            url_handle=user_data.username.lower(),
-            is_online=0,
-            current_game=None,
-            current_game_updated_at=None,
-            online_count=0,
-            current_auc_total_sum=None,
-            current_auc_started_at=None,
-            pointauc_token=None,
-            twitch_stream_link=user_data.twitch_stream_link,
-            vk_stream_link=user_data.vk_stream_link,
-            kick_stream_link=user_data.kick_stream_link,
-            telegram_link=user_data.telegram_link,
-            donation_link=user_data.donation_link,
-            is_active=user_data.is_active,
-            sector_id=1,
-            total_score=0.0,
-            turn_state=PlayerTurnState.INITIAL.value,
-            last_dice_roll_id=None,
-            maps_completed=0,
-        )
+    return User(
+        username=user_data.username,
+        password_hash=hashed,
+        first_name=user_data.first_name,
+        url_handle=user_data.username.lower(),
+        is_online=0,
+        current_game=None,
+        current_game_updated_at=None,
+        online_count=0,
+        current_auc_total_sum=None,
+        current_auc_started_at=None,
+        pointauc_token=None,
+        twitch_stream_link=user_data.twitch_stream_link,
+        vk_stream_link=user_data.vk_stream_link,
+        kick_stream_link=user_data.kick_stream_link,
+        telegram_link=user_data.telegram_link,
+        donation_link=user_data.donation_link,
+        is_active=user_data.is_active,
+        sector_id=1,
+        total_score=0.0,
+        turn_state=PlayerTurnState.ROLLING_DICE.value,
+        last_dice_roll_id=None,
+        maps_completed=0,
+    )
+
+
+def create_user(db: AsyncSession, user_data: UserData):
+    user = make_user(user_data)
+    db.add(user)
+
+
+def user_to_dict(obj: User):
+    return {
+        c.name: getattr(obj, c.name) for c in obj.__table__.columns if c.name != "id"
+    }
+
+
+async def update_user(db: AsyncSession, user_data: UserData):
+    user = make_user(user_data)
+    await db.execute(
+        update(User)
+        .where(User.username == user_data.username)
+        .values(**user_to_dict(user))
     )
 
 
@@ -77,6 +96,8 @@ async def create_users():
         for user_data in defined_users:
             if user_data.username not in usernames:
                 create_user(db, user_data)
+            else:
+                await update_user(db, user_data)
         await db.commit()
 
 
