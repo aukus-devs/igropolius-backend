@@ -1,19 +1,31 @@
 # database.py
 from contextlib import asynccontextmanager
-from sqlalchemy import make_url
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from src.db_models import DbBase
 from .config import DATABASE_URL, IS_LOCAL
 import asyncio
-import asyncpg
+from uuid import uuid4
 
 is_sqlite = DATABASE_URL.startswith("sqlite")
+
+
+print(f"Using database URL: {DATABASE_URL}")
+
+
+def make_statement_name():
+    """Generate a unique statement name for asyncpg."""
+    return f"__asyncpg_{uuid4()}__"
 
 
 engine = create_async_engine(
     DATABASE_URL,
     echo=True,
-    connect_args={"statement_cache_size": 0},
+    connect_args={
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0,
+        "ssl": "require",
+        "prepared_statement_name_func": make_statement_name,
+    },
 )
 SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
@@ -34,17 +46,16 @@ async def init_db_async():
         await conn.run_sync(DbBase.metadata.create_all)
 
 
-async def test_connection():
-    pure_url = str(make_url(DATABASE_URL).set(drivername="postgresql"))
-    print(f"Using database URL: {DATABASE_URL}")
-    print(f"Testing database connection: {pure_url}")
-    conn = await asyncpg.connect(pure_url, statement_cache_size=0)
-    version = await conn.fetchval("SELECT version();")
-    print(f"Connected! PostgreSQL version: {version}")
-    await conn.close()
+# async def test_connection():
+#     print(f"Using database URL: {DATABASE_URL}")
+#     print(f"Testing database connection: {TEST_DB_URL}")
+#     conn = await asyncpg.connect(TEST_DB_URL, statement_cache_size=0)
+#     version = await conn.fetchval("SELECT version();")
+#     print(f"Connected! PostgreSQL version: {version}")
+#     await conn.close()
 
 
 if __name__ == "__main__":
-    asyncio.run(test_connection())
+    # asyncio.run(test_connection())
     asyncio.run(init_db_async())
     print("Database initialized successfully.")
