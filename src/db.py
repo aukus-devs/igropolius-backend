@@ -30,3 +30,10 @@ async def init_db_async():
 async def get_session():
     async with SessionLocal() as session:
         yield session
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(init_db_async())
+    print("Database initialized successfully.")
