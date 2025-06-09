@@ -105,6 +105,7 @@ async def do_player_move(
         move_type=move.type,
         map_completed=map_completed,
         adjusted_roll=roll_result,
+        random_org_roll=0,
     )
     db.add(move_item)
     current_user.sector_id = sector_to
