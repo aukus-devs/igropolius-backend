@@ -49,6 +49,16 @@ async def login(
     return {"token": token}
 
 
+@app.post("/api/logout")
+async def logout(
+    response: Response,
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    # Invalidate the token or perform any necessary logout actions
+    response.status_code = status.HTTP_204_NO_CONTENT
+    return {"message": "Logged out successfully"}
+
+
 @app.get("/api/players/current", response_model=CurrentUser)
 def fetch_current_user(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
