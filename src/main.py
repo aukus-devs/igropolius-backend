@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api_models import CurrentUser, LoginRequest, UsersList
+from src.api_models import CurrentUser, EventsList, LoginRequest, UsersList
 from src.db import get_db
 from src.db_models import User
 from src.utils.auth import get_current_user
@@ -69,6 +69,14 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(select(User))
     users = result.scalars().all()
     return {"players": users}
+
+
+@app.post("/api/players/{player_id}/events", response_model=EventsList)
+async def get_player_events(
+    player_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    return {"events": []}
 
 
 @app.get("/items/{item_id}")
