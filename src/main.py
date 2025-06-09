@@ -11,11 +11,12 @@ from src.api_models import (
     EventsList,
     LoginRequest,
     MakePlayerMove,
+    SavePlayerGame,
     UpdatePlayerTurnState,
     UsersList,
 )
 from src.db import get_db
-from src.db_models import PlayerMove, User
+from src.db_models import PlayerGame, PlayerMove, User
 from src.utils.auth import get_current_user
 from src.utils.jwt import create_access_token, verify_password
 
@@ -118,5 +119,26 @@ async def update_turn_state(
     db: AsyncSession,
 ):
     current_user.turn_state = request.turn_state.value
+    await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.post("/api/player-games")
+async def save_player_game(
+    request: SavePlayerGame,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    game = PlayerGame(
+        player_id=current_user.id,
+        type=request.status.value,
+        item_title=request.title,
+        item_review=request.review,
+        item_rating=request.rating,
+        item_length=request.length,
+        vod_links=request.vod_links,
+        sector_id=current_user.sector_id,
+    )
+    db.add(game)
     await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

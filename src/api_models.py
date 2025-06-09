@@ -140,11 +140,11 @@ class DiceRollResult(BaseModel):
 
 
 class SavePlayerGame(BaseModel):
-    type: GameCompletionType
-    game_title: str
-    game_review: str
-    game_rating: float
-    game_length: str
+    status: GameCompletionType
+    title: str
+    review: str
+    rating: float
+    length: str
     vod_links: str | None = None
 
 
