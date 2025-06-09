@@ -19,6 +19,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://igropolus.onrender.com",
+        "https://igropolius.ru",
         "http://localhost:5200",
     ],  # Adjust as needed for production
     allow_credentials=False,

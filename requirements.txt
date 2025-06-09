@@ -159,3 +159,5 @@ watchfiles==1.0.5
     # via uvicorn
 websockets==15.0.1
     # via uvicorn
+
+mysqlclient==2.2.7
