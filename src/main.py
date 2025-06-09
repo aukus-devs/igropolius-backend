@@ -106,6 +106,10 @@ async def do_player_move(
         map_completed=map_completed,
     )
     db.add(move_item)
+    current_user.sector_id = sector_to
+    if map_completed:
+        current_user.maps_completed += 1
+
     await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
