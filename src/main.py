@@ -20,6 +20,7 @@ from src.api_models import (
 from src.db import get_db
 from src.db_models import PlayerGame, PlayerMove, PlayerScoreChange, User
 from src.utils.auth import get_current_user
+from src.utils.common import safe_commit
 from src.utils.jwt import create_access_token, verify_password
 
 app = FastAPI()
@@ -127,7 +128,7 @@ async def do_player_move(
     if map_completed:
         current_user.maps_completed += 1
 
-    await db.commit()
+    await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -138,7 +139,7 @@ async def update_turn_state(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     current_user.turn_state = request.turn_state.value
-    await db.commit()
+    await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -170,5 +171,5 @@ async def save_player_game(
 
     current_user.total_score += request.scores
 
-    await db.commit()
+    await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
