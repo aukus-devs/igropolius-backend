@@ -119,6 +119,7 @@ class MakePlayerMove(BaseModel):
     dice_roll_id: int | None = None
     bonuss_used: list[MainBonusCardType] = []
     selected_die: int | None = None
+    tmp_roll_result: int
 
 
 class ChangePlayerScore(BaseModel):

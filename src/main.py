@@ -7,9 +7,15 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api_models import CurrentUser, EventsList, LoginRequest, UsersList
+from src.api_models import (
+    CurrentUser,
+    EventsList,
+    LoginRequest,
+    MakePlayerMove,
+    UsersList,
+)
 from src.db import get_db
-from src.db_models import User
+from src.db_models import PlayerMove, User
 from src.utils.auth import get_current_user
 from src.utils.jwt import create_access_token, verify_password
 
@@ -71,12 +77,37 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
     return {"players": users}
 
 
-@app.post("/api/players/{player_id}/events", response_model=EventsList)
+@app.get("/api/players/{player_id}/events", response_model=EventsList)
 async def get_player_events(
     player_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     return {"events": []}
+
+
+@app.post("/api/player-moves")
+async def do_player_move(
+    move: MakePlayerMove,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    roll_result = move.tmp_roll_result
+    sector_to = current_user.sector_id + roll_result
+    map_completed = False
+    if sector_to > 40:
+        sector_to = sector_to % 40
+        map_completed = True
+
+    move_item = PlayerMove(
+        player_id=current_user.id,
+        sector_from=current_user.sector_id,
+        sector_to=sector_to,
+        move_type=move.type,
+        map_completed=map_completed,
+    )
+    db.add(move_item)
+    await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.get("/items/{item_id}")
