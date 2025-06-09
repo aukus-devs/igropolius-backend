@@ -4,12 +4,11 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from src.db_models import DbBase
 from .config import DATABASE_URL, IS_LOCAL
 import asyncio
-from uuid import uuid4
 
 is_sqlite = DATABASE_URL.startswith("sqlite")
 
 
-print(f"Using database URL: {DATABASE_URL}")
+# print(f"Using database URL: {DATABASE_URL}")
 
 
 # def make_statement_name():
@@ -24,7 +23,7 @@ engine = create_async_engine(
     max_overflow=10,
     pool_timeout=30,
     pool_recycle=1800,
-    pool_pre_ping=True
+    pool_pre_ping=True,
     # connect_args={
     #     "statement_cache_size": 0,
     #     "prepared_statement_cache_size": 0,

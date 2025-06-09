@@ -115,8 +115,8 @@ async def do_player_move(
 @app.post("/api/players/current/turn-state")
 async def update_turn_state(
     request: UpdatePlayerTurnState,
-    current_user: User,
-    db: AsyncSession,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     current_user.turn_state = request.turn_state.value
     await db.commit()
