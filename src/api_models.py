@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel as PydanticBaseModel
 
 from src.enums import (
     BonusCardEventType,
@@ -8,6 +8,12 @@ from src.enums import (
     PlayerTurnState,
     ScoreChangeType,
 )
+
+
+class BaseModel(PydanticBaseModel):
+    model_config = {
+        "from_attributes": True,
+    }
 
 
 class UserGame(BaseModel):

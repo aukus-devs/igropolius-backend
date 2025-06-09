@@ -13,6 +13,8 @@ from src.api_models import (
     MakePlayerMove,
     SavePlayerGame,
     UpdatePlayerTurnState,
+    UserGame,
+    UserSummary,
     UsersList,
 )
 from src.db import get_db
@@ -68,9 +70,26 @@ def fetch_current_user(current_user: Annotated[User, Depends(get_current_user)])
 
 @app.get("/api/players", response_model=UsersList)
 async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
-    result = await db.execute(select(User))
-    users = result.scalars().all()
-    return {"players": users}
+    users_query = await db.execute(select(User).filter(User.is_active == 1))
+    users = users_query.scalars().all()
+    games_query = await db.execute(select(PlayerGame))
+    games = games_query.scalars().all()
+
+    users_models = []
+    for user in users:
+        model = UserSummary.model_validate(user)
+        model.games = [
+            UserGame(
+                sector_id=g.sector_id,
+                game_title=g.item_title,
+                game_length=g.item_length,
+                created_at=g.created_at,
+            )
+            for g in games
+            if g.player_id == user.id
+        ]
+        users_models.append(model)
+    return {"players": users_models}
 
 
 @app.get("/api/players/{player_id}/events", response_model=EventsList)
