@@ -152,6 +152,7 @@ class SavePlayerGame(BaseModel):
     rating: float
     length: str
     vod_links: str | None = None
+    scores: float
 
 
 class EditPlayerGame(BaseModel):

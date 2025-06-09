@@ -18,7 +18,7 @@ from src.api_models import (
     UsersList,
 )
 from src.db import get_db
-from src.db_models import PlayerGame, PlayerMove, User
+from src.db_models import PlayerGame, PlayerMove, PlayerScoreChange, User
 from src.utils.auth import get_current_user
 from src.utils.jwt import create_access_token, verify_password
 
@@ -159,5 +159,16 @@ async def save_player_game(
         sector_id=current_user.sector_id,
     )
     db.add(game)
+
+    score_change = PlayerScoreChange(
+        player_id=current_user.id,
+        score_change=request.scores,
+        reason="Game completed",
+        sector_id=current_user.sector_id,
+    )
+    db.add(score_change)
+
+    current_user.total_score += request.scores
+
     await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
