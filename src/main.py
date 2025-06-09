@@ -80,7 +80,7 @@ async def get_player_events(
     return {"events": []}
 
 
-@app.post("/api/player-moves")
+@app.post("/api/players/current/moves")
 async def do_player_move(
     move: MakePlayerMove,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -111,7 +111,7 @@ async def do_player_move(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.post("/api/players/set-turn-state")
+@app.post("/api/players/current/turn-state")
 async def update_turn_state(
     request: UpdatePlayerTurnState,
     current_user: User,
