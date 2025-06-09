@@ -1,9 +1,8 @@
-from typing import Annotated, Union
+from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Response, status
 from fastapi.params import Depends
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,6 +11,7 @@ from src.api_models import (
     EventsList,
     LoginRequest,
     MakePlayerMove,
+    UpdatePlayerTurnState,
     UsersList,
 )
 from src.db import get_db
@@ -32,11 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],  # Adjust as needed for production
 )
-
-
-class Item(BaseModel):
-    name: str
-    price: float
 
 
 @app.post("/api/login")
@@ -102,7 +97,7 @@ async def do_player_move(
         player_id=current_user.id,
         sector_from=current_user.sector_id,
         sector_to=sector_to,
-        move_type=move.type,
+        move_type=move.type.value,
         map_completed=map_completed,
         adjusted_roll=roll_result,
         random_org_roll=0,
@@ -116,11 +111,12 @@ async def do_player_move(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.post("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
+@app.post("/api/players/set-turn-state")
+async def update_turn_state(
+    request: UpdatePlayerTurnState,
+    current_user: User,
+    db: AsyncSession,
+):
+    current_user.turn_state = request.turn_state.value
+    await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

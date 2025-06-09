@@ -122,6 +122,10 @@ class MakePlayerMove(BaseModel):
     tmp_roll_result: int
 
 
+class UpdatePlayerTurnState(BaseModel):
+    turn_state: PlayerTurnState
+
+
 class ChangePlayerScore(BaseModel):
     type: ScoreChangeType
     amount: float
