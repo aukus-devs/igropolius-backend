@@ -45,5 +45,5 @@ class BonusCardEventType(Enum):
 
 class GameCompletionType(Enum):
     COMPLETED = "completed"
-    DROPPED = "dropped"
+    DROP = "drop"
     REROLL = "reroll"
