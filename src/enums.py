@@ -13,10 +13,13 @@ class PlayerTurnState(Enum):
 
 
 class MainBonusCardType(Enum):
-    DICE_BY_1 = "dice_by_1"
-    PRISON_REDUCTION = "prison-reduction"
-    MAP_TAX_EVASION = "map-tax-evasion"
-    STREET_TAX_EVASION = "street-tax-evasion"
+    ADJUST_BY_1 = "adjust-roll-by1"
+    CHOOSE_1_DIE = "choose-1-die"
+    SKIP_PRISON_DAY = "skip-prison-day"
+    REROLL_GAME = "reroll-game"
+    EVADE_STREET_TAX = "evade-street-tax"
+    EVADE_MAP_TAX = "evade-map-tax"
+    GAME_HELP_ALLOWED = "game-help-allowed"
 
 
 class BonusCardStatus(Enum):
