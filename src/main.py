@@ -21,9 +21,11 @@ from src.api_models import (
 )
 from src.db import get_db
 from src.db_models import PlayerCard, PlayerGame, PlayerMove, PlayerScoreChange, User
+from src.enums import GameCompletionType
 from src.utils.auth import get_current_user
 from src.utils.common import safe_commit
 from src.utils.jwt import create_access_token, verify_password
+from typing_extensions import cast
 
 app = FastAPI()
 
@@ -88,9 +90,14 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         model.games = [
             UserGame(
                 sector_id=g.sector_id,
-                game_title=g.item_title,
-                game_length=g.item_length,
+                title=g.item_title,
+                length=g.item_length,
                 created_at=g.created_at,
+                status=cast(GameCompletionType, g.type),
+                review=g.item_review,
+                rating=g.item_rating,
+                duration=g.duration,
+                vod_links=g.vod_links,
             )
             for g in games
             if g.player_id == user.id

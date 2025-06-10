@@ -17,10 +17,15 @@ class BaseModel(PydanticBaseModel):
 
 
 class UserGame(BaseModel):
-    sector_id: int
-    game_title: str
-    game_length: str
     created_at: int
+    status: GameCompletionType
+    sector_id: int
+    title: str
+    review: str
+    rating: float
+    length: str
+    duration: int | None = None
+    vod_links: str | None = None
 
 
 class BonusCard(BaseModel):
