@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
+    BonusCard,
     CurrentUser,
     EventsList,
     GiveBonusCard,
@@ -76,6 +77,10 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
     users = users_query.scalars().all()
     games_query = await db.execute(select(PlayerGame))
     games = games_query.scalars().all()
+    cards_query = await db.execute(
+        select(PlayerCard).where(PlayerCard.status == "active")
+    )
+    cards = cards_query.scalars().all()
 
     users_models = []
     for user in users:
@@ -90,6 +95,18 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
             for g in games
             if g.player_id == user.id
         ]
+        model.games.sort(key=lambda x: x.created_at, reverse=True)
+
+        model.bonus_cards = [
+            BonusCard(
+                bonus_type=c.card_type,
+                received_at=c.created_at,
+                received_on_sector=c.received_on_sector,
+            )
+            for c in cards
+            if c.player_id == user.id
+        ]
+
         users_models.append(model)
     return {"players": users_models}
 
