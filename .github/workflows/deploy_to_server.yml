@@ -13,6 +13,8 @@ on:
         description: "Port for SSH"
       server_name:
         description: "Server name"
+      tg_token:
+        description: "TG token"
 
 jobs:
   deploy:
