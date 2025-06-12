@@ -1,0 +1,12 @@
+SCORES_BY_GAME_LENGTH = {
+    "2-5": 10,
+    "5-10": 20,
+    "10-15": 30,
+    "15-20": 40,
+    "20-25": 50,
+    "25+": 60,
+}
+
+
+STREET_INCOME_MULTILIER = 0.4
+STREET_TAX_PAYER_MULTILIER = 0.5
