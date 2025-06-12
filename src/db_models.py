@@ -48,14 +48,14 @@ class PlayerGame(DbBase):
         Integer, default=utc_now_ts, onupdate=utc_now_ts
     )
     duration: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    player_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     type: Mapped[str] = mapped_column(String(255), nullable=False)
     item_title: Mapped[str] = mapped_column(String(255), nullable=False)
     item_review: Mapped[str] = mapped_column(Text, nullable=False)
     item_rating: Mapped[float] = mapped_column(Integer, nullable=False)
     item_length: Mapped[str] = mapped_column(String(255), nullable=False)
     vod_links: Mapped[str] = mapped_column(String(255), nullable=True)
-    sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    sector_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
 
 
 class PlayerScoreChange(DbBase):
@@ -66,7 +66,7 @@ class PlayerScoreChange(DbBase):
     updated_at: Mapped[int] = mapped_column(
         Integer, default=utc_now_ts, onupdate=utc_now_ts
     )
-    player_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     score_change: Mapped[int] = mapped_column(Float, nullable=False)
     change_type: Mapped[str] = mapped_column(String(255), nullable=False)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -81,7 +81,7 @@ class PlayerCard(DbBase):
     updated_at: Mapped[int] = mapped_column(
         Integer, default=utc_now_ts, onupdate=utc_now_ts
     )
-    player_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     card_type: Mapped[str] = mapped_column(String(255), nullable=False)
     used_at: Mapped[int] = mapped_column(Integer, nullable=True)
     lost_at: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -99,7 +99,7 @@ class PlayerMove(DbBase):
     updated_at: Mapped[int] = mapped_column(
         Integer, default=utc_now_ts, onupdate=utc_now_ts
     )
-    player_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     adjusted_roll: Mapped[int] = mapped_column(Integer, nullable=False)
     random_org_roll: Mapped[int] = mapped_column(Integer, nullable=False)
     sector_from: Mapped[int] = mapped_column(Integer, nullable=False)
