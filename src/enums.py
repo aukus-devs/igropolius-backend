@@ -33,10 +33,16 @@ class PlayerMoveType(Enum):
     TRAIN_RIDE = "train-ride"
 
 
+class TaxType(Enum):
+    STREET_TAX = "street-tax"
+    MAP_TAX = "map-tax"
+
+
 class ScoreChangeType(Enum):
     GAME_COMPLETED = "game-completed"
     GAME_DROPPED = "game-dropped"
     STREET_TAX = "street-tax"
+    STREET_INCOME = "street-income"
     MAP_TAX = "map-tax"
 
 

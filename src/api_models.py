@@ -7,6 +7,7 @@ from src.enums import (
     PlayerMoveType,
     PlayerTurnState,
     ScoreChangeType,
+    TaxType,
 )
 
 
@@ -178,3 +179,7 @@ class RulesVersion(BaseModel):
 
 class RulesResponse(BaseModel):
     versions: list[RulesVersion] = []
+
+
+class PayTaxRequest(BaseModel):
+    tax_type: TaxType
