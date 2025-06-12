@@ -105,3 +105,14 @@ class PlayerMove(DbBase):
     sector_to: Mapped[int] = mapped_column(Integer, nullable=False)
     move_type: Mapped[str] = mapped_column(String(255), nullable=False)
     map_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+
+class Rules(DbBase):
+    __tablename__ = "rules"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    created_at: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
+    updated_at: Mapped[int] = mapped_column(
+        Integer, default=utc_now_ts, onupdate=utc_now_ts
+    )
+    content: Mapped[str] = mapped_column(Text, nullable=False)

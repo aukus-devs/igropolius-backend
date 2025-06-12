@@ -169,3 +169,12 @@ class EditPlayerGame(BaseModel):
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+
+class RuleItem(BaseModel):
+    content: str
+    created_at: int
+
+
+class RulesResponse(BaseModel):
+    rules: list[RuleItem] = []

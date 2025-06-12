@@ -1,4 +1,6 @@
+from datetime import datetime
 from typing import Annotated
+import json
 
 from fastapi import FastAPI, HTTPException, Response, status
 from fastapi.params import Depends
@@ -13,6 +15,7 @@ from src.api_models import (
     GiveBonusCard,
     LoginRequest,
     MakePlayerMove,
+    RulesResponse,
     SavePlayerGame,
     UpdatePlayerTurnState,
     UserGame,
@@ -20,7 +23,14 @@ from src.api_models import (
     UsersList,
 )
 from src.db import get_db
-from src.db_models import PlayerCard, PlayerGame, PlayerMove, PlayerScoreChange, User
+from src.db_models import (
+    PlayerCard,
+    PlayerGame,
+    PlayerMove,
+    PlayerScoreChange,
+    Rules,
+    User,
+)
 from src.enums import GameCompletionType
 from src.utils.auth import get_current_user
 from src.utils.common import safe_commit
@@ -230,3 +240,23 @@ async def receive_bonus_card(
     db.add(new_card)
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.get("/api/rules/current", response_model=RulesResponse)
+async def get_current_rules(
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    rules_query = await db.execute(select(Rules).order_by(Rules.created_at.desc()))
+    rules = rules_query.scalars().first()
+    if not rules:
+        return {
+            "rules": [
+                {
+                    "content": json.dumps(
+                        {"ops": [{"insert": "Пока ничего не добавили"}]}
+                    ),
+                    "created_at": round(datetime.now().timestamp()),
+                }
+            ]
+        }
+    return {"rules": [rules]}
