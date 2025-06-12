@@ -16,6 +16,7 @@ from src.api_models import (
     LoginRequest,
     MakePlayerMove,
     RulesResponse,
+    RulesVersion,
     SavePlayerGame,
     UpdatePlayerTurnState,
     UserGame,
@@ -269,3 +270,20 @@ async def get_all_rules_versions(
     rules_query = await db.execute(select(Rules).order_by(Rules.created_at.desc()))
     rules = rules_query.scalars().all()
     return {"versions": rules}
+
+
+@app.post("/api/rules")
+async def create_new_rules_version(
+    request: RulesVersion,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    # if current_user.username.lower() != "praden":
+    #     raise HTTPException(
+    #         status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
+    #     )
+
+    new_rule = Rules(content=request.content)
+    db.add(new_rule)
+    await safe_commit(db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
