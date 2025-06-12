@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
     BonusCard,
+    ChangePlayerScore,
     CurrentUser,
     EventsList,
     GiveBonusCard,
@@ -285,5 +286,48 @@ async def create_new_rules_version(
 
     new_rule = Rules(content=request.content)
     db.add(new_rule)
+    await safe_commit(db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.post("/api/player-scores")
+async def change_player_score(
+    request: ChangePlayerScore,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    score_change = PlayerScoreChange(
+        player_id=current_user.id,
+        score_change=request.amount,
+        reason=request.reason,
+        sector_id=request.sector_id,
+    )
+    db.add(score_change)
+
+    current_user.total_score += request.amount
+    await safe_commit(db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.post("/api/player/pay-tax")
+async def pay_tax(
+    request: ChangePlayerScore,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    if current_user.total_score < request.amount:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough score"
+        )
+
+    score_change = PlayerScoreChange(
+        player_id=current_user.id,
+        score_change=-request.amount,
+        reason=request.reason,
+        sector_id=request.sector_id,
+    )
+    db.add(score_change)
+
+    current_user.total_score -= request.amount
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

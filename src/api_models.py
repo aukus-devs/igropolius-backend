@@ -141,7 +141,7 @@ class ChangePlayerScore(BaseModel):
     type: ScoreChangeType
     amount: float
     sector_id: int
-    tax_player_id: int | None = None
+    reason: str
 
 
 class DiceRollResult(BaseModel):
