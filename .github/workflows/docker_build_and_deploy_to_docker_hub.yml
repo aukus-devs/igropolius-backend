@@ -34,6 +34,7 @@ jobs:
       username: ${{ secrets.USERNAME_SERVER1 }}
       password: ${{ secrets.PASSWORD_SERVER1 }}
       port: ${{ secrets.PORT_SERVER1 }}
+      server_name: "server1"
 
   call-deploy-to-server2:
     needs: build
@@ -43,3 +44,4 @@ jobs:
       username: ${{ secrets.USERNAME_SERVER2 }}
       password: ${{ secrets.PASSWORD_SERVER2 }}
       port: ${{ secrets.PORT_SERVER2 }}
+      server_name: "server2"
