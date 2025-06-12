@@ -243,14 +243,14 @@ async def receive_bonus_card(
 
 
 @app.get("/api/rules/current", response_model=RulesResponse)
-async def get_current_rules(
+async def get_current_rules_version(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     rules_query = await db.execute(select(Rules).order_by(Rules.created_at.desc()))
     rules = rules_query.scalars().first()
     if not rules:
         return {
-            "rules": [
+            "versions": [
                 {
                     "content": json.dumps(
                         {"ops": [{"insert": "Пока ничего не добавили"}]}
@@ -259,4 +259,13 @@ async def get_current_rules(
                 }
             ]
         }
-    return {"rules": [rules]}
+    return {"versions": [rules]}
+
+
+@app.get("/api/rules", response_model=RulesResponse)
+async def get_all_rules_versions(
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    rules_query = await db.execute(select(Rules).order_by(Rules.created_at.desc()))
+    rules = rules_query.scalars().all()
+    return {"versions": rules}

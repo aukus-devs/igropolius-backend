@@ -171,10 +171,10 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class RuleItem(BaseModel):
+class RulesVersion(BaseModel):
     content: str
     created_at: int
 
 
 class RulesResponse(BaseModel):
-    rules: list[RuleItem] = []
+    versions: list[RulesVersion] = []
