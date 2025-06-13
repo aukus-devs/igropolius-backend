@@ -295,7 +295,7 @@ async def create_new_rules_version(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.post("/api/player/current/pay-tax")
+@app.post("/api/players/current/pay-taxes")
 async def pay_tax(
     request: PayTaxRequest,
     current_user: Annotated[User, Depends(get_current_user)],
