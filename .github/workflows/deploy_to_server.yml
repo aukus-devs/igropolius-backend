@@ -30,12 +30,11 @@ jobs:
           command_timeout: 2m
           script: |
             cd /root/monopoly
-            docker compose stop backend || true
-            docker compose rm -f backend || true
             docker compose pull backend
             docker compose up -d --no-deps backend
             sleep 5
             docker ps --filter "name=backend" --format "{{.Status}}" | grep -q "Up" || (echo "Container is not running" && exit 1)
+            docker image prune -af
       - name: Success to telegram
         if: success()
         run: |
