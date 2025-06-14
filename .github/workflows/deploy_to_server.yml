@@ -30,6 +30,8 @@ jobs:
           command_timeout: 2m
           script: |
             cd /root/monopoly
+            docker compose stop backend || true
+            docker compose rm -f backend || true
             docker compose pull backend
             docker compose up -d --no-deps backend
             sleep 5
