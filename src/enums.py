@@ -4,12 +4,16 @@ from enum import Enum
 class PlayerTurnState(Enum):
     ROLLING_DICE = "rolling-dice"
     USING_DICE_BONUSES = "using-dice-bonuses"
-    USING_SECTOR_BONUSES = "using-sector-bonuses"
-    PLAYING_GAME = "playing-game"
+    USING_PRISON_BONUSES = "using-prison-bonuses"
     ROLLING_BONUS_CARD = "rolling-bonus-card"
     USING_REROLL_BONUSES = "using-reroll-bonuses"
     FILLING_GAME_REVIEW = "filling-game-review"
     CHOOSING_TRAIN_RIDE = "choosing-train-ride"
+    USING_MAP_TAX_BONUSES = "using-map-tax-bonuses"
+    USING_STREET_TAX_BONUSES = "using-street-tax-bonuses"
+    ENTERING_PRISON = "entering-prison"
+    STEALING_BONUS_CARD = "stealing-bonus-card"
+    CHOOSING_BUILDING_SECTOR = "choosing-building-sector"
 
 
 class MainBonusCardType(Enum):

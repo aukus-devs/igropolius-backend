@@ -2,7 +2,7 @@
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from src.db_models import DbBase
-from .config import DATABASE_URL, IS_LOCAL
+from .config import DATABASE_URL
 import asyncio
 
 is_sqlite = DATABASE_URL.startswith("sqlite")

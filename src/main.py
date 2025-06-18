@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
     BonusCard,
-    ChangePlayerScore,
     CurrentUser,
     EventsList,
     GiveBonusCard,
@@ -308,9 +307,10 @@ async def pay_tax(
             player_id=current_user.id,
             score_change=-tax_amount,
             change_type=ScoreChangeType.MAP_TAX.value,
-            description="map tax",
+            description="map tax 5%",
             sector_id=current_user.sector_id,
         )
+        current_user.total_score -= tax_amount
         db.add(score_change)
         await safe_commit(db)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
