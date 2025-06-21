@@ -161,3 +161,5 @@ websockets==15.0.1
     # via uvicorn
 
 mysqlclient==2.2.7
+requests==2.32.4
+lxml==5.4.0

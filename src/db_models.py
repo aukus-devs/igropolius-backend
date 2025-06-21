@@ -3,7 +3,7 @@ from sqlalchemy import Integer, String, Float, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.decl_api import declarative_base
 
-from src.enums import PlayerTurnState
+from src.enums import PlayerTurnState, StreamPlatform
 from src.utils.db import utc_now_ts
 
 DbBase = declarative_base()
@@ -24,6 +24,7 @@ class User(DbBase):
     current_auc_total_sum: Mapped[float] = mapped_column(Float, nullable=True)
     current_auc_started_at: Mapped[int] = mapped_column(Integer, nullable=True)
     pointauc_token: Mapped[str] = mapped_column(String(255), nullable=True)
+    main_platform: Mapped[str] = mapped_column(String(255), default=StreamPlatform.NONE.value, nullable=False)
     twitch_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)
     vk_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)
     kick_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)

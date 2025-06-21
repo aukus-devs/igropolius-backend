@@ -25,6 +25,7 @@ from src.api_models import (
     RulesResponse,
     RulesVersion,
     SavePlayerGame,
+    StreamCheckResponse,
     StealBonusCardRequest,
     UpdatePlayerTurnState,
     UserGame,
@@ -527,3 +528,39 @@ async def steal_bonus_card(
     db.add(new_card)
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+
+@app.get("/api/streams/refresh", response_model=StreamCheckResponse)
+async def refresh_streams(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    from src.stream_checker import refresh_stream_statuses
+    
+    try:
+        stats = await refresh_stream_statuses(db)
+        
+        if stats.get("errors"):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "success": False,
+                    "stats": stats
+                }
+            )
+        
+        return StreamCheckResponse(
+            success=True,
+            stats=stats
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "success": False,
+                "stats": {}
+            }
+        )

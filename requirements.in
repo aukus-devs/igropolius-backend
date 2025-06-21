@@ -6,3 +6,5 @@ bcrypt<4.0
 asyncmy
 aiosqlite
 asyncpg
+requests
+lxml

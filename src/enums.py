@@ -63,3 +63,10 @@ class GameCompletionType(Enum):
     COMPLETED = "completed"
     DROP = "drop"
     REROLL = "reroll"
+
+
+class StreamPlatform(Enum):
+    TWITCH = "twitch"
+    VK = "vk"
+    KICK = "kick"
+    NONE = "none"

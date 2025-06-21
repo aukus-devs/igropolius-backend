@@ -7,6 +7,7 @@ from src.enums import (
     PlayerMoveType,
     PlayerTurnState,
     ScoreChangeType,
+    StreamPlatform,
     TaxType,
 )
 
@@ -48,6 +49,7 @@ class UserSummary(BaseModel):
     current_auc_total_sum: float | None = None
     current_auc_started_at: int | None = None
     pointauc_token: str | None = None
+    main_platform: StreamPlatform = StreamPlatform.NONE
     twitch_stream_link: str | None = None
     vk_stream_link: str | None = None
     kick_stream_link: str | None = None
@@ -213,3 +215,8 @@ class IgdbGamesSearchRequest(BaseModel):
 class StealBonusCardRequest(BaseModel):
     player_id: int
     bonus_type: MainBonusCardType
+
+
+class StreamCheckResponse(BaseModel):
+    success: bool
+    stats: dict

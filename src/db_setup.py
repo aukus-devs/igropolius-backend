@@ -5,13 +5,14 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session, init_db_async
 from src.db_models import User, IgdbGame
-from src.enums import PlayerTurnState
+from src.enums import PlayerTurnState, StreamPlatform
 from src.utils.jwt import hash_password
 
 
 class UserData(BaseModel):
     username: str
     first_name: str
+    main_platform: StreamPlatform = StreamPlatform.NONE
     twitch_stream_link: str | None = None
     vk_stream_link: str | None = None
     kick_stream_link: str | None = None
@@ -30,6 +31,7 @@ defined_users = [
     UserData(
         username="Praden",
         first_name="Денис",
+        main_platform=StreamPlatform.TWITCH,
         twitch_stream_link="https://www.twitch.tv/praden",
         vk_stream_link="https://live.vkvideo.ru/praden",
         kick_stream_link="https://kick.com/praden",
@@ -89,6 +91,7 @@ def make_user(user_data: UserData):
         current_auc_total_sum=None,
         current_auc_started_at=None,
         pointauc_token=None,
+        main_platform=user_data.main_platform.value,
         twitch_stream_link=user_data.twitch_stream_link,
         vk_stream_link=user_data.vk_stream_link,
         kick_stream_link=user_data.kick_stream_link,
