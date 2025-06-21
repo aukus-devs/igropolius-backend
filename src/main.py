@@ -315,6 +315,8 @@ async def save_player_game(
     db.add(score_change)
 
     current_user.total_score += request.scores
+    current_user.current_game = None
+    current_user.current_game_updated_at = None
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

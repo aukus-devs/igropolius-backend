@@ -5,7 +5,7 @@ import logging
 from typing import Dict, Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.db_models import User
+from src.db_models import User, PlayerGame
 from src.utils.db import safe_commit, utc_now_ts
 from src.utils.category_history import save_category_history
 from src.enums import StreamPlatform
@@ -17,6 +17,18 @@ twitch_headers = {
     "Client-ID": os.getenv("TWITCH_CLIENT_ID"),
     "Authorization": os.getenv("TWITCH_BEARER_TOKEN"),
 }
+
+
+async def _player_has_completed_game(db: AsyncSession, player_id: int, game_name: str) -> bool:
+    query = await db.execute(
+        select(PlayerGame)
+        .where(PlayerGame.player_id == player_id)
+        .where(PlayerGame.item_title == game_name)
+        .limit(1)
+    )
+    
+    existing_game = query.scalars().first()
+    return existing_game is not None
 
 
 async def refresh_stream_statuses(db: AsyncSession) -> Dict[str, Any]:
@@ -86,14 +98,21 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
             game_name = stream["game_name"]
             viewer_count = int(stream["viewer_count"])
 
+            has_completed_game = await _player_has_completed_game(db, player.id, game_name)
+
             if game_name != player.current_game or not player.is_online:
-                player.is_online = 1
-                player.online_count = viewer_count
-                player.current_game = game_name
-                player.current_game_updated_at = utc_now_ts()
-                
-                await save_category_history(db, player.id, game_name)
-                return True
+                if not has_completed_game:
+                    player.is_online = 1
+                    player.online_count = viewer_count
+                    player.current_game = game_name
+                    player.current_game_updated_at = utc_now_ts()
+                    
+                    await save_category_history(db, player.id, game_name)
+                    return True
+                else:
+                    player.is_online = 1
+                    player.online_count = viewer_count
+                    return True
             else:
                 player.online_count = viewer_count
                 return True
@@ -135,14 +154,21 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
             category = category_xpath[0].text
             online_count = int(online_count_xpath[0].text.replace(",", ""))
 
+            has_completed_game = await _player_has_completed_game(db, player.id, category)
+
             if category != player.current_game or not player.is_online:
-                player.is_online = 1
-                player.online_count = online_count
-                player.current_game = category
-                player.current_game_updated_at = utc_now_ts()
-                
-                await save_category_history(db, player.id, category)
-                return True
+                if not has_completed_game:
+                    player.is_online = 1
+                    player.online_count = online_count
+                    player.current_game = category
+                    player.current_game_updated_at = utc_now_ts()
+                    
+                    await save_category_history(db, player.id, category)
+                    return True
+                else:
+                    player.is_online = 1
+                    player.online_count = online_count
+                    return True
             else:
                 player.online_count = online_count
                 return True

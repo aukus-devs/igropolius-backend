@@ -112,4 +112,4 @@ async def get_current_game_duration(
     if total_seconds <= 0:
         return None
     
-    return total_seconds 
+    return int(total_seconds) 
