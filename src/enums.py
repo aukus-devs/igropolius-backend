@@ -30,6 +30,7 @@ class BonusCardStatus(Enum):
     ACTIVE = "active"
     USED = "used"
     LOST = "lost"
+    STOLEN = "stolen"
 
 
 class PlayerMoveType(Enum):

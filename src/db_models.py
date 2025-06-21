@@ -84,12 +84,15 @@ class PlayerCard(DbBase):
     )
     player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     card_type: Mapped[str] = mapped_column(String(255), nullable=False)
-    used_at: Mapped[int] = mapped_column(Integer, nullable=True)
-    lost_at: Mapped[int] = mapped_column(Integer, nullable=True)
     status: Mapped[str] = mapped_column(String(255), nullable=False, default="active")
     received_on_sector: Mapped[int] = mapped_column(Integer, nullable=False)
+    used_at: Mapped[int] = mapped_column(Integer, nullable=True)
     used_on_sector: Mapped[int] = mapped_column(Integer, nullable=True)
+    lost_at: Mapped[int] = mapped_column(Integer, nullable=True)
     lost_on_sector: Mapped[int] = mapped_column(Integer, nullable=True)
+    stolen_at: Mapped[int] = mapped_column(Integer, nullable=True)
+    stolen_by: Mapped[int] = mapped_column(Integer, nullable=True)
+    stolen_from_player: Mapped[int] = mapped_column(Integer, nullable=True)
 
 
 class PlayerMove(DbBase):

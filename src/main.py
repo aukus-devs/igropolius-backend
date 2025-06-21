@@ -22,6 +22,7 @@ from src.api_models import (
     RulesResponse,
     RulesVersion,
     SavePlayerGame,
+    StealBonusCardRequest,
     UpdatePlayerTurnState,
     UserGame,
     UserSummary,
@@ -101,7 +102,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         select(PlayerCard).where(PlayerCard.status == "active")
     )
     cards = cards_query.scalars().all()
-    
+
     game_ids = {g.game_id for g in games if g.game_id is not None}
     igdb_games_dict = {}
     if game_ids:
@@ -125,7 +126,9 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
                 rating=g.item_rating,
                 duration=g.duration,
                 vod_links=g.vod_links,
-                cover=igdb_games_dict[g.game_id].cover if g.game_id and g.game_id in igdb_games_dict else None,
+                cover=igdb_games_dict[g.game_id].cover
+                if g.game_id and g.game_id in igdb_games_dict
+                else None,
             )
             for g in games
             if g.player_id == user.id
@@ -226,38 +229,6 @@ async def save_player_game(
 
     current_user.total_score += request.scores
 
-    await safe_commit(db)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@app.post("/api/players/current/bonus-cards")
-async def receive_bonus_card(
-    request: GiveBonusCard,
-    current_user: Annotated[User, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(get_db)],
-):
-    cards_query = await db.execute(
-        select(PlayerCard)
-        .where(PlayerCard.player_id == current_user.id)
-        .where(PlayerCard.status == "active")
-    )
-    cards = cards_query.scalars().all()
-    card = request.bonus_type.value
-    is_new_card = card not in [c.card_type for c in cards]
-
-    if not is_new_card:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Bonus card already received",
-        )
-
-    new_card = PlayerCard(
-        player_id=current_user.id,
-        card_type=card,
-        received_on_sector=current_user.sector_id,
-        status="active",
-    )
-    db.add(new_card)
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -379,13 +350,13 @@ async def search_igdb_games_get(
     query: str,
     limit: int = 20,
 ):
-    search_query = select(IgdbGame).where(
-        IgdbGame.name.ilike(f"%{query}%")
-    ).limit(limit)
-    
+    search_query = (
+        select(IgdbGame).where(IgdbGame.name.ilike(f"%{query}%")).limit(limit)
+    )
+
     result = await db.execute(search_query)
     games = result.scalars().all()
-    
+
     return {"games": games}
 
 
@@ -398,11 +369,85 @@ async def get_igdb_game(
     query = select(IgdbGame).where(IgdbGame.id == game_id)
     result = await db.execute(query)
     game = result.scalars().first()
-    
+
     if not game:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Game not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Game not found"
         )
-    
+
     return game
+
+
+@app.post("/api/bonus-cards")
+async def receive_bonus_card(
+    request: GiveBonusCard,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    cards_query = await db.execute(
+        select(PlayerCard)
+        .where(PlayerCard.player_id == current_user.id)
+        .where(PlayerCard.status == "active")
+    )
+    cards = cards_query.scalars().all()
+    card = request.bonus_type.value
+    is_new_card = card not in [c.card_type for c in cards]
+
+    if not is_new_card:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Bonus card already received",
+        )
+
+    new_card = PlayerCard(
+        player_id=current_user.id,
+        card_type=card,
+        received_on_sector=current_user.sector_id,
+        status="active",
+    )
+    db.add(new_card)
+    await safe_commit(db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.post("/api/bonus-cards/steal")
+async def steal_bonus_card(
+    request: StealBonusCardRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    if request.player_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot steal your own bonus card",
+        )
+
+    cards_query = await db.execute(
+        select(PlayerCard)
+        .where(PlayerCard.player_id == request.player_id)
+        .where(PlayerCard.status == "active")
+        .where(PlayerCard.card_type == request.bonus_type.value)
+        .with_for_update()
+    )
+    card = cards_query.scalars().first()
+
+    if not card:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No active bonus cards found for this player",
+        )
+
+    card.status = "stolen"
+    card.stolen_at = round(datetime.now().timestamp())
+    card.stolen_by = current_user.id
+
+    new_card = PlayerCard(
+        player_id=current_user.id,
+        card_type=card.card_type,
+        received_on_sector=current_user.sector_id,
+        stolen_from_player=request.player_id,
+        status="active",
+    )
+    db.add(new_card)
+    await safe_commit(db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -201,3 +201,8 @@ class IgdbGamesList(BaseModel):
 class IgdbGamesSearchRequest(BaseModel):
     query: str
     limit: int = 20
+
+
+class StealBonusCardRequest(BaseModel):
+    player_id: int
+    bonus_type: MainBonusCardType
