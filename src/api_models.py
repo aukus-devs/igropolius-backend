@@ -44,6 +44,7 @@ class UserSummary(BaseModel):
     url_handle: str
     is_online: bool
     current_game: str | None = None
+    current_game_cover: str | None = None
     current_game_updated_at: int | None = None
     current_game_duration: int | None = None
     online_count: int = 0

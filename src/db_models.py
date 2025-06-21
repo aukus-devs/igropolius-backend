@@ -19,6 +19,7 @@ class User(DbBase):
     url_handle: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     is_online: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     current_game: Mapped[str] = mapped_column(String(255), nullable=True)
+    current_game_cover: Mapped[str] = mapped_column(String(255), nullable=True)
     current_game_updated_at: Mapped[int] = mapped_column(Integer, nullable=True)
     online_count: Mapped[int] = mapped_column(Integer, default=0)
     current_auc_total_sum: Mapped[float] = mapped_column(Float, nullable=True)

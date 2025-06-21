@@ -5,7 +5,7 @@ import logging
 from typing import Dict, Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.db_models import User, PlayerGame
+from src.db_models import User, PlayerGame, IgdbGame
 from src.utils.db import safe_commit, utc_now_ts
 from src.utils.category_history import save_category_history
 from src.enums import StreamPlatform
@@ -29,6 +29,17 @@ async def _player_has_completed_game(db: AsyncSession, player_id: int, game_name
     
     existing_game = query.scalars().first()
     return existing_game is not None
+
+
+async def _get_game_cover(db: AsyncSession, game_name: str) -> str | None:
+    query = await db.execute(
+        select(IgdbGame.cover)
+        .where(IgdbGame.name == game_name)
+        .limit(1)
+    )
+    
+    result = query.scalar_one_or_none()
+    return result
 
 
 async def refresh_stream_statuses(db: AsyncSession) -> Dict[str, Any]:
@@ -105,6 +116,10 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
                     player.is_online = 1
                     player.online_count = viewer_count
                     player.current_game = game_name
+                    if not player.current_game_cover:
+                        game_cover = await _get_game_cover(db, game_name)
+                        player.current_game_cover = game_cover
+
                     player.current_game_updated_at = utc_now_ts()
                     
                     await save_category_history(db, player.id, game_name)
@@ -120,17 +135,13 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
             if player.is_online:
                 player.is_online = 0
                 player.online_count = 0
-                player.current_game = None
-                player.current_game_updated_at = utc_now_ts()
                 
                 await save_category_history(db, player.id, "Offline")
                 return True
 
     except Exception as e:
         logger.error(f"Error checking Twitch for {player.username}: {str(e)}")
-        if player.is_online:
-            player.is_online = 0
-            player.online_count = 0
+
         raise
 
     return False
@@ -161,6 +172,10 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
                     player.is_online = 1
                     player.online_count = online_count
                     player.current_game = category
+                    if not player.current_game_cover:
+                        game_cover = await _get_game_cover(db, category)
+                        player.current_game_cover = game_cover
+
                     player.current_game_updated_at = utc_now_ts()
                     
                     await save_category_history(db, player.id, category)
@@ -176,17 +191,12 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
             if player.is_online:
                 player.is_online = 0
                 player.online_count = 0
-                player.current_game = None
-                player.current_game_updated_at = utc_now_ts()
                 
                 await save_category_history(db, player.id, "Offline")
                 return True
 
     except Exception as e:
         logger.error(f"Error checking VK Play for {player.username}: {str(e)}")
-        if player.is_online:
-            player.is_online = 0
-            player.online_count = 0
         raise
 
     return False
