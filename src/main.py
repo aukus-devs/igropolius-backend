@@ -1,3 +1,4 @@
+from src.api_models import BonusCardEvent, GameEvent, ScoreChangeEvent
 from src.consts import SCORES_BY_GAME_LENGTH
 from datetime import datetime
 from typing import Annotated
@@ -18,6 +19,7 @@ from src.api_models import (
     IgdbGamesSearchRequest,
     LoginRequest,
     MakePlayerMove,
+    MoveEvent,
     PayTaxRequest,
     RulesResponse,
     RulesVersion,
@@ -38,7 +40,14 @@ from src.db_models import (
     Rules,
     User,
 )
-from src.enums import GameCompletionType, ScoreChangeType, TaxType
+from src.enums import (
+    BonusCardEventType,
+    GameCompletionType,
+    MainBonusCardType,
+    PlayerMoveType,
+    ScoreChangeType,
+    TaxType,
+)
 from src.utils.auth import get_current_user
 from src.utils.common import safe_commit
 from src.utils.jwt import create_access_token, verify_password
@@ -154,7 +163,67 @@ async def get_player_events(
     player_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    return {"events": []}
+    moves_query = await db.execute(
+        select(PlayerMove).where(PlayerMove.player_id == player_id)
+    )
+    moves = moves_query.scalars().all()
+    move_events = [
+        MoveEvent(
+            subtype=PlayerMoveType(e.move_type),
+            sector_from=e.sector_from,
+            sector_to=e.sector_to,
+            map_completed=bool(e.map_completed),
+            adjusted_roll=e.adjusted_roll,
+            dice_roll=[],
+            timestamp=e.created_at,
+        )
+        for e in moves
+    ]
+
+    games_query = await db.execute(
+        select(PlayerGame).where(PlayerGame.player_id == player_id)
+    )
+    games = games_query.scalars().all()
+    game_events = [
+        GameEvent(
+            subtype=GameCompletionType(e.type),
+            game_title=e.item_title,
+            sector_id=e.sector_id,
+            timestamp=e.created_at,
+        )
+        for e in games
+    ]
+
+    cards_query = await db.execute(
+        select(PlayerCard).where(PlayerCard.player_id == player_id)
+    )
+    cards = cards_query.scalars().all()
+    bonus_card_events = [
+        BonusCardEvent(
+            subtype=BonusCardEventType(e.status),
+            bonus_type=MainBonusCardType(e.card_type),
+            sector_id=e.received_on_sector,
+            timestamp=e.created_at,
+        )
+        for e in cards
+    ]
+
+    scores_query = await db.execute(
+        select(PlayerScoreChange).where(PlayerScoreChange.player_id == player_id)
+    )
+    score_changes = scores_query.scalars().all()
+    score_change_events = [
+        ScoreChangeEvent(
+            subtype=ScoreChangeType(e.change_type),
+            amount=e.score_change,
+            reason=e.description,
+            sector_id=e.sector_id,
+            timestamp=e.created_at,
+        )
+        for e in score_changes
+    ]
+    all_events = move_events + game_events + bonus_card_events + score_change_events
+    return {"events": all_events}
 
 
 @app.post("/api/players/current/moves")
@@ -346,7 +415,6 @@ async def pay_tax(
 @app.get("/api/igdb/games/search", response_model=IgdbGamesList)
 async def search_igdb_games_get(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
     query: str,
     limit: int = 20,
 ):
@@ -364,7 +432,6 @@ async def search_igdb_games_get(
 async def get_igdb_game(
     game_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
 ):
     query = select(IgdbGame).where(IgdbGame.id == game_id)
     result = await db.execute(query)

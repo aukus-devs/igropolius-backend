@@ -68,7 +68,7 @@ class PlayerScoreChange(DbBase):
         Integer, default=utc_now_ts, onupdate=utc_now_ts
     )
     player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
-    score_change: Mapped[int] = mapped_column(Float, nullable=False)
+    score_change: Mapped[float] = mapped_column(Float, nullable=False)
     change_type: Mapped[str] = mapped_column(String(255), nullable=False)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=True)

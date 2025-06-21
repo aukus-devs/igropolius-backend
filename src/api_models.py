@@ -94,9 +94,9 @@ class MoveEvent(UserEventBase):
 
 
 class ScoreChangeEvent(UserEventBase):
-    event_type: str = "score-changed"
+    event_type: str = "score-change"
     subtype: ScoreChangeType
-    score_change: float
+    amount: float
     reason: str
     sector_id: int
 
