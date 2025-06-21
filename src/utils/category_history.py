@@ -1,6 +1,6 @@
 import re
 from typing import Optional, Dict, Any
-from sqlalchemy import select, text, func
+from sqlalchemy import select, text, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db_models import CategoryHistory, User
 from src.utils.db import safe_commit, utc_now_ts
@@ -22,6 +22,21 @@ async def save_category_history(
     )
     
     db.add(category_history)
+
+
+async def find_category_by_prefix(
+    db: AsyncSession,
+    player_id: int,
+    prefix: str,
+    limit: int = 1
+) -> Optional[str]:
+    query = select(CategoryHistory.category_name).where(
+        CategoryHistory.player_id == player_id,
+        CategoryHistory.category_name.ilike(f"{prefix}%")
+    ).order_by(desc(CategoryHistory.category_date)).limit(limit)
+    
+    result = await db.execute(query)
+    return result.scalars().first()
 
 
 async def calculate_time_by_category_name(
@@ -69,12 +84,12 @@ async def calculate_time_by_category_name(
         "current_time": utc_now_ts()
     })
     
-    row = result.fetchone()
+    row = result.first()
     
     if row is None:
         return {"total_difference_in_seconds": 0}
     else:
-        return {"total_difference_in_seconds": row[1] or 0}
+        return {"total_difference_in_seconds": row.total_difference_in_seconds or 0}
 
 
 async def get_player_categories_stats(
@@ -93,7 +108,7 @@ async def get_player_categories_stats(
     )
     
     result = await db.execute(query)
-    rows = result.fetchall()
+    rows = result.all()
     
     return {row.category_name: row.count for row in rows}
 
@@ -112,4 +127,21 @@ async def get_current_game_duration(
     if total_seconds <= 0:
         return None
     
-    return int(total_seconds) 
+    return int(total_seconds)
+
+
+async def calculate_game_duration_by_title_prefix(
+    db: AsyncSession,
+    game_title: str,
+    player_id: int,
+    prefix_length: int = 4
+) -> int:
+    prefix = game_title[:prefix_length]
+    
+    found_category = await find_category_by_prefix(db, player_id, prefix)
+    
+    if not found_category:
+        return 0
+    
+    result = await calculate_time_by_category_name(db, found_category, player_id)
+    return int(result.get("total_difference_in_seconds", 0) or 0) 

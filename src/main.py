@@ -52,7 +52,7 @@ from src.enums import (
 from src.utils.auth import get_current_user
 from src.utils.db import safe_commit
 from src.utils.jwt import create_access_token, verify_password
-from src.utils.category_history import get_current_game_duration, calculate_time_by_category_name
+from src.utils.category_history import get_current_game_duration, calculate_game_duration_by_title_prefix
 from typing_extensions import cast
 from src.consts import STREET_INCOME_MULTILIER
 from src.consts import STREET_TAX_PAYER_MULTILIER
@@ -286,8 +286,7 @@ async def save_player_game(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     try:
-        duration_result = await calculate_time_by_category_name(db, request.title, current_user.id)
-        game_duration = int(duration_result.get("total_difference_in_seconds", 0) or 0)
+        game_duration = await calculate_game_duration_by_title_prefix(db, request.title, current_user.id)
     except Exception:
         game_duration = 0
     
