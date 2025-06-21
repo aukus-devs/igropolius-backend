@@ -27,6 +27,7 @@ class UserGame(BaseModel):
     length: str
     duration: int | None = None
     vod_links: str | None = None
+    cover: str | None = None
 
 
 class BonusCard(BaseModel):
@@ -159,6 +160,7 @@ class SavePlayerGame(BaseModel):
     length: str
     vod_links: str | None = None
     scores: float
+    game_id: int | None = None
 
 
 class EditPlayerGame(BaseModel):

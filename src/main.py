@@ -101,6 +101,15 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         select(PlayerCard).where(PlayerCard.status == "active")
     )
     cards = cards_query.scalars().all()
+    
+    game_ids = {g.game_id for g in games if g.game_id is not None}
+    igdb_games_dict = {}
+    if game_ids:
+        igdb_games_query = await db.execute(
+            select(IgdbGame).where(IgdbGame.id.in_(game_ids))
+        )
+        igdb_games = igdb_games_query.scalars().all()
+        igdb_games_dict = {game.id: game for game in igdb_games}
 
     users_models = []
     for user in users:
@@ -116,6 +125,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
                 rating=g.item_rating,
                 duration=g.duration,
                 vod_links=g.vod_links,
+                cover=igdb_games_dict[g.game_id].cover if g.game_id and g.game_id in igdb_games_dict else None,
             )
             for g in games
             if g.player_id == user.id
@@ -201,6 +211,7 @@ async def save_player_game(
         item_length=request.length,
         vod_links=request.vod_links,
         sector_id=current_user.sector_id,
+        game_id=request.game_id,
     )
     db.add(game)
 
