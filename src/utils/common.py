@@ -1,22 +1,5 @@
-from datetime import datetime, timezone
-
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.db_models import PlayerCard
 from src.enums import BonusCardEventType
-
-
-def utc_now_ts():
-    utc_now = datetime.now(timezone.utc)
-    return int(utc_now.timestamp())
-
-
-async def safe_commit(session: AsyncSession):
-    try:
-        await session.commit()
-    except Exception:
-        await session.rollback()
-        raise
 
 
 def map_bonus_card_to_event_type(card: PlayerCard) -> BonusCardEventType:

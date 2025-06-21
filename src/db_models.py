@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.decl_api import declarative_base
 
 from src.enums import PlayerTurnState
-from src.utils.common import utc_now_ts
+from src.utils.db import utc_now_ts
 
 DbBase = declarative_base()
 

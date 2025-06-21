@@ -42,7 +42,6 @@ from src.db_models import (
     User,
 )
 from src.enums import (
-    BonusCardEventType,
     GameCompletionType,
     MainBonusCardType,
     PlayerMoveType,
@@ -50,7 +49,7 @@ from src.enums import (
     TaxType,
 )
 from src.utils.auth import get_current_user
-from src.utils.common import safe_commit
+from src.utils.db import safe_commit
 from src.utils.jwt import create_access_token, verify_password
 from typing_extensions import cast
 from src.consts import STREET_INCOME_MULTILIER
