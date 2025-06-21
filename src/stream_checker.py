@@ -34,7 +34,7 @@ async def _player_has_completed_game(db: AsyncSession, player_id: int, game_name
 async def _get_game_cover(db: AsyncSession, game_name: str) -> str | None:
     query = await db.execute(
         select(IgdbGame.cover)
-        .where(IgdbGame.name == game_name)
+        .where(IgdbGame.name.ilike(f'%{game_name}%'))
         .limit(1)
     )
     
