@@ -135,7 +135,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
                 status=cast(GameCompletionType, g.type),
                 review=g.item_review,
                 rating=g.item_rating,
-                duration_seconds=g.duration,
+                duration=g.duration,
                 vod_links=g.vod_links,
                 cover=igdb_games_dict[g.game_id].cover
                 if g.game_id and g.game_id in igdb_games_dict
@@ -156,7 +156,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
             if c.player_id == user.id
         ]
 
-        model.current_game_duration_seconds = await get_current_game_duration(db, user.id, user.current_game)
+        model.current_game_duration = await get_current_game_duration(db, user.id, user.current_game)
 
         users_models.append(model)
     return {"players": users_models}

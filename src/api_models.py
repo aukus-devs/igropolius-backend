@@ -26,7 +26,7 @@ class UserGame(BaseModel):
     review: str
     rating: float
     length: str
-    duration_seconds: int | None = None
+    duration: int | None = None
     vod_links: str | None = None
     cover: str | None = None
 
@@ -45,7 +45,7 @@ class UserSummary(BaseModel):
     is_online: bool
     current_game: str | None = None
     current_game_updated_at: int | None = None
-    current_game_duration_seconds: int | None = None
+    current_game_duration: int | None = None
     online_count: int = 0
     current_auc_total_sum: float | None = None
     current_auc_started_at: int | None = None
