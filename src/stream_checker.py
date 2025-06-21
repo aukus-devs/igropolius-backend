@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db_models import User
 from src.utils.db import safe_commit, utc_now_ts
+from src.utils.category_history import save_category_history
 from src.enums import StreamPlatform
 
 logging.basicConfig(level=logging.INFO)
@@ -90,6 +91,8 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
                 player.online_count = viewer_count
                 player.current_game = game_name
                 player.current_game_updated_at = utc_now_ts()
+                
+                await save_category_history(db, player.id, game_name)
                 return True
             else:
                 player.online_count = viewer_count
@@ -100,6 +103,8 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
                 player.online_count = 0
                 player.current_game = None
                 player.current_game_updated_at = utc_now_ts()
+                
+                await save_category_history(db, player.id, "Offline")
                 return True
 
     except Exception as e:
@@ -135,6 +140,8 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
                 player.online_count = online_count
                 player.current_game = category
                 player.current_game_updated_at = utc_now_ts()
+                
+                await save_category_history(db, player.id, category)
                 return True
             else:
                 player.online_count = online_count
@@ -145,6 +152,8 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
                 player.online_count = 0
                 player.current_game = None
                 player.current_game_updated_at = utc_now_ts()
+                
+                await save_category_history(db, player.id, "Offline")
                 return True
 
     except Exception as e:

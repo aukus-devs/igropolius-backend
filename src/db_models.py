@@ -131,3 +131,12 @@ class IgdbGame(DbBase):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     cover: Mapped[str] = mapped_column(Text, nullable=True)
     release_year: Mapped[int] = mapped_column(Integer, nullable=True)
+
+
+class CategoryHistory(DbBase):
+    __tablename__ = "categories_history"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    category_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    category_date: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
