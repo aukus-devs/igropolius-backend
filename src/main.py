@@ -1,3 +1,4 @@
+from src.utils.common import map_bonus_card_to_event_type
 from src.api_models import BonusCardEvent, GameEvent, ScoreChangeEvent
 from src.consts import SCORES_BY_GAME_LENGTH
 from datetime import datetime
@@ -200,10 +201,17 @@ async def get_player_events(
     cards = cards_query.scalars().all()
     bonus_card_events = [
         BonusCardEvent(
-            subtype=BonusCardEventType(e.status),
+            subtype=map_bonus_card_to_event_type(e),
             bonus_type=MainBonusCardType(e.card_type),
             sector_id=e.received_on_sector,
             timestamp=e.created_at,
+            used_at=e.used_at,
+            used_on_sector=e.used_on_sector,
+            lost_at=e.lost_at,
+            lost_on_sector=e.lost_on_sector,
+            stolen_at=e.stolen_at,
+            stolen_from_player=e.stolen_from_player,
+            stolen_by=e.stolen_by,
         )
         for e in cards
     ]

@@ -106,6 +106,13 @@ class BonusCardEvent(UserEventBase):
     subtype: BonusCardEventType
     bonus_type: MainBonusCardType
     sector_id: int
+    used_at: int | None = None
+    used_on_sector: int | None = None
+    lost_at: int | None = None
+    lost_on_sector: int | None = None
+    stolen_at: int | None = None
+    stolen_from_player: int | None = None
+    stolen_by: int | None = None
 
 
 class GameEvent(UserEventBase):

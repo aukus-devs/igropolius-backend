@@ -55,6 +55,8 @@ class BonusCardEventType(Enum):
     RECEIVED = "received"
     USED = "used"
     LOST = "lost"
+    STOLEN = "stolen"
+    LOOTED = "looted"
 
 
 class GameCompletionType(Enum):
