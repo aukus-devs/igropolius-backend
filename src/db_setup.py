@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session, init_db_async
-from src.db_models import User
+from src.db_models import User, IgdbGame
 from src.enums import PlayerTurnState
 from src.utils.jwt import hash_password
 
@@ -18,6 +18,12 @@ class UserData(BaseModel):
     telegram_link: str | None = None
     donation_link: str | None = None
     is_active: int = 1
+
+
+class GameData(BaseModel):
+    name: str
+    cover: str | None = None
+    release_year: int | None = None
 
 
 defined_users = [
@@ -37,6 +43,34 @@ defined_users = [
     UserData(username="Player-6", first_name="Player6"),
     UserData(username="Player-7", first_name="Player7"),
     UserData(username="Player-8", first_name="Player8"),
+]
+
+defined_games = [
+    GameData(
+        name="The Witcher 3: Wild Hunt",
+        cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.webp",
+        release_year=2015
+    ),
+    GameData(
+        name="Cyberpunk 2077",
+        cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co7497.webp",
+        release_year=2020
+    ),
+    GameData(
+        name="Red Dead Redemption 2",
+        cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co1q1f.webp",
+        release_year=2018
+    ),
+    GameData(
+        name="Grand Theft Auto V",
+        cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co2lbd.webp",
+        release_year=2013
+    ),
+    GameData(
+        name="Dark Souls III",
+        cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co1vcf.webp",
+        release_year=2016
+    ),
 ]
 
 
@@ -74,6 +108,19 @@ def create_user(db: AsyncSession, user_data: UserData):
     db.add(user)
 
 
+def make_game(game_data: GameData):
+    return IgdbGame(
+        name=game_data.name,
+        cover=game_data.cover,
+        release_year=game_data.release_year,
+    )
+
+
+def create_game(db: AsyncSession, game_data: GameData):
+    game = make_game(game_data)
+    db.add(game)
+
+
 def user_to_dict(obj: User):
     return {
         c.name: getattr(obj, c.name) for c in obj.__table__.columns if c.name != "id"
@@ -101,12 +148,26 @@ async def create_users():
         await db.commit()
 
 
+async def create_games():
+    async with get_session() as db:
+        count_query = await db.execute(select(IgdbGame.id))
+        existing_games = count_query.scalars().all()
+        
+        if len(existing_games) == 0:
+            for game_data in defined_games:
+                create_game(db, game_data)
+            await db.commit()
+
+
 async def main():
     await init_db_async()
     print("Database initialized successfully.")
 
     await create_users()
     print("Test users created successfully.")
+
+    await create_games()
+    print("Test games created successfully.")
 
 
 if __name__ == "__main__":

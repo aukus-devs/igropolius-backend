@@ -183,3 +183,19 @@ class RulesResponse(BaseModel):
 
 class PayTaxRequest(BaseModel):
     tax_type: TaxType
+
+
+class IgdbGameSummary(BaseModel):
+    id: int
+    name: str
+    cover: str | None = None
+    release_year: int | None = None
+
+
+class IgdbGamesList(BaseModel):
+    games: list[IgdbGameSummary] = []
+
+
+class IgdbGamesSearchRequest(BaseModel):
+    query: str
+    limit: int = 20
