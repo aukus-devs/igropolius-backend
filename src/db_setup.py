@@ -73,6 +73,17 @@ defined_games = [
         cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co1vcf.webp",
         release_year=2016
     ),
+    GameData(
+        name="The Wolf Among Us",
+        cover=None,
+        release_year=2013
+    ),
+    GameData(
+        name="Among Us",
+        cover=None,
+        release_year=2018
+    ),
+        
 ]
 
 

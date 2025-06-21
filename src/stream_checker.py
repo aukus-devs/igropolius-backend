@@ -32,9 +32,18 @@ async def _player_has_completed_game(db: AsyncSession, player_id: int, game_name
 
 
 async def _get_game_cover(db: AsyncSession, game_name: str) -> str | None:
+    from sqlalchemy import case
+    
     query = await db.execute(
         select(IgdbGame.cover)
         .where(IgdbGame.name.ilike(f'%{game_name}%'))
+        .order_by(
+            case(
+                (IgdbGame.name.ilike(f"{game_name}%"), 0),
+                else_=1
+            ),
+            IgdbGame.name
+        )
         .limit(1)
     )
     

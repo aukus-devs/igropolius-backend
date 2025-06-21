@@ -439,8 +439,19 @@ async def search_igdb_games_get(
     query: str,
     limit: int = 20,
 ):
+    from sqlalchemy import case
+    
     search_query = (
-        select(IgdbGame).where(IgdbGame.name.ilike(f"%{query}%")).limit(limit)
+        select(IgdbGame)
+        .where(IgdbGame.name.ilike(f"%{query}%"))
+        .order_by(
+            case(
+                (IgdbGame.name.ilike(f"{query}%"), 0),
+                else_=1
+            ),
+            IgdbGame.name
+        )
+        .limit(limit)
     )
 
     result = await db.execute(search_query)
