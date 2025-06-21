@@ -423,6 +423,7 @@ async def pay_tax(
 @app.get("/api/igdb/games/search", response_model=IgdbGamesList)
 async def search_igdb_games_get(
     db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
     query: str,
     limit: int = 20,
 ):
@@ -439,6 +440,7 @@ async def search_igdb_games_get(
 @app.get("/api/igdb/games/{game_id}")
 async def get_igdb_game(
     game_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     query = select(IgdbGame).where(IgdbGame.id == game_id)
