@@ -302,7 +302,7 @@ async def _check_kick_stream(player: User, db: AsyncSession) -> bool:
 
             if len(categories) > 0:
                 first_category = categories[0]
-                game_name = first_category.get("name", "Unknown")
+                game_name = first_category.get("name", "Unknown").strip()
                 viewer_count = int(first_category.get("viewers", 0))
             else:
                 game_name = "Just Chatting"
