@@ -168,9 +168,8 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
                     player.is_online = 1
                     player.online_count = viewer_count
                     player.current_game = game_name
-                    if not player.current_game_cover:
-                        game_cover = await _get_game_cover(db, game_name)
-                        player.current_game_cover = game_cover
+                    game_cover = await _get_game_cover(db, game_name)
+                    player.current_game_cover = game_cover
 
                     player.current_game_updated_at = utc_now_ts()
                     
@@ -228,9 +227,8 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
                     player.is_online = 1
                     player.online_count = online_count
                     player.current_game = category
-                    if not player.current_game_cover:
-                        game_cover = await _get_game_cover(db, category)
-                        player.current_game_cover = game_cover
+                    game_cover = await _get_game_cover(db, category)
+                    player.current_game_cover = game_cover
 
                     player.current_game_updated_at = utc_now_ts()
                     
