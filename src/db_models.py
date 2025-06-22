@@ -32,6 +32,7 @@ class User(DbBase):
     telegram_link: Mapped[str] = mapped_column(String(255), nullable=True)
     donation_link: Mapped[str] = mapped_column(String(255), nullable=True)
     is_active: Mapped[int] = mapped_column(Integer, default=True)
+    avatar_link: Mapped[str] = mapped_column(String(255), nullable=True)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     total_score: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
     turn_state: Mapped[str] = mapped_column(

@@ -51,6 +51,45 @@ async def _get_game_cover(db: AsyncSession, game_name: str) -> str | None:
     return result
 
 
+def _get_twitch_user_avatar(username: str) -> str | None:
+    try:
+        url = f"https://api.twitch.tv/helix/users?login={username}"
+        response = requests.get(url, headers=twitch_headers, timeout=15)
+        response.raise_for_status()
+        
+        data = response.json()["data"]
+        if len(data) > 0:
+            return data[0]["profile_image_url"]
+    except Exception as e:
+        logger.error(f"Error getting Twitch avatar for {username}: {str(e)}")
+    
+    return None
+
+
+def _get_vk_user_avatar(stream_link: str) -> str | None:
+    try:
+        response = requests.get(stream_link, timeout=15)
+        response.raise_for_status()
+        
+        content = html.fromstring(response.content)
+        
+        avatar_xpath = content.xpath(
+            "/html/body/div[1]/div/div[2]/div[2]/div/div[3]/div[1]/div[1]/div/div[1]/div[1]/div[1]/div/img/@src"
+        )
+        
+        if len(avatar_xpath) > 0:
+            avatar_url = avatar_xpath[0]
+            if avatar_url.startswith("//"):
+                avatar_url = "https:" + avatar_url
+            elif avatar_url.startswith("/"):
+                avatar_url = "https://vkplay.live" + avatar_url
+            return avatar_url
+    except Exception as e:
+        logger.error(f"Error getting VK avatar from {stream_link}: {str(e)}")
+    
+    return None
+
+
 async def refresh_stream_statuses(db: AsyncSession) -> Dict[str, Any]:
     stats = {
         "total_players": 0,
@@ -119,6 +158,10 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
             viewer_count = int(stream["viewer_count"])
 
             has_completed_game = await _player_has_completed_game(db, player.id, game_name)
+            
+            avatar_url = _get_twitch_user_avatar(username)
+            if avatar_url and avatar_url != player.avatar_link:
+                player.avatar_link = avatar_url
 
             if game_name != player.current_game or not player.is_online:
                 if not has_completed_game:
@@ -175,6 +218,10 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
             online_count = int(online_count_xpath[0].text.replace(",", ""))
 
             has_completed_game = await _player_has_completed_game(db, player.id, category)
+            
+            avatar_url = _get_vk_user_avatar(player.vk_stream_link)
+            if avatar_url and avatar_url != player.avatar_link:
+                player.avatar_link = avatar_url
 
             if category != player.current_game or not player.is_online:
                 if not has_completed_game:

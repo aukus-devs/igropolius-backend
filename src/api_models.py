@@ -57,6 +57,7 @@ class UserSummary(BaseModel):
     kick_stream_link: str | None = None
     telegram_link: str | None = None
     donation_link: str | None = None
+    avatar_link: str | None = None
     is_active: bool = True
     sector_id: int
     total_score: float = 0.0

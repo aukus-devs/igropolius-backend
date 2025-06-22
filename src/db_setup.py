@@ -38,7 +38,12 @@ defined_users = [
         telegram_link="https://t.me/praden",
         donation_link="https://praden.donationalerts.com/",
     ),
-    UserData(username="Player-2", first_name="Player2"),
+    UserData(
+        username="Player-2",
+        first_name="Player2",
+        main_platform=StreamPlatform.VK,
+        vk_stream_link="https://live.vkvideo.ru/radiorecord",
+    ),
     UserData(username="Player-3", first_name="Player3"),
     UserData(username="Player-4", first_name="Player4"),
     UserData(username="Player-5", first_name="Player5"),
@@ -51,39 +56,30 @@ defined_games = [
     GameData(
         name="The Witcher 3: Wild Hunt",
         cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.webp",
-        release_year=2015
+        release_year=2015,
     ),
     GameData(
         name="Cyberpunk 2077",
         cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co7497.webp",
-        release_year=2020
+        release_year=2020,
     ),
     GameData(
         name="Red Dead Redemption 2",
         cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co1q1f.webp",
-        release_year=2018
+        release_year=2018,
     ),
     GameData(
         name="Grand Theft Auto V",
         cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co2lbd.webp",
-        release_year=2013
+        release_year=2013,
     ),
     GameData(
         name="Dark Souls III",
         cover="https://images.igdb.com/igdb/image/upload/t_cover_big/co1vcf.webp",
-        release_year=2016
+        release_year=2016,
     ),
-    GameData(
-        name="The Wolf Among Us",
-        cover=None,
-        release_year=2013
-    ),
-    GameData(
-        name="Among Us",
-        cover=None,
-        release_year=2018
-    ),
-        
+    GameData(name="The Wolf Among Us", cover=None, release_year=2013),
+    GameData(name="Among Us", cover=None, release_year=2018),
 ]
 
 
@@ -166,7 +162,7 @@ async def create_games():
     async with get_session() as db:
         count_query = await db.execute(select(IgdbGame.id))
         existing_games = count_query.scalars().all()
-        
+
         if len(existing_games) == 0:
             for game_data in defined_games:
                 create_game(db, game_data)
