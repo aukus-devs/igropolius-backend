@@ -17,7 +17,6 @@ from src.api_models import (
     EventsList,
     GiveBonusCard,
     IgdbGamesList,
-    IgdbGamesSearchRequest,
     LoginRequest,
     MakePlayerMove,
     MoveEvent,
@@ -52,7 +51,10 @@ from src.enums import (
 from src.utils.auth import get_current_user
 from src.utils.db import safe_commit
 from src.utils.jwt import create_access_token, verify_password
-from src.utils.category_history import get_current_game_duration, calculate_game_duration_by_title_prefix
+from src.utils.category_history import (
+    get_current_game_duration,
+    calculate_game_duration_by_title_prefix,
+)
 from typing_extensions import cast
 from src.consts import STREET_INCOME_MULTILIER
 from src.consts import STREET_TAX_PAYER_MULTILIER
@@ -156,7 +158,9 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
             if c.player_id == user.id
         ]
 
-        model.current_game_duration = await get_current_game_duration(db, user.id, user.current_game)
+        model.current_game_duration = await get_current_game_duration(
+            db, user.id, user.current_game
+        )
 
         users_models.append(model)
     return {"players": users_models}
@@ -286,10 +290,12 @@ async def save_player_game(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     try:
-        game_duration = await calculate_game_duration_by_title_prefix(db, request.title, current_user.id)
+        game_duration = await calculate_game_duration_by_title_prefix(
+            db, request.title, current_user.id
+        )
     except Exception:
         game_duration = 0
-    
+
     game = PlayerGame(
         player_id=current_user.id,
         type=request.status.value,
@@ -440,17 +446,11 @@ async def search_igdb_games_get(
     limit: int = 20,
 ):
     from sqlalchemy import case
-    
+
     search_query = (
         select(IgdbGame)
         .where(IgdbGame.name.ilike(f"%{query}%"))
-        .order_by(
-            case(
-                (IgdbGame.name.ilike(f"{query}%"), 0),
-                else_=1
-            ),
-            IgdbGame.name
-        )
+        .order_by(case((IgdbGame.name.ilike(f"{query}%"), 0), else_=1), IgdbGame.name)
         .limit(limit)
     )
 
@@ -559,30 +559,21 @@ async def refresh_streams(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     from src.stream_checker import refresh_stream_statuses
-    
+
     try:
         stats = await refresh_stream_statuses(db)
-        
+
         if stats.get("errors"):
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={
-                    "success": False,
-                    "stats": stats
-                }
+                detail={"success": False, "stats": stats},
             )
-        
-        return StreamCheckResponse(
-            success=True,
-            stats=stats
-        )
+
+        return StreamCheckResponse(success=True, stats=stats)
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "success": False,
-                "stats": {}
-            }
+            detail={"success": False, "stats": {}},
         )
