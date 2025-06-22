@@ -44,7 +44,12 @@ defined_users = [
         main_platform=StreamPlatform.VK,
         vk_stream_link="https://live.vkvideo.ru/radiorecord",
     ),
-    UserData(username="Player-3", first_name="Player3"),
+    UserData(
+        username="Player-3",
+        first_name="Player3",
+        main_platform=StreamPlatform.KICK,
+        kick_stream_link="https://kick.com/mitisx-live",
+    ),
     UserData(username="Player-4", first_name="Player4"),
     UserData(username="Player-5", first_name="Player5"),
     UserData(username="Player-6", first_name="Player6"),

@@ -8,3 +8,5 @@ aiosqlite
 asyncpg
 requests
 lxml
+cloudscraper
+ua_generator

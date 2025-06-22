@@ -163,3 +163,5 @@ websockets==15.0.1
 mysqlclient==2.2.7
 requests==2.32.4
 lxml==5.4.0
+cloudscraper==1.2.68
+ua_generator==2.0.8
