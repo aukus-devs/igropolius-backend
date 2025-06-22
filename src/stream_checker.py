@@ -36,7 +36,7 @@ async def _get_game_cover(db: AsyncSession, game_name: str) -> str | None:
     
     query = await db.execute(
         select(IgdbGame.cover)
-        .where(IgdbGame.name.ilike(f'%{game_name}%'))
+        .where(IgdbGame.name.ilike(f'{game_name}%'))
         .order_by(
             case(
                 (IgdbGame.name.ilike(f"{game_name}%"), 0),
