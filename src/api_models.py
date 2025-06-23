@@ -174,6 +174,10 @@ class SavePlayerGame(BaseModel):
     game_id: int | None = None
 
 
+class SavePlayerGameResponse(BaseModel):
+    new_sector_id: int
+
+
 class EditPlayerGame(BaseModel):
     game_title: str
     game_review: str

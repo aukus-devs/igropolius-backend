@@ -11,6 +11,7 @@ from src.api_models import (
     MakePlayerMove,
     MoveEvent,
     SavePlayerGame,
+    SavePlayerGameResponse,
     ScoreChangeEvent,
     UpdatePlayerTurnState,
     UserGame,
@@ -39,7 +40,7 @@ from src.utils.category_history import (
     get_current_game_duration,
     save_category_history,
 )
-from src.utils.common import map_bonus_card_to_event_type
+from src.utils.common import get_closest_prison_sector, map_bonus_card_to_event_type
 from src.utils.db import safe_commit, utc_now_ts
 
 
@@ -321,7 +322,7 @@ async def do_player_move(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/api/player-games")
+@router.post("/api/player-games", response_model=SavePlayerGameResponse)
 async def save_player_game(
     request: SavePlayerGame,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -357,14 +358,18 @@ async def save_player_game(
     )
     db.add(score_change)
 
-    current_user.total_score += request.scores
+    if request.status == GameCompletionType.COMPLETED:
+        current_user.total_score += request.scores
+    if request.status == GameCompletionType.DROP:
+        current_user.sector_id = get_closest_prison_sector(current_user.sector_id)
+
     current_user.current_game = None
     current_user.current_game_updated_at = None
     current_user.current_game_cover = None
     await save_category_history(db, current_user.id, "NewPlayerGame")
 
     await safe_commit(db)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return {"new_sector_id": current_user.sector_id}
 
 
 @router.post("/api/players/current/turn-state")

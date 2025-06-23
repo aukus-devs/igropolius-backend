@@ -36,6 +36,7 @@ class BonusCardStatus(Enum):
 class PlayerMoveType(Enum):
     DICE_ROLL = "dice-roll"
     TRAIN_RIDE = "train-ride"
+    DROP_TO_PRISON = "drop-to-prison"
 
 
 class TaxType(Enum):
