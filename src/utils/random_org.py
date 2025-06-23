@@ -2,8 +2,8 @@ import base64
 import json
 import urllib.parse
 from random import randrange
-from typing import Dict, Any
 import httpx
+from pydantic import BaseModel
 from src.config import RANDOM_ORG_API_KEY
 from src.utils.db import utc_now_ts, log_error_to_db
 from src.db import get_session
@@ -21,9 +21,16 @@ def b64e(s: str) -> str:
     return base64_string
 
 
+class RandomResult(BaseModel):
+    is_random_org_result: bool
+    random_org_check_form: str | None
+    data: list[int]
+    random_org_response: str | None
+
+
 async def get_random_numbers(
     num: int, min_val: int, max_val: int, player_id: int
-) -> Dict[str, Any]:
+) -> RandomResult:
     url = "https://api.random.org/json-rpc/4/invoke"
 
     metadata = f"player_id={player_id}&timestamp={utc_now_ts()}"
@@ -62,12 +69,12 @@ async def get_random_numbers(
 
             random_org_check_form = f"https://api.random.org/signatures/form?format=json&random={quoted_data}&signature={quoted_signature}"
 
-            result = {
-                "is_random_org_result": True,
-                "random_org_check_form": random_org_check_form,
-                "data": random_data["data"],
-                "random_org_result": json.dumps(response_data),
-            }
+            result = RandomResult(
+                is_random_org_result=True,
+                random_org_check_form=random_org_check_form,
+                data=random_data["data"],
+                random_org_response=json.dumps(response_data),
+            )
 
             return result
         else:
@@ -88,12 +95,12 @@ async def get_random_numbers(
                 logger.error(f"Failed to log error to database: {db_error}")
 
             data = [randrange(min_val, max_val + 1) for _ in range(num)]
-            result = {
-                "is_random_org_result": False,
-                "random_org_check_form": None,
-                "data": data,
-                "random_org_result": response.text if response else None,
-            }
+            result = RandomResult(
+                is_random_org_result=False,
+                random_org_check_form=None,
+                data=data,
+                random_org_response=response.text if response else None,
+            )
             return result
 
     except Exception as e:
@@ -112,10 +119,10 @@ async def get_random_numbers(
             logger.error(f"Failed to log error to database: {db_error}")
 
         data = [randrange(min_val, max_val + 1) for _ in range(num)]
-        result = {
-            "is_random_org_result": False,
-            "random_org_check_form": None,
-            "data": data,
-            "random_org_result": None,
-        }
+        result = RandomResult(
+            is_random_org_result=False,
+            random_org_check_form=None,
+            data=data,
+            random_org_response=None,
+        )
         return result

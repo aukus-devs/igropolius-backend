@@ -44,17 +44,17 @@ async def roll_dice(
     dice_roll = DiceRoll(
         player_id=current_user.id,
         used=0,
-        is_random_org_result=1 if random_result["is_random_org_result"] else 0,
+        is_random_org_result=random_result.is_random_org_result,
         json_short_data=json.dumps(
             {
-                "is_random_org_result": random_result["is_random_org_result"],
-                "random_org_check_form": random_result["random_org_check_form"],
-                "data": random_result["data"],
+                "is_random_org_result": random_result.is_random_org_result,
+                "random_org_check_form": random_result.random_org_check_form,
+                "data": random_result.data,
             }
         ),
-        random_org_result=random_result["random_org_result"],
-        dice_values=json.dumps(random_result["data"]),
-        random_org_check_url=random_result["random_org_check_form"],
+        random_org_result=random_result.random_org_response,
+        dice_values=json.dumps(random_result.data),
+        random_org_check_url=random_result.random_org_check_form,
     )
 
     db.add(dice_roll)
@@ -63,7 +63,7 @@ async def roll_dice(
 
     return RollDiceResponse(
         roll_id=dice_roll.id,
-        is_random_org_result=random_result["is_random_org_result"],
-        random_org_check_form=random_result["random_org_check_form"],
-        data=random_result["data"],
+        is_random_org_result=random_result.is_random_org_result,
+        random_org_check_form=random_result.random_org_check_form,
+        data=random_result.data,
     )
