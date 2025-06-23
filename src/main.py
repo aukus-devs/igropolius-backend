@@ -56,7 +56,7 @@ from src.utils.db import safe_commit
 from src.utils.jwt import create_access_token, verify_password
 from src.utils.category_history import (
     get_current_game_duration,
-    calculate_game_duration_by_title_prefix,
+    calculate_game_duration_by_title,
     save_category_history,
 )
 from typing_extensions import cast
@@ -460,7 +460,7 @@ async def save_player_game(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     try:
-        game_duration = await calculate_game_duration_by_title_prefix(
+        game_duration = await calculate_game_duration_by_title(
             db, request.title, current_user.id
         )
     except Exception:

@@ -136,12 +136,12 @@ async def get_current_game_duration(
     return int(total_seconds)
 
 
-async def calculate_game_duration_by_title_prefix(
-    db: AsyncSession, game_title: str, player_id: int, prefix_length: int = 4
+async def calculate_game_duration_by_title(
+    db: AsyncSession, game_title: str, player_id: int
 ) -> int:
-    prefix = game_title[:prefix_length]
+    clean_game_title = re.sub(r"\s*\(\d{4}\)", "", game_title).strip()
 
-    found_category = await find_category_by_prefix(db, player_id, prefix)
+    found_category = await find_category_by_prefix(db, player_id, clean_game_title)
 
     if not found_category:
         return 0
