@@ -113,7 +113,6 @@ def make_user(user_data: UserData):
         sector_id=1,
         total_score=0.0,
         turn_state=PlayerTurnState.ROLLING_DICE.value,
-        last_dice_roll_id=None,
         maps_completed=0,
     )
 

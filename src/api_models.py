@@ -78,8 +78,6 @@ class CurrentUser(BaseModel):
     sector_id: int
     total_score: float = 0.0
     turn_state: PlayerTurnState
-    last_dice_roll_id: int | None = None
-    last_dice_roll: list[int] | None = None
     maps_completed: int = 0
 
 
@@ -95,6 +93,7 @@ class MoveEvent(UserEventBase):
     sector_to: int
     adjusted_roll: int
     dice_roll: list[int]
+    dice_roll_json: dict | None = None
     map_completed: bool
 
 
@@ -141,10 +140,8 @@ class UseBonusCard(BaseModel):
 
 class MakePlayerMove(BaseModel):
     type: PlayerMoveType
-    dice_roll_id: int | None = None
     bonuses_used: list[MainBonusCardType] = []
     selected_die: int | None = None
-    tmp_roll_result: int
 
 
 class UpdatePlayerTurnState(BaseModel):
@@ -223,3 +220,16 @@ class StealBonusCardRequest(BaseModel):
 class StreamCheckResponse(BaseModel):
     success: bool
     stats: dict
+
+
+class RollDiceRequest(BaseModel):
+    num: int = 2
+    min: int = 1
+    max: int = 8
+
+
+class RollDiceResponse(BaseModel):
+    roll_id: int
+    is_random_org_result: bool
+    random_org_check_form: str | None = None
+    data: list[int]

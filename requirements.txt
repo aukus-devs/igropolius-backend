@@ -165,3 +165,4 @@ requests==2.32.4
 lxml==5.4.0
 cloudscraper==1.2.68
 ua_generator==2.0.8
+httpx==0.28.1

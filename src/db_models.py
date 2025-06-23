@@ -40,7 +40,6 @@ class User(DbBase):
     turn_state: Mapped[str] = mapped_column(
         String(255), default=PlayerTurnState.ROLLING_DICE.value, nullable=False
     )
-    last_dice_roll_id: Mapped[int] = mapped_column(Integer, nullable=True)
     maps_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
 
@@ -144,3 +143,19 @@ class CategoryHistory(DbBase):
     category_name: Mapped[str] = mapped_column(String(255), nullable=False)
     player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     category_date: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
+
+
+class DiceRoll(DbBase):
+    __tablename__ = "dice_rolls"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    created_at: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
+    player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    used: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    is_random_org_result: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=False
+    )
+    json_short_data: Mapped[str] = mapped_column(Text, nullable=False)
+    random_org_result: Mapped[str] = mapped_column(Text, nullable=True)
+    dice_values: Mapped[str] = mapped_column(String(255), nullable=False)
+    random_org_check_url: Mapped[str] = mapped_column(Text, nullable=True)

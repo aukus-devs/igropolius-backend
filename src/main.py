@@ -21,6 +21,8 @@ from src.api_models import (
     MakePlayerMove,
     MoveEvent,
     PayTaxRequest,
+    RollDiceRequest,
+    RollDiceResponse,
     RulesResponse,
     RulesVersion,
     SavePlayerGame,
@@ -40,6 +42,7 @@ from src.db_models import (
     PlayerScoreChange,
     Rules,
     User,
+    DiceRoll,
 )
 from src.enums import (
     GameCompletionType,
@@ -58,6 +61,7 @@ from src.utils.category_history import (
 from typing_extensions import cast
 from src.consts import STREET_INCOME_MULTILIER
 from src.consts import STREET_TAX_PAYER_MULTILIER
+from src.utils.random_org import get_random_numbers
 
 app = FastAPI()
 
@@ -103,6 +107,60 @@ async def logout(
 @app.get("/api/players/current", response_model=CurrentUser)
 def fetch_current_user(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
+
+
+@app.post("/api/dice/roll", response_model=RollDiceResponse)
+async def roll_dice(
+    request: RollDiceRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    existing_roll_query = await db.execute(
+        select(DiceRoll)
+        .where(DiceRoll.player_id == current_user.id, DiceRoll.used == 0)
+        .order_by(DiceRoll.created_at.desc())
+        .limit(1)
+    )
+    existing_roll = existing_roll_query.scalars().first()
+
+    if existing_roll:
+        return RollDiceResponse(
+            roll_id=existing_roll.id,
+            is_random_org_result=bool(existing_roll.is_random_org_result),
+            random_org_check_form=existing_roll.random_org_check_url,
+            data=json.loads(existing_roll.dice_values),
+        )
+
+    random_result = await get_random_numbers(
+        request.num, request.min, request.max, current_user.id
+    )
+
+    dice_roll = DiceRoll(
+        player_id=current_user.id,
+        used=0,
+        is_random_org_result=1 if random_result["is_random_org_result"] else 0,
+        json_short_data=json.dumps(
+            {
+                "is_random_org_result": random_result["is_random_org_result"],
+                "random_org_check_form": random_result["random_org_check_form"],
+                "data": random_result["data"],
+            }
+        ),
+        random_org_result=random_result["random_org_result"],
+        dice_values=json.dumps(random_result["data"]),
+        random_org_check_url=random_result["random_org_check_form"],
+    )
+
+    db.add(dice_roll)
+
+    await safe_commit(db)
+
+    return RollDiceResponse(
+        roll_id=dice_roll.id,
+        is_random_org_result=random_result["is_random_org_result"],
+        random_org_check_form=random_result["random_org_check_form"],
+        data=random_result["data"],
+    )
 
 
 @app.get("/api/players", response_model=UsersList)
@@ -175,18 +233,31 @@ async def get_player_events(
         select(PlayerMove).where(PlayerMove.player_id == player_id)
     )
     moves = moves_query.scalars().all()
-    move_events = [
-        MoveEvent(
-            subtype=PlayerMoveType(e.move_type),
-            sector_from=e.sector_from,
-            sector_to=e.sector_to,
-            map_completed=bool(e.map_completed),
-            adjusted_roll=e.adjusted_roll,
-            dice_roll=[],
-            timestamp=e.created_at,
+    move_events = []
+    for e in moves:
+        dice_roll = []
+        dice_roll_json = None
+        if e.random_org_roll:
+            dice_roll_query = await db.execute(
+                select(DiceRoll).where(DiceRoll.id == e.random_org_roll)
+            )
+            dice_roll_record = dice_roll_query.scalars().first()
+            if dice_roll_record:
+                dice_roll = json.loads(dice_roll_record.dice_values)
+                dice_roll_json = json.loads(dice_roll_record.json_short_data)
+
+        move_events.append(
+            MoveEvent(
+                subtype=PlayerMoveType(e.move_type),
+                sector_from=e.sector_from,
+                sector_to=e.sector_to,
+                map_completed=bool(e.map_completed),
+                adjusted_roll=e.adjusted_roll,
+                dice_roll=dice_roll,
+                dice_roll_json=dice_roll_json,
+                timestamp=e.created_at,
+            )
         )
-        for e in moves
-    ]
 
     games_query = await db.execute(
         select(PlayerGame).where(PlayerGame.player_id == player_id)
@@ -247,7 +318,60 @@ async def do_player_move(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    roll_result = move.tmp_roll_result
+    dice_roll_query = await db.execute(
+        select(DiceRoll)
+        .where(DiceRoll.player_id == current_user.id, DiceRoll.used == 0)
+        .order_by(DiceRoll.created_at.desc())
+        .limit(1)
+    )
+    dice_roll_record = dice_roll_query.scalars().first()
+
+    if not dice_roll_record:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No dice roll available. Please roll dice first.",
+        )
+
+    if move.bonuses_used:
+        player_cards_query = await db.execute(
+            select(PlayerCard).where(
+                PlayerCard.player_id == current_user.id, PlayerCard.status == "active"
+            )
+        )
+        player_cards = player_cards_query.scalars().all()
+        available_bonuses = [card.card_type for card in player_cards]
+
+        for bonus in move.bonuses_used:
+            if bonus.value not in available_bonuses:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Player does not have active bonus card: {bonus.value}",
+                )
+
+    dice_values = json.loads(dice_roll_record.dice_values)
+    roll_result = sum(dice_values)
+
+    if MainBonusCardType.CHOOSE_1_DIE in move.bonuses_used:
+        if move.selected_die is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="selected_die must be specified when using CHOOSE_1_DIE bonus",
+            )
+        if move.selected_die < 0 or move.selected_die >= len(dice_values):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"selected_die must be between 0 and {len(dice_values) - 1}",
+            )
+        roll_result = dice_values[move.selected_die]
+    elif move.selected_die is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="selected_die can only be used with CHOOSE_1_DIE bonus",
+        )
+
+    if MainBonusCardType.ADJUST_BY_1 in move.bonuses_used:
+        roll_result += 1
+
     sector_to = current_user.sector_id + roll_result
     map_completed = False
     if sector_to > 40:
@@ -261,12 +385,31 @@ async def do_player_move(
         move_type=move.type.value,
         map_completed=map_completed,
         adjusted_roll=roll_result,
-        random_org_roll=0,
+        random_org_roll=dice_roll_record.id,
     )
     db.add(move_item)
     current_user.sector_id = sector_to
     if map_completed:
         current_user.maps_completed += 1
+
+    dice_roll_record.used = 1
+
+    if move.bonuses_used:
+        for bonus in move.bonuses_used:
+            card_to_use_query = await db.execute(
+                select(PlayerCard)
+                .where(
+                    PlayerCard.player_id == current_user.id,
+                    PlayerCard.card_type == bonus.value,
+                    PlayerCard.status == "active",
+                )
+                .limit(1)
+            )
+            card_to_use = card_to_use_query.scalars().first()
+            if card_to_use:
+                card_to_use.status = "used"
+                card_to_use.used_at = round(datetime.now().timestamp())
+                card_to_use.used_on_sector = current_user.sector_id
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
