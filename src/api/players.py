@@ -10,7 +10,9 @@ from src.api_models import (
     GameEvent,
     MakePlayerMove,
     MoveEvent,
+    SavePlayerGame,
     ScoreChangeEvent,
+    UpdatePlayerTurnState,
     UserGame,
     UserSummary,
     UsersList,
@@ -32,7 +34,11 @@ from src.enums import (
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user
-from src.utils.category_history import get_current_game_duration
+from src.utils.category_history import (
+    calculate_game_duration_by_title,
+    get_current_game_duration,
+    save_category_history,
+)
 from src.utils.common import map_bonus_card_to_event_type
 from src.utils.db import safe_commit, utc_now_ts
 
@@ -314,5 +320,62 @@ async def do_player_move(
                 card_to_use.used_at = utc_now_ts()
                 card_to_use.used_on_sector = current_user.sector_id
 
+    await safe_commit(db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/api/player-games")
+async def save_player_game(
+    request: SavePlayerGame,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    try:
+        game_duration = await calculate_game_duration_by_title(
+            db, request.title, current_user.id
+        )
+    except Exception:
+        game_duration = 0
+
+    game = PlayerGame(
+        player_id=current_user.id,
+        type=request.status.value,
+        item_title=request.title,
+        item_review=request.review,
+        item_rating=request.rating,
+        item_length=request.length,
+        vod_links=request.vod_links,
+        sector_id=current_user.sector_id,
+        game_id=request.game_id,
+        duration=game_duration,
+    )
+    db.add(game)
+
+    score_change = PlayerScoreChange(
+        player_id=current_user.id,
+        score_change=request.scores,
+        change_type=ScoreChangeType.GAME_COMPLETED.value,
+        description=f"game completed: '{request.title}'",
+        sector_id=current_user.sector_id,
+    )
+    db.add(score_change)
+
+    current_user.total_score += request.scores
+    current_user.current_game = None
+    current_user.current_game_updated_at = None
+    current_user.current_game_cover = None
+    await save_category_history(db, current_user.id, "NewPlayerGame")
+
+    await safe_commit(db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/api/players/current/turn-state")
+async def update_turn_state(
+    request: UpdatePlayerTurnState,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    current_user.turn_state = request.turn_state.value
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
