@@ -246,6 +246,18 @@ async def get_player_events(
                 dice_roll = json.loads(dice_roll_record.dice_values)
                 dice_roll_json = json.loads(dice_roll_record.json_short_data)
 
+        used_cards_query = await db.execute(
+            select(PlayerCard).where(
+                PlayerCard.player_id == player_id,
+                PlayerCard.status == "used",
+                PlayerCard.used_on_sector == e.sector_to,
+                PlayerCard.used_at >= e.created_at - 60,
+                PlayerCard.used_at <= e.created_at + 60,
+            )
+        )
+        used_cards = used_cards_query.scalars().all()
+        bonuses_used = [MainBonusCardType(card.card_type) for card in used_cards]
+
         move_events.append(
             MoveEvent(
                 subtype=PlayerMoveType(e.move_type),
@@ -256,6 +268,7 @@ async def get_player_events(
                 dice_roll=dice_roll,
                 dice_roll_json=dice_roll_json,
                 timestamp=e.created_at,
+                bonuses_used=bonuses_used,
             )
         )
 

@@ -6,6 +6,10 @@ from typing import Dict, Any
 import httpx
 from src.config import RANDOM_ORG_API_KEY
 from src.utils.db import utc_now_ts
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def b64e(s: str) -> str:
@@ -78,8 +82,9 @@ async def get_random_numbers(
             }
             return result
 
-    except Exception:
+    except Exception as e:
         # Fallback
+        logger.error(f"Dice roll exception: {e}")
         data = [randrange(min_val, max_val + 1) for _ in range(num)]
         result = {
             "is_random_org_result": False,

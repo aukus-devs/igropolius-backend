@@ -95,6 +95,7 @@ class MoveEvent(UserEventBase):
     dice_roll: list[int]
     dice_roll_json: dict | None = None
     map_completed: bool
+    bonuses_used: list[MainBonusCardType] = []
 
 
 class ScoreChangeEvent(UserEventBase):
