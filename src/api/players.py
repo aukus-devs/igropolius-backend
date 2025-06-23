@@ -241,7 +241,10 @@ async def do_player_move(
             detail="No dice roll available. Please roll dice first.",
         )
 
-    if move.bonuses_used:
+    dice_values = json.loads(dice_roll_record.dice_values)
+    roll_result = sum(dice_values)
+
+    if move.type == PlayerMoveType.DICE_ROLL and move.bonuses_used:
         player_cards_query = await db.execute(
             select(PlayerCard).where(
                 PlayerCard.player_id == current_user.id, PlayerCard.status == "active"
@@ -257,29 +260,26 @@ async def do_player_move(
                     detail=f"Player does not have active bonus card: {bonus.value}",
                 )
 
-    dice_values = json.loads(dice_roll_record.dice_values)
-    roll_result = sum(dice_values)
-
-    if MainBonusCardType.CHOOSE_1_DIE in move.bonuses_used:
-        if move.selected_die is None:
+        if MainBonusCardType.CHOOSE_1_DIE in move.bonuses_used:
+            if move.selected_die is None:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="selected_die must be specified when using CHOOSE_1_DIE bonus",
+                )
+            if move.selected_die < 0 or move.selected_die >= len(dice_values):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"selected_die must be between 0 and {len(dice_values) - 1}",
+                )
+            roll_result = dice_values[move.selected_die]
+        elif move.selected_die is not None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="selected_die must be specified when using CHOOSE_1_DIE bonus",
+                detail="selected_die can only be used with CHOOSE_1_DIE bonus",
             )
-        if move.selected_die < 0 or move.selected_die >= len(dice_values):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"selected_die must be between 0 and {len(dice_values) - 1}",
-            )
-        roll_result = dice_values[move.selected_die]
-    elif move.selected_die is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="selected_die can only be used with CHOOSE_1_DIE bonus",
-        )
 
-    if MainBonusCardType.ADJUST_BY_1 in move.bonuses_used:
-        roll_result += 1
+        if MainBonusCardType.ADJUST_BY_1 in move.bonuses_used:
+            roll_result += 1
 
     sector_to = current_user.sector_id + roll_result
     map_completed = False
@@ -304,21 +304,18 @@ async def do_player_move(
     dice_roll_record.used = 1
 
     if move.bonuses_used:
-        for bonus in move.bonuses_used:
-            card_to_use_query = await db.execute(
-                select(PlayerCard)
-                .where(
-                    PlayerCard.player_id == current_user.id,
-                    PlayerCard.card_type == bonus.value,
-                    PlayerCard.status == "active",
-                )
-                .limit(1)
+        card_to_use_query = await db.execute(
+            select(PlayerCard).where(
+                PlayerCard.player_id == current_user.id,
+                PlayerCard.card_type.in_([bonus.value for bonus in move.bonuses_used]),
+                PlayerCard.status == "active",
             )
-            card_to_use = card_to_use_query.scalars().first()
-            if card_to_use:
-                card_to_use.status = "used"
-                card_to_use.used_at = utc_now_ts()
-                card_to_use.used_on_sector = current_user.sector_id
+        )
+        cards_to_use = card_to_use_query.scalars().all()
+        for card_to_use in cards_to_use:
+            card_to_use.status = "used"
+            card_to_use.used_at = utc_now_ts()
+            card_to_use.used_on_sector = current_user.sector_id
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
