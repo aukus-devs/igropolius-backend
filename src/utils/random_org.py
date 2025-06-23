@@ -55,14 +55,12 @@ async def get_random_numbers(
             random_data = response_data["result"]["random"]
             signature = response_data["result"]["signature"]
 
-            random_org_check_form = (
-                "https://api.random.org/signatures/form?format=json&random="
-                + urllib.parse.quote_plus(
-                    b64e(json.dumps(random_data, separators=(",", ":")))
-                )
-                + "&signature="
-                + urllib.parse.quote_plus(signature)
-            )
+            quoted_signature = urllib.parse.quote_plus(signature)
+            data_string = json.dumps(random_data, separators=(",", ":"))
+            b64_encoded_data = b64e(data_string)
+            quoted_data = urllib.parse.quote_plus(b64_encoded_data)
+
+            random_org_check_form = f"https://api.random.org/signatures/form?format=json&random={quoted_data}&signature={quoted_signature}"
 
             result = {
                 "is_random_org_result": True,
