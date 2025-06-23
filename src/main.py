@@ -57,6 +57,7 @@ from src.utils.jwt import create_access_token, verify_password
 from src.utils.category_history import (
     get_current_game_duration,
     calculate_game_duration_by_title_prefix,
+    save_category_history,
 )
 from typing_extensions import cast
 from src.consts import STREET_INCOME_MULTILIER
@@ -492,6 +493,7 @@ async def save_player_game(
     current_user.current_game = None
     current_user.current_game_updated_at = None
     current_user.current_game_cover = None
+    await save_category_history(db, current_user.id, "NewPlayerGame")
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
