@@ -124,6 +124,7 @@ class GameEvent(UserEventBase):
     event_type: str = "game"
     subtype: GameCompletionType
     game_title: str
+    game_cover: str | None = None
     sector_id: int
 
 

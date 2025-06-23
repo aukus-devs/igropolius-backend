@@ -276,10 +276,23 @@ async def get_player_events(
         select(PlayerGame).where(PlayerGame.player_id == player_id)
     )
     games = games_query.scalars().all()
+
+    game_ids = {g.game_id for g in games if g.game_id is not None}
+    igdb_games_dict = {}
+    if game_ids:
+        igdb_games_query = await db.execute(
+            select(IgdbGame).where(IgdbGame.id.in_(game_ids))
+        )
+        igdb_games = igdb_games_query.scalars().all()
+        igdb_games_dict = {game.id: game for game in igdb_games}
+
     game_events = [
         GameEvent(
             subtype=GameCompletionType(e.type),
             game_title=e.item_title,
+            game_cover=igdb_games_dict[e.game_id].cover
+            if e.game_id and e.game_id in igdb_games_dict
+            else None,
             sector_id=e.sector_id,
             timestamp=e.created_at,
         )
