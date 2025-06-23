@@ -5,7 +5,8 @@ from random import randrange
 from typing import Dict, Any
 import httpx
 from src.config import RANDOM_ORG_API_KEY
-from src.utils.db import utc_now_ts
+from src.utils.db import utc_now_ts, log_error_to_db
+from src.db import get_session
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -72,7 +73,22 @@ async def get_random_numbers(
 
             return result
         else:
-            # Fallback
+            error_message = f"Random.org API error: status_code={response.status_code}, has_signature={'signature' in response.text}"
+            logger.error(error_message)
+
+            try:
+                async with get_session() as session:
+                    error = Exception(error_message)
+                    await log_error_to_db(
+                        session=session,
+                        error=error,
+                        function_name="get_random_numbers",
+                        player_id=player_id,
+                        context=f"num={num}, min_val={min_val}, max_val={max_val}, response_text={response.text[:200] if response else 'None'}",
+                    )
+            except Exception as db_error:
+                logger.error(f"Failed to log error to database: {db_error}")
+
             data = [randrange(min_val, max_val + 1) for _ in range(num)]
             result = {
                 "is_random_org_result": False,
@@ -83,8 +99,20 @@ async def get_random_numbers(
             return result
 
     except Exception as e:
-        # Fallback
         logger.error(f"Dice roll exception: {e}")
+
+        try:
+            async with get_session() as session:
+                await log_error_to_db(
+                    session=session,
+                    error=e,
+                    function_name="get_random_numbers",
+                    player_id=player_id,
+                    context=f"num={num}, min_val={min_val}, max_val={max_val}",
+                )
+        except Exception as db_error:
+            logger.error(f"Failed to log error to database: {db_error}")
+
         data = [randrange(min_val, max_val + 1) for _ in range(num)]
         result = {
             "is_random_org_result": False,

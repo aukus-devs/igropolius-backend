@@ -159,3 +159,15 @@ class DiceRoll(DbBase):
     random_org_result: Mapped[str] = mapped_column(Text, nullable=True)
     dice_values: Mapped[str] = mapped_column(String(255), nullable=False)
     random_org_check_url: Mapped[str] = mapped_column(Text, nullable=True)
+
+
+class ErrorLog(DbBase):
+    __tablename__ = "error_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    created_at: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
+    player_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    error_type: Mapped[str] = mapped_column(String(255), nullable=False)
+    error_message: Mapped[str] = mapped_column(Text, nullable=False)
+    function_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    context: Mapped[str | None] = mapped_column(Text, nullable=True)
