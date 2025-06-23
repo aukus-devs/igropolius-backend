@@ -447,6 +447,8 @@ async def search_igdb_games_get(
 ):
     from sqlalchemy import case
 
+    query = query.strip()
+
     search_query = (
         select(IgdbGame)
         .where(IgdbGame.name.ilike(f"%{query}%"))
