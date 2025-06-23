@@ -20,8 +20,8 @@ async def log_error_to_db(
     session: AsyncSession,
     error: Exception,
     function_name: str,
-    player_id: int = None,
-    context: str = None,
+    player_id: int | None = None,
+    context: str | None = None,
 ):
     from src.db_models import ErrorLog
 
