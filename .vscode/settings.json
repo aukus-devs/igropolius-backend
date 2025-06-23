@@ -7,5 +7,5 @@
   }
 },
 "ruff.fixAll": true,
-"ruff.organizeImports": true,
+"ruff.organizeImports": true
 }
