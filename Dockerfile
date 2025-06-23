@@ -7,6 +7,8 @@ RUN apt-get update && \
     default-libmysqlclient-dev \
     gcc \
     python3-dev \
+    curl \
+    iputils-ping \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
