@@ -5,4 +5,8 @@ echo "Initializing database..."
 python -m src.db
 
 echo "Starting FastAPI application..."
-exec uvicorn src.main:app --host '::' --proxy-headers --forwarded-allow-ips="*"
+if [ "$IPv6" = "false" ]; then
+    exec uvicorn src.main:app --host 0.0.0.0 --proxy-headers --forwarded-allow-ips="*"
+else
+    exec uvicorn src.main:app --host '::' --proxy-headers --forwarded-allow-ips="*"
+fi
