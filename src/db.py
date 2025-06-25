@@ -1,9 +1,12 @@
 # database.py
-from contextlib import asynccontextmanager
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from src.db_models import DbBase
-from .config import DATABASE_URL
 import asyncio
+from contextlib import asynccontextmanager
+
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+from src.db_models import DbBase
+
+from .config import DATABASE_URL
 
 is_sqlite = DATABASE_URL.startswith("sqlite")
 
@@ -18,7 +21,7 @@ is_sqlite = DATABASE_URL.startswith("sqlite")
 
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
+    echo=False,
     pool_size=20,
     max_overflow=10,
     pool_timeout=30,

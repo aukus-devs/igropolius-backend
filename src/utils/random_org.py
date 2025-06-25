@@ -1,13 +1,15 @@
 import base64
 import json
+import logging
 import urllib.parse
 from random import randrange
+
 import httpx
 from pydantic import BaseModel
+
 from src.config import RANDOM_ORG_API_KEY
-from src.utils.db import utc_now_ts, log_error_to_db
 from src.db import get_session
-import logging
+from src.utils.db import log_error_to_db, utc_now_ts
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -54,8 +56,22 @@ async def get_random_numbers(
     }
 
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.post(url, headers=headers, json=payload)
+        response = None
+        retry_count = 0
+        max_retries = 2
+
+        while retry_count <= max_retries:
+            try:
+                async with httpx.AsyncClient(timeout=5.0) as client:
+                    response = await client.post(url, headers=headers, json=payload)
+                break
+            except httpx.ConnectTimeout:
+                retry_count += 1
+                if retry_count > max_retries:
+                    raise
+                logger.warning(
+                    f"Connection timeout on attempt {retry_count}, retrying..."
+                )
 
         if response.status_code == 200 and "signature" in response.text:
             response_data = response.json()
