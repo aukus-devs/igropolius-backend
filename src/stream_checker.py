@@ -1,16 +1,18 @@
-import requests
-from lxml import html
-import os
 import logging
-from typing import Dict, Any
+import os
+from typing import Any, Dict
+
 import cloudscraper
+import requests
 import ua_generator
+from lxml import html
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.db_models import User, PlayerGame, IgdbGame
-from src.utils.db import safe_commit, utc_now_ts
-from src.utils.category_history import save_category_history
+
+from src.db_models import IgdbGame, PlayerGame, User
 from src.enums import StreamPlatform
+from src.utils.category_history import save_category_history
+from src.utils.db import safe_commit, utc_now_ts
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -167,6 +169,11 @@ async def _check_single_player_stream(player: User, db: AsyncSession) -> bool:
 async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
     try:
         username = player.twitch_stream_link.rsplit("/", 1)[1]
+
+        avatar_url = _get_twitch_user_avatar(username)
+        if avatar_url and avatar_url != player.avatar_link:
+            player.avatar_link = avatar_url
+
         url = f"https://api.twitch.tv/helix/streams?user_login={username}"
 
         response = requests.get(url, headers=twitch_headers, timeout=15)
@@ -182,10 +189,6 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
             has_completed_game = await _player_has_completed_game(
                 db, player.id, game_name
             )
-
-            avatar_url = _get_twitch_user_avatar(username)
-            if avatar_url and avatar_url != player.avatar_link:
-                player.avatar_link = avatar_url
 
             if game_name != player.current_game or not player.is_online:
                 if not has_completed_game:
@@ -224,6 +227,10 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
 
 async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
     try:
+        avatar_url = _get_vk_user_avatar(player.vk_stream_link)
+        if avatar_url and avatar_url != player.avatar_link:
+            player.avatar_link = avatar_url
+
         response = requests.get(player.vk_stream_link, timeout=110)
         response.raise_for_status()
 
@@ -243,10 +250,6 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
             has_completed_game = await _player_has_completed_game(
                 db, player.id, category
             )
-
-            avatar_url = _get_vk_user_avatar(player.vk_stream_link)
-            if avatar_url and avatar_url != player.avatar_link:
-                player.avatar_link = avatar_url
 
             if category != player.current_game or not player.is_online:
                 if not has_completed_game:
