@@ -56,7 +56,7 @@ async def get_random_numbers(
     }
 
     try:
-        response = None
+        response: httpx.Response | None = None
         retry_count = 0
         max_retries = 2
 
@@ -73,7 +73,7 @@ async def get_random_numbers(
                     f"Connection timeout on attempt {retry_count}, retrying..."
                 )
 
-        if response.status_code == 200 and "signature" in response.text:
+        if response and response.status_code == 200 and "signature" in response.text:
             response_data = response.json()
             random_data = response_data["result"]["random"]
             signature = response_data["result"]["signature"]
@@ -94,7 +94,10 @@ async def get_random_numbers(
 
             return result
         else:
-            error_message = f"Random.org API error: status_code={response.status_code}, has_signature={'signature' in response.text}"
+            if response:
+                error_message = f"Random.org API error: status_code={response.status_code}, has_signature={'signature' in response.text}"
+            else:
+                error_message = "no response"
             logger.error(error_message)
 
             try:
