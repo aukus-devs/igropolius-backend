@@ -54,5 +54,5 @@ async def fetch_current_user(
     existing_roll = existing_roll_query.scalars().first()
     response = CurrentUser.model_validate(current_user)
     if existing_roll:
-        response.roll_result = json.loads(existing_roll.dice_values)
+        response.last_roll_result = json.loads(existing_roll.dice_values)
     return response
