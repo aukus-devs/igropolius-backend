@@ -79,6 +79,7 @@ class CurrentUser(BaseModel):
     total_score: float = 0.0
     turn_state: PlayerTurnState
     maps_completed: int = 0
+    roll_result: list[int] = []
 
 
 class UserEventBase(BaseModel):

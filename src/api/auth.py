@@ -1,3 +1,4 @@
+import json
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -6,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Response, status
 
 from src.api_models import CurrentUser, LoginRequest
 from src.db import get_db
-from src.db_models import User
+from src.db_models import User, DiceRoll
 from src.utils.auth import get_current_user
 from src.utils.jwt import create_access_token, verify_password
 
@@ -40,5 +41,18 @@ async def logout(
 
 
 @router.get("/api/players/current", response_model=CurrentUser)
-def fetch_current_user(current_user: Annotated[User, Depends(get_current_user)]):
-    return current_user
+async def fetch_current_user(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    existing_roll_query = await db.execute(
+        select(DiceRoll)
+        .where(DiceRoll.player_id == current_user.id, DiceRoll.used == 0)
+        .order_by(DiceRoll.created_at.desc())
+        .limit(1)
+    )
+    existing_roll = existing_roll_query.scalars().first()
+    response = CurrentUser.model_validate(current_user)
+    if existing_roll:
+        response.roll_result = json.loads(existing_roll.dice_values)
+    return response
