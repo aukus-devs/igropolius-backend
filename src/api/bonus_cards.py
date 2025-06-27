@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.api_models import GiveBonusCard, StealBonusCardRequest
+from src.api_models import GiveBonusCard, GiveBonusCardResponse, StealBonusCardRequest
 from src.db import get_db
 from src.db_models import PlayerCard, User
 from src.utils.auth import get_current_user
@@ -13,7 +13,7 @@ from src.utils.db import safe_commit, utc_now_ts
 router = APIRouter(tags=["bonus_cards"])
 
 
-@router.post("/api/bonus-cards")
+@router.post("/api/bonus-cards", response_model=GiveBonusCardResponse)
 async def receive_bonus_card(
     request: GiveBonusCard,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -42,7 +42,7 @@ async def receive_bonus_card(
     )
     db.add(new_card)
     await safe_commit(db)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return new_card
 
 
 @router.post("/api/bonus-cards/steal")

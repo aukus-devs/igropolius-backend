@@ -228,6 +228,7 @@ async def do_player_move(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    sector_id_from = current_user.sector_id
     dice_roll_query = await db.execute(
         select(DiceRoll)
         .where(DiceRoll.player_id == current_user.id, DiceRoll.used == 0)
@@ -279,8 +280,11 @@ async def do_player_move(
                 detail="selected_die can only be used with CHOOSE_1_DIE bonus",
             )
 
-        if MainBonusCardType.ADJUST_BY_1 in move.bonuses_used:
-            roll_result += 1
+        if (
+            MainBonusCardType.ADJUST_BY_1 in move.bonuses_used
+            and move.adjust_by_1 is not None
+        ):
+            roll_result += move.adjust_by_1
 
     sector_to = current_user.sector_id + roll_result
     map_completed = False
@@ -316,7 +320,7 @@ async def do_player_move(
         for card_to_use in cards_to_use:
             card_to_use.status = "used"
             card_to_use.used_at = utc_now_ts()
-            card_to_use.used_on_sector = current_user.sector_id
+            card_to_use.used_on_sector = sector_id_from
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

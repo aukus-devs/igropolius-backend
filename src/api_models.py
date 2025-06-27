@@ -137,6 +137,12 @@ class GiveBonusCard(BaseModel):
     bonus_type: MainBonusCardType
 
 
+class GiveBonusCardResponse(BaseModel):
+    bonus_type: MainBonusCardType
+    received_at: int
+    received_on_sector: int
+
+
 class UseBonusCard(BaseModel):
     bonus_type: MainBonusCardType
 
@@ -145,6 +151,7 @@ class MakePlayerMove(BaseModel):
     type: PlayerMoveType
     bonuses_used: list[MainBonusCardType] = []
     selected_die: int | None = None
+    adjust_by_1: int | None = None
 
 
 class UpdatePlayerTurnState(BaseModel):
