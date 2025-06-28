@@ -149,7 +149,7 @@ class UseBonusCard(BaseModel):
 
 class MakePlayerMove(BaseModel):
     type: PlayerMoveType
-    bonuses_used: list[MainBonusCardType] = []
+    # bonuses_used: list[MainBonusCardType] = []
     selected_die: int | None = None
     adjust_by_1: int | None = None
 
