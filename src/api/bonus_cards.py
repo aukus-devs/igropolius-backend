@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import GiveBonusCard, GiveBonusCardResponse, StealBonusCardRequest
 from src.db import get_db
 from src.db_models import PlayerCard, User
+from src.enums import MainBonusCardType
 from src.utils.auth import get_current_user
 from src.utils.db import safe_commit, utc_now_ts
 
@@ -42,7 +43,11 @@ async def receive_bonus_card(
     )
     db.add(new_card)
     await safe_commit(db)
-    return new_card
+    return GiveBonusCardResponse(
+        bonus_type=MainBonusCardType(new_card.card_type),
+        received_at=new_card.created_at,
+        received_on_sector=new_card.received_on_sector,
+    )
 
 
 @router.post("/api/bonus-cards/steal")
