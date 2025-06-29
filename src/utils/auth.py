@@ -30,12 +30,13 @@ async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
     for_update: bool = False,
+    allow_acting: bool = True,
 ):
     token = credentials.credentials
     username = get_username(token)
 
     acting_user_id_str = request.headers.get("x-acting-user-id")
-    if username.lower() == "praden" and acting_user_id_str:
+    if allow_acting and username.lower() == "praden" and acting_user_id_str:
         username = (
             (
                 await db.execute(
@@ -70,3 +71,11 @@ async def get_current_user_for_update(
     db: AsyncSession = Depends(get_db),
 ):
     return await get_current_user(request, credentials, db, for_update=True)
+
+
+async def get_current_user_direct(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_current_user(request, credentials, db, allow_acting=False)

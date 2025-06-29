@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import StreamCheckResponse
 from src.db import get_db
 from src.db_models import User
-from src.utils.auth import get_current_user
+from src.utils.auth import get_current_user, get_current_user_direct
+from src.utils.db import safe_commit
 
 
 router = APIRouter(tags=["internal"])
@@ -34,3 +35,22 @@ async def refresh_streams(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"success": False, "stats": {}},
         )
+
+
+@router.post("/api/internal/reset-db")
+async def reset_internal(
+    current_user: Annotated[User, Depends(get_current_user_direct)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    if current_user.username.lower() != "praden":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only Praden can perform this action",
+        )
+
+    from src.utils.db import reset_database
+
+    await reset_database(db)
+    await safe_commit(db)
+
+    return {"success": True, "message": "Database has been reset successfully."}

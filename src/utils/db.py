@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -35,3 +36,42 @@ async def log_error_to_db(
 
     session.add(error_log)
     await safe_commit(session)
+
+
+async def reset_database(db: AsyncSession):
+    from src.db_models import (
+        DiceRoll,
+        PlayerCard,
+        PlayerGame,
+        PlayerMove,
+        PlayerScoreChange,
+        User,
+    )
+    from src.enums import PlayerTurnState
+
+    reset_players_query = update(User).values(
+        {
+            "sector_id": 1,
+            "total_score": 0.0,
+            "turn_state": PlayerTurnState.ROLLING_DICE.value,
+            "maps_completed": 0,
+        }
+    )
+    await db.execute(reset_players_query)
+
+    print("resetting")
+
+    delete_cards_query = delete(PlayerCard)
+    await db.execute(delete_cards_query)
+
+    delete_games_query = delete(PlayerGame)
+    await db.execute(delete_games_query)
+
+    delete_score_changes = delete(PlayerScoreChange)
+    await db.execute(delete_score_changes)
+
+    delete_moves = delete(PlayerMove)
+    await db.execute(delete_moves)
+
+    delete_dice_rolls = delete(DiceRoll)
+    await db.execute(delete_dice_rolls)
