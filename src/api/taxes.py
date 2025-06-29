@@ -12,7 +12,7 @@ from src.consts import (
 from src.db import get_db
 from src.db_models import PlayerGame, PlayerScoreChange, User
 from src.enums import GameCompletionType, ScoreChangeType, TaxType
-from src.utils.auth import get_current_user
+from src.utils.auth import get_current_user_for_update
 from src.utils.db import safe_commit
 
 
@@ -22,7 +22,7 @@ router = APIRouter(tags=["taxes"])
 @router.post("/api/players/current/pay-taxes")
 async def pay_tax(
     request: PayTaxRequest,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     if request.tax_type == TaxType.MAP_TAX:
