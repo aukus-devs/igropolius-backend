@@ -17,7 +17,6 @@ router = APIRouter(tags=["auth"])
 @router.post("/api/login")
 async def login(
     request: LoginRequest,
-    response: Response,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     query = await db.execute(select(User).filter(User.username == request.username))

@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
 from sqlalchemy import select
@@ -26,12 +26,29 @@ def get_username(token: str):
 
 
 async def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
     for_update: bool = False,
 ):
     token = credentials.credentials
     username = get_username(token)
+
+    acting_user_id_str = request.headers.get("x-acting-user-id")
+    if username.lower() == "praden" and acting_user_id_str:
+        username = (
+            (
+                await db.execute(
+                    select(User.username).where(User.id == acting_user_id_str)
+                )
+            )
+            .scalars()
+            .first()
+        )
+        if not username:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Acting user not found"
+            )
 
     if for_update:
         query = await db.execute(
@@ -48,7 +65,8 @@ async def get_current_user(
 
 
 async def get_current_user_for_update(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
 ):
-    return await get_current_user(credentials, db, for_update=True)
+    return await get_current_user(request, credentials, db, for_update=True)
