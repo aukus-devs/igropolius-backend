@@ -29,6 +29,7 @@ async def pay_tax(
     if request.tax_type == TaxType.MAP_TAX:
         # tax is 5% from current player score
         tax_amount = current_user.total_score * MAP_TAX_PERCENT
+        tax_amount = round(tax_amount, 2)
         score_change = PlayerScoreChange(
             player_id=current_user.id,
             score_change=-tax_amount,
