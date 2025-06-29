@@ -36,6 +36,7 @@ async def pay_tax(
             sector_id=current_user.sector_id,
         )
         current_user.total_score -= tax_amount
+        current_user.total_score = round(current_user.total_score, 2)
         db.add(score_change)
         await safe_commit(db)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -74,6 +75,7 @@ async def pay_tax(
         )
         db.add(score_change)
         current_user.total_score -= total_tax
+        current_user.total_score = round(current_user.total_score, 2)
         await safe_commit(db)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 

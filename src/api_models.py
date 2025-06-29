@@ -231,6 +231,10 @@ class StealBonusCardRequest(BaseModel):
     bonus_type: MainBonusCardType
 
 
+class UseBonusCardRequest(BaseModel):
+    bonus_type: MainBonusCardType
+
+
 class StreamCheckResponse(BaseModel):
     success: bool
     stats: dict
