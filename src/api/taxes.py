@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import PayTaxRequest
 from src.consts import (
+    MAP_TAX_PERCENT,
     SCORES_BY_GAME_LENGTH,
     STREET_INCOME_MULTILIER,
     STREET_TAX_PAYER_MULTILIER,
@@ -27,7 +28,7 @@ async def pay_tax(
 ):
     if request.tax_type == TaxType.MAP_TAX:
         # tax is 5% from current player score
-        tax_amount = current_user.total_score * 0.05
+        tax_amount = current_user.total_score * MAP_TAX_PERCENT
         score_change = PlayerScoreChange(
             player_id=current_user.id,
             score_change=-tax_amount,

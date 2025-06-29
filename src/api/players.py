@@ -34,7 +34,7 @@ from src.enums import (
     PlayerMoveType,
     ScoreChangeType,
 )
-from src.utils.auth import get_current_user
+from src.utils.auth import get_current_user, get_current_user_for_update
 from src.utils.category_history import (
     calculate_game_duration_by_title,
     get_current_game_duration,
@@ -331,7 +331,7 @@ async def do_player_move(
 @router.post("/api/player-games", response_model=SavePlayerGameResponse)
 async def save_player_game(
     request: SavePlayerGame,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     try:
@@ -366,6 +366,7 @@ async def save_player_game(
 
     if request.status == GameCompletionType.COMPLETED:
         current_user.total_score += request.scores
+        current_user.total_score = round(current_user.total_score, 2)
     if request.status == GameCompletionType.DROP:
         current_user.sector_id = get_closest_prison_sector(current_user.sector_id)
 
