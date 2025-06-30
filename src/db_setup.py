@@ -5,13 +5,14 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session, init_db_async
 from src.db_models import User, IgdbGame
-from src.enums import PlayerTurnState, StreamPlatform
+from src.enums import PlayerTurnState, StreamPlatform, Role
 from src.utils.jwt import hash_password
 
 
 class UserData(BaseModel):
     username: str
     first_name: str
+    role: Role = Role.PLAYER
     main_platform: StreamPlatform = StreamPlatform.NONE
     twitch_stream_link: str | None = None
     vk_stream_link: str | None = None
@@ -31,6 +32,7 @@ defined_users = [
     UserData(
         username="Praden",
         first_name="Денис",
+        role=Role.ADMIN,
         main_platform=StreamPlatform.TWITCH,
         twitch_stream_link="https://www.twitch.tv/praden",
         vk_stream_link="https://live.vkvideo.ru/praden",
@@ -96,6 +98,7 @@ def make_user(user_data: UserData):
         password_hash=hashed,
         first_name=user_data.first_name,
         url_handle=user_data.username.lower(),
+        role=user_data.role.value,
         is_online=0,
         current_game=None,
         current_game_updated_at=None,

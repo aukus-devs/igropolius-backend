@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import StreamCheckResponse
 from src.db import get_db
 from src.db_models import User
+from src.enums import Role
 from src.utils.auth import get_current_user, get_current_user_direct
 from src.utils.db import safe_commit
 
@@ -42,10 +43,10 @@ async def reset_internal(
     current_user: Annotated[User, Depends(get_current_user_direct)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    if current_user.username.lower() != "praden":
+    if current_user.role != Role.ADMIN.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Praden can perform this action",
+            detail="Only admins can perform this action",
         )
 
     from src.utils.db import reset_database

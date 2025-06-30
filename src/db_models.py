@@ -3,7 +3,7 @@ from sqlalchemy import Integer, String, Float, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.decl_api import declarative_base
 
-from src.enums import PlayerTurnState, StreamPlatform
+from src.enums import PlayerTurnState, StreamPlatform, Role
 from src.utils.db import utc_now_ts
 
 DbBase = declarative_base()
@@ -17,6 +17,9 @@ class User(DbBase):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     first_name: Mapped[str] = mapped_column(String(255), nullable=False)
     url_handle: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    role: Mapped[str] = mapped_column(
+        String(255), default=Role.PLAYER.value, nullable=False
+    )
     is_online: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     current_game: Mapped[str | None] = mapped_column(String(255), nullable=True)
     current_game_cover: Mapped[str | None] = mapped_column(String(255), nullable=True)
