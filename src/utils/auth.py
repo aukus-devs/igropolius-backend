@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_db
 from src.db_models import User
+from src.enums import Role
 from src.utils.jwt import decode_access_token
 
 security = HTTPBearer()
@@ -35,8 +36,15 @@ async def get_current_user(
     token = credentials.credentials
     username = get_username(token)
 
+    query = await db.execute(select(User).where(User.username == username))
+    user = query.scalars().first()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
+        )
+
     acting_user_id_str = request.headers.get("x-acting-user-id")
-    if allow_acting and username.lower() == "praden" and acting_user_id_str:
+    if allow_acting and user.role == Role.ADMIN.value and acting_user_id_str:
         username = (
             (
                 await db.execute(

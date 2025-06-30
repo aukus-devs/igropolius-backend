@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+class Role(Enum):
+    PLAYER = "player"
+    MODER = "moder"
+    ADMIN = "admin"
+
+
 class PlayerTurnState(Enum):
     ROLLING_DICE = "rolling-dice"
     USING_DICE_BONUSES = "using-dice-bonuses"
