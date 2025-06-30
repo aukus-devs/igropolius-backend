@@ -229,25 +229,31 @@ async def do_player_move(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     sector_id_from = current_user.sector_id
-    dice_roll_query = await db.execute(
-        select(DiceRoll)
-        .where(DiceRoll.player_id == current_user.id, DiceRoll.used == 0)
-        .order_by(DiceRoll.created_at.desc())
-        .limit(1)
-        .with_for_update()
-    )
-    dice_roll_record = dice_roll_query.scalars().first()
 
-    if not dice_roll_record:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No dice roll available. Please roll dice first.",
-        )
-
-    dice_values: list[int] = json.loads(dice_roll_record.dice_values)
-    roll_result = sum(dice_values)
+    roll_result = None
+    dice_roll_record_id = -1
 
     if move.type == PlayerMoveType.DICE_ROLL:
+        dice_roll_query = await db.execute(
+            select(DiceRoll)
+            .where(DiceRoll.player_id == current_user.id, DiceRoll.used == 0)
+            .order_by(DiceRoll.created_at.desc())
+            .limit(1)
+            .with_for_update()
+        )
+        dice_roll_record = dice_roll_query.scalars().first()
+
+        if not dice_roll_record:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No dice roll available. Please roll dice first.",
+            )
+
+        dice_roll_record_id = dice_roll_record.id
+
+        dice_values: list[int] = json.loads(dice_roll_record.dice_values)
+        roll_result = sum(dice_values)
+
         adjust_by1_card_query = await db.execute(
             select(PlayerCard)
             .where(
@@ -302,6 +308,17 @@ async def do_player_move(
             adjust_by1_card.used_at = utc_now_ts()
             adjust_by1_card.used_on_sector = sector_id_from
 
+        dice_roll_record.used = 1
+
+    elif move.type == PlayerMoveType.TRAIN_RIDE:
+        roll_result = 10
+
+    if roll_result is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid move type or missing roll result.",
+        )
+
     sector_to = current_user.sector_id + roll_result
     map_completed = False
     if sector_to > 40:
@@ -315,14 +332,12 @@ async def do_player_move(
         move_type=move.type.value,
         map_completed=map_completed,
         adjusted_roll=roll_result,
-        random_org_roll=dice_roll_record.id,
+        random_org_roll=dice_roll_record_id,
     )
     db.add(move_item)
     current_user.sector_id = sector_to
     if map_completed:
         current_user.maps_completed += 1
-
-    dice_roll_record.used = 1
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
