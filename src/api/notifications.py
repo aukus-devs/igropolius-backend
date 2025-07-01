@@ -42,6 +42,7 @@ async def get_notifications(
                 game_title=n.game_title,
                 card_name=n.card_name,
                 event_end_time=n.event_end_time,
+                message_text=n.message_text,
             )
             for n in notifications
         ]
