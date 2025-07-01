@@ -4,6 +4,8 @@ from src.enums import (
     BonusCardEventType,
     GameCompletionType,
     MainBonusCardType,
+    NotificationEventType,
+    NotificationType,
     PlayerMoveType,
     PlayerTurnState,
     Role,
@@ -69,6 +71,7 @@ class UserSummary(BaseModel):
 
 class UsersList(BaseModel):
     players: list[UserSummary] = []
+    event_end_time: int | None = None
 
 
 class CurrentUser(BaseModel):
@@ -253,3 +256,74 @@ class RollDiceResponse(BaseModel):
     is_random_org_result: bool
     random_org_check_form: str | None = None
     data: list[int]
+
+
+class NotificationItem(BaseModel):
+    id: int
+    notification_type: str
+    event_type: str
+    created_at: int
+    other_player_id: int | None = None
+    scores: float | None = None
+    sector_id: int | None = None
+    game_title: str | None = None
+    card_name: str | None = None
+    event_end_time: int | None = None
+    message_text: str | None = None
+
+
+class NotificationsResponse(BaseModel):
+    notifications: list[NotificationItem] = []
+
+
+class MarkNotificationsSeenRequest(BaseModel):
+    notification_ids: list[int]
+
+
+class CreateEventEndingNotificationRequest(BaseModel):
+    event_end_time: int
+
+
+class CreateAllPlayersNotificationRequest(BaseModel):
+    notification_type: NotificationType
+    event_type: NotificationEventType
+    other_player_id: int | None = None
+    scores: float | None = None
+    sector_id: int | None = None
+    game_title: str | None = None
+    card_name: str | None = None
+    event_end_time: int | None = None
+    message_text: str | None = None
+
+
+class CreatePlayerNotificationRequest(BaseModel):
+    player_id: int
+    notification_type: NotificationType
+    event_type: NotificationEventType
+    other_player_id: int | None = None
+    scores: float | None = None
+    sector_id: int | None = None
+    game_title: str | None = None
+    card_name: str | None = None
+    event_end_time: int | None = None
+    message_text: str | None = None
+
+
+class CreateMessageNotificationRequest(BaseModel):
+    notification_type: NotificationType
+    message_text: str
+
+
+class CreatePlayerMessageNotificationRequest(BaseModel):
+    player_id: int
+    notification_type: NotificationType
+    message_text: str
+
+
+class CreateNotificationResponse(BaseModel):
+    success: bool
+    message: str
+
+
+class SetEventEndTimeRequest(BaseModel):
+    event_end_time: int | None = None

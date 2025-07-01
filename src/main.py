@@ -1,8 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-
-from src.api import auth, players, rules, bonus_cards, taxes, igdb, dice, internal
+from src.api import (
+    auth,
+    bonus_cards,
+    dice,
+    igdb,
+    internal,
+    notifications,
+    players,
+    rules,
+    taxes,
+)
 
 app = FastAPI()
 
@@ -26,3 +35,4 @@ app.include_router(taxes.router)
 app.include_router(igdb.router)
 app.include_router(dice.router)
 app.include_router(internal.router)
+app.include_router(notifications.router)

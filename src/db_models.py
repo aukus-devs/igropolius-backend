@@ -1,9 +1,9 @@
 # models.py
-from sqlalchemy import Integer, String, Float, Text
+from sqlalchemy import Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.decl_api import declarative_base
 
-from src.enums import PlayerTurnState, StreamPlatform, Role
+from src.enums import PlayerTurnState, Role, StreamPlatform
 from src.utils.db import utc_now_ts
 
 DbBase = declarative_base()
@@ -174,3 +174,32 @@ class ErrorLog(DbBase):
     error_message: Mapped[str] = mapped_column(Text, nullable=False)
     function_name: Mapped[str] = mapped_column(String(255), nullable=False)
     context: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class Notification(DbBase):
+    __tablename__ = "notifications"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    created_at: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
+    player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    notification_type: Mapped[str] = mapped_column(String(255), nullable=False)
+    event_type: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_read: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    other_player_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    scores: Mapped[float | None] = mapped_column(Float, nullable=True)
+    sector_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    game_title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    card_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    event_end_time: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    message_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class EventSettings(DbBase):
+    __tablename__ = "event_settings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    created_at: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
+    updated_at: Mapped[int] = mapped_column(
+        Integer, default=utc_now_ts, onupdate=utc_now_ts
+    )
+    event_end_time: Mapped[int | None] = mapped_column(Integer, nullable=True)

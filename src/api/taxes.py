@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.api_models import PayTaxRequest
 from src.consts import (
     MAP_TAX_PERCENT,
@@ -15,7 +16,11 @@ from src.db_models import PlayerGame, PlayerScoreChange, User
 from src.enums import GameCompletionType, ScoreChangeType, TaxType
 from src.utils.auth import get_current_user_for_update
 from src.utils.db import safe_commit
-
+from src.utils.notifications import (
+    create_building_income_notification,
+    create_map_tax_notification,
+    create_sector_tax_notification,
+)
 
 router = APIRouter(tags=["taxes"])
 
@@ -40,6 +45,9 @@ async def pay_tax(
         current_user.total_score -= tax_amount
         current_user.total_score = round(current_user.total_score, 2)
         db.add(score_change)
+
+        await create_map_tax_notification(db, current_user.id, tax_amount)
+
         await safe_commit(db)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -67,6 +75,10 @@ async def pay_tax(
             )
             db.add(score_change)
 
+            await create_building_income_notification(
+                db, game.player_id, tax_amount, current_user.id, current_user.sector_id
+            )
+
         total_tax = sum(tax_payments) * STREET_TAX_PAYER_MULTILIER
         score_change = PlayerScoreChange(
             player_id=current_user.id,
@@ -78,6 +90,11 @@ async def pay_tax(
         db.add(score_change)
         current_user.total_score -= total_tax
         current_user.total_score = round(current_user.total_score, 2)
+
+        await create_sector_tax_notification(
+            db, current_user.id, total_tax, current_user.sector_id
+        )
+
         await safe_commit(db)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 

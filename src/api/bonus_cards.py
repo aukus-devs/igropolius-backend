@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.api_models import (
     GiveBonusCard,
     GiveBonusCardResponse,
@@ -14,7 +15,10 @@ from src.db_models import PlayerCard, User
 from src.enums import MainBonusCardType
 from src.utils.auth import get_current_user
 from src.utils.db import safe_commit, utc_now_ts
-
+from src.utils.notifications import (
+    create_card_lost_notification,
+    create_card_stolen_notification,
+)
 
 router = APIRouter(tags=["bonus_cards"])
 
@@ -94,6 +98,14 @@ async def steal_bonus_card(
         status="active",
     )
     db.add(new_card)
+
+    await create_card_stolen_notification(
+        db, current_user.id, request.bonus_type.value, request.player_id
+    )
+    await create_card_lost_notification(
+        db, request.player_id, request.bonus_type.value, current_user.id
+    )
+
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 

@@ -77,3 +77,22 @@ class StreamPlatform(Enum):
     VK = "vk"
     KICK = "kick"
     NONE = "none"
+
+
+class NotificationType(Enum):
+    IMPORTANT = "important"
+    STANDARD = "standard"
+
+
+class NotificationEventType(Enum):
+    GAME_COMPLETED = "game-completed"
+    GAME_REROLL = "game-reroll"
+    GAME_DROP = "game-drop"
+    PAY_SECTOR_TAX = "pay-sector-tax"
+    BUILDING_INCOME = "building-income"
+    PAY_MAP_TAX = "pay-map-tax"
+    BONUS_INCREASE = "bonus-increase"
+    CARD_STOLEN = "card-stolen"
+    CARD_LOST = "card-lost"
+    EVENT_ENDING_SOON = "event-ending-soon"
+    MESSAGE = "message"

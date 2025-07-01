@@ -1,8 +1,10 @@
 import json
 from typing import Annotated, cast
+
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.api_models import (
     BonusCard,
     BonusCardEvent,
@@ -15,12 +17,13 @@ from src.api_models import (
     ScoreChangeEvent,
     UpdatePlayerTurnState,
     UserGame,
-    UserSummary,
     UsersList,
+    UserSummary,
 )
 from src.db import get_db
 from src.db_models import (
     DiceRoll,
+    EventSettings,
     IgdbGame,
     PlayerCard,
     PlayerGame,
@@ -42,7 +45,11 @@ from src.utils.category_history import (
 )
 from src.utils.common import get_closest_prison_sector, map_bonus_card_to_event_type
 from src.utils.db import safe_commit, utc_now_ts
-
+from src.utils.notifications import (
+    create_game_completed_notification,
+    create_game_drop_notification,
+    create_game_reroll_notification,
+)
 
 router = APIRouter(tags=["players"])
 
@@ -57,6 +64,11 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         select(PlayerCard).where(PlayerCard.status == "active")
     )
     cards = cards_query.scalars().all()
+
+    event_settings_query = await db.execute(
+        select(EventSettings).order_by(EventSettings.updated_at.desc()).limit(1)
+    )
+    event_settings = event_settings_query.scalars().first()
 
     game_ids = {g.game_id for g in games if g.game_id is not None}
     igdb_games_dict = {}
@@ -105,7 +117,11 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         )
 
         users_models.append(model)
-    return {"players": users_models}
+
+    return {
+        "players": users_models,
+        "event_end_time": event_settings.event_end_time if event_settings else None,
+    }
 
 
 @router.get("/api/players/{player_id}/events", response_model=EventsList)
@@ -389,6 +405,15 @@ async def save_player_game(
     current_user.current_game_updated_at = None
     current_user.current_game_cover = None
     await save_category_history(db, current_user.id, "NewPlayerGame")
+
+    if request.status == GameCompletionType.COMPLETED:
+        await create_game_completed_notification(
+            db, current_user.id, request.scores, request.title
+        )
+    elif request.status == GameCompletionType.REROLL:
+        await create_game_reroll_notification(db, current_user.id, request.title)
+    elif request.status == GameCompletionType.DROP:
+        await create_game_drop_notification(db, current_user.id, request.title)
 
     await safe_commit(db)
     return {"new_sector_id": current_user.sector_id}
