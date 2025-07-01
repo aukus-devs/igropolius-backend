@@ -76,6 +76,8 @@ async def create_game_drop_notification(
 async def create_sector_tax_notification(
     db: AsyncSession, player_id: int, scores: float, sector_id: int
 ) -> None:
+    if scores == 0:
+        return
     await create_notification(
         db=db,
         player_id=player_id,
@@ -93,6 +95,8 @@ async def create_building_income_notification(
     other_player_id: int,
     sector_id: int,
 ) -> None:
+    if scores == 0:
+        return
     await create_notification(
         db=db,
         player_id=player_id,
@@ -107,6 +111,8 @@ async def create_building_income_notification(
 async def create_map_tax_notification(
     db: AsyncSession, player_id: int, scores: float
 ) -> None:
+    if scores == 0:
+        return
     await create_notification(
         db=db,
         player_id=player_id,
