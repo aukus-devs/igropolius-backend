@@ -2,7 +2,7 @@
 set -e
 
 echo "Initializing database..."
-python -m src.db
+python -m src.db.db_session
 
 echo "Starting FastAPI application..."
 if [ "$IPv6" = "false" ]; then
