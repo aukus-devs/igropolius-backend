@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import RollDiceRequest, RollDiceResponse
-from src.db import get_db
-from src.db_models import DiceRoll, User
+from src.db.db_session import get_db
+from src.db.db_models import DiceRoll, User
 from src.utils.auth import get_current_user
 from src.utils.db import safe_commit
 from src.utils.random_org import get_random_numbers

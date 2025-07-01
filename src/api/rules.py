@@ -6,8 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import RulesResponse, RulesVersion
-from src.db import get_db
-from src.db_models import Rules, User
+from src.db.db_session import get_db
+from src.db.db_models import Rules, User
 from src.utils.auth import get_current_user
 from src.utils.db import safe_commit, utc_now_ts
 

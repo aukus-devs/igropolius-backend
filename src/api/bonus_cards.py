@@ -10,12 +10,12 @@ from src.api_models import (
     StealBonusCardRequest,
     UseBonusCardRequest,
 )
-from src.db import get_db
-from src.db_models import PlayerCard, User
+from src.db.db_session import get_db
+from src.db.db_models import PlayerCard, User
 from src.enums import MainBonusCardType
 from src.utils.auth import get_current_user
 from src.utils.db import safe_commit, utc_now_ts
-from src.utils.notifications import (
+from src.db.queries.notifications import (
     create_card_lost_notification,
     create_card_stolen_notification,
 )

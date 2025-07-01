@@ -13,12 +13,12 @@ from src.api_models import (
     SetEventEndTimeRequest,
     StreamCheckResponse,
 )
-from src.db import get_db
-from src.db_models import EventSettings, User
+from src.db.db_session import get_db
+from src.db.db_models import EventSettings, User
 from src.enums import NotificationEventType, NotificationType, Role
 from src.utils.auth import get_current_user, get_current_user_direct
 from src.utils.db import safe_commit
-from src.utils.notifications import (
+from src.db.queries.notifications import (
     create_all_players_notification,
     create_message_notification,
     create_player_message_notification,

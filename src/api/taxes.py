@@ -11,12 +11,12 @@ from src.consts import (
     STREET_INCOME_MULTILIER,
     STREET_TAX_PAYER_MULTILIER,
 )
-from src.db import get_db
-from src.db_models import PlayerGame, PlayerScoreChange, User
+from src.db.db_session import get_db
+from src.db.db_models import PlayerGame, PlayerScoreChange, User
 from src.enums import GameCompletionType, ScoreChangeType, TaxType
 from src.utils.auth import get_current_user_for_update
 from src.utils.db import safe_commit
-from src.utils.notifications import (
+from src.db.queries.notifications import (
     create_building_income_notification,
     create_map_tax_notification,
     create_sector_tax_notification,

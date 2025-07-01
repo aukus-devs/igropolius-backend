@@ -24,7 +24,7 @@ async def log_error_to_db(
     player_id: int | None = None,
     context: str | None = None,
 ):
-    from src.db_models import ErrorLog
+    from src.db.db_models import ErrorLog
 
     error_log = ErrorLog(
         player_id=player_id,
@@ -39,7 +39,7 @@ async def log_error_to_db(
 
 
 async def reset_database(db: AsyncSession):
-    from src.db_models import (
+    from src.db.db_models import (
         DiceRoll,
         PlayerCard,
         PlayerGame,

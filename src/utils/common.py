@@ -1,4 +1,4 @@
-from src.db_models import PlayerCard
+from src.db.db_models import PlayerCard
 from src.enums import BonusCardEventType
 
 

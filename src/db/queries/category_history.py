@@ -2,7 +2,7 @@ import re
 from typing import Optional, Dict, Any
 from sqlalchemy import select, text, func, desc, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.db_models import CategoryHistory
+from src.db.db_models import CategoryHistory
 from src.utils.db import utc_now_ts
 from src.config import SAVE_STREAM_CATEGORIES
 

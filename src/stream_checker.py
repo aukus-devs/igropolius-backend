@@ -9,9 +9,9 @@ from lxml import html
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db_models import IgdbGame, PlayerGame, User
+from src.db.db_models import IgdbGame, PlayerGame, User
 from src.enums import StreamPlatform
-from src.utils.category_history import save_category_history
+from src.db.queries.category_history import save_category_history
 from src.utils.db import safe_commit, utc_now_ts
 
 logging.basicConfig(level=logging.INFO)

@@ -8,7 +8,7 @@ import httpx
 from pydantic import BaseModel
 
 from src.config import RANDOM_ORG_API_KEY
-from src.db import get_session
+from src.db.db_session import get_session
 from src.utils.db import log_error_to_db, utc_now_ts
 
 logging.basicConfig(level=logging.INFO)

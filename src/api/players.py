@@ -20,8 +20,8 @@ from src.api_models import (
     UsersList,
     UserSummary,
 )
-from src.db import get_db
-from src.db_models import (
+from src.db.db_session import get_db
+from src.db.db_models import (
     DiceRoll,
     EventSettings,
     IgdbGame,
@@ -38,14 +38,14 @@ from src.enums import (
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user, get_current_user_for_update
-from src.utils.category_history import (
+from src.db.queries.category_history import (
     calculate_game_duration_by_title,
     get_current_game_duration,
     save_category_history,
 )
 from src.utils.common import get_closest_prison_sector, map_bonus_card_to_event_type
 from src.utils.db import safe_commit, utc_now_ts
-from src.utils.notifications import (
+from src.db.queries.notifications import (
     create_game_completed_notification,
     create_game_drop_notification,
     create_game_reroll_notification,
