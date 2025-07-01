@@ -21,21 +21,27 @@ is_sqlite = DATABASE_URL.startswith("sqlite")
 #     return f"__asyncpg_{uuid4()}__"
 
 
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=False,
-    pool_size=20,
-    max_overflow=10,
-    pool_timeout=30,
-    pool_recycle=1800,
-    pool_pre_ping=True,
-    # connect_args={
-    #     "statement_cache_size": 0,
-    #     "prepared_statement_cache_size": 0,
-    #     "ssl": "require",
-    #     "prepared_statement_name_func": make_statement_name,
-    # },
-)
+if is_sqlite:
+    engine = create_async_engine(
+        DATABASE_URL,
+        echo=False,
+    )
+else:
+    engine = create_async_engine(
+        DATABASE_URL,
+        echo=False,
+        pool_size=20,
+        max_overflow=10,
+        pool_timeout=30,
+        pool_recycle=1800,
+        pool_pre_ping=True,
+        # connect_args={
+        #     "statement_cache_size": 0,
+        #     "prepared_statement_cache_size": 0,
+        #     "ssl": "require",
+        #     "prepared_statement_name_func": make_statement_name,
+        # },
+    )
 SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
