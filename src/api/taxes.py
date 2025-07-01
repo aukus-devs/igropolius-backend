@@ -58,7 +58,10 @@ async def pay_tax(
             .where(PlayerGame.player_id != current_user.id)
             .where(PlayerGame.type == GameCompletionType.COMPLETED.value)
         )
-        games = games_query.scalars().all()
+        games = list(games_query.scalars().all())
+        if not games:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+
         tax_payments: list[float] = []
         for game in games:
             tax_amount = (
