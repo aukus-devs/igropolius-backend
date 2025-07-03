@@ -240,6 +240,10 @@ class UseBonusCardRequest(BaseModel):
     bonus_type: MainBonusCardType
 
 
+class LoseBonusCardRequest(BaseModel):
+    bonus_type: MainBonusCardType
+
+
 class StreamCheckResponse(BaseModel):
     success: bool
     stats: dict

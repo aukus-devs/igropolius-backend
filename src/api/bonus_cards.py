@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import (
     GiveBonusCard,
     GiveBonusCardResponse,
+    LoseBonusCardRequest,
     StealBonusCardRequest,
     UseBonusCardRequest,
 )
@@ -134,6 +135,35 @@ async def use_bonus_card(
     card.status = "used"
     card.used_at = utc_now_ts()
     card.used_on_sector = current_user.sector_id
+
+    await safe_commit(db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/api/bonus-cards/lose")
+async def lose_bonus_card(
+    request: LoseBonusCardRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    cards_query = await db.execute(
+        select(PlayerCard)
+        .where(PlayerCard.player_id == current_user.id)
+        .where(PlayerCard.status == "active")
+        .where(PlayerCard.card_type == request.bonus_type.value)
+        .with_for_update()
+    )
+    card = cards_query.scalars().first()
+
+    if not card:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No active bonus card found",
+        )
+
+    card.status = "lost"
+    card.lost_at = utc_now_ts()
+    card.lost_on_sector = current_user.sector_id
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
