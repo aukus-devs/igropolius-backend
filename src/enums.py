@@ -17,9 +17,11 @@ class PlayerTurnState(Enum):
     CHOOSING_TRAIN_RIDE = "choosing-train-ride"
     USING_MAP_TAX_BONUSES = "using-map-tax-bonuses"
     USING_STREET_TAX_BONUSES = "using-street-tax-bonuses"
+    DROP_RANDOM_CARD = "drop-random-card"
     ENTERING_PRISON = "entering-prison"
     STEALING_BONUS_CARD = "stealing-bonus-card"
     CHOOSING_BUILDING_SECTOR = "choosing-building-sector"
+    USING_MAP_TAX_BONUSES_AFTER_TRAIN_RIDE = "using-map-tax-bonuses-after-train-ride"
 
 
 class MainBonusCardType(Enum):
