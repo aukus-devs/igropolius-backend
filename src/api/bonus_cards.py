@@ -10,11 +10,13 @@ from src.api_models import (
     LoseBonusCardRequest,
     StealBonusCardRequest,
     UseBonusCardRequest,
+    UseInstantCardRequest,
 )
 from src.db.db_session import get_db
 from src.db.db_models import PlayerCard, User
-from src.enums import MainBonusCardType
-from src.utils.auth import get_current_user
+from src.db.queries.players import get_players_by_score
+from src.enums import InstantCardType, MainBonusCardType
+from src.utils.auth import get_current_user, get_current_user_for_update
 from src.utils.db import safe_commit, utc_now_ts
 from src.db.queries.notifications import (
     create_card_lost_notification,
@@ -164,6 +166,44 @@ async def lose_bonus_card(
     card.status = "lost"
     card.lost_at = utc_now_ts()
     card.lost_on_sector = current_user.sector_id
+
+    await safe_commit(db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/api/bonus-cards/instant")
+async def use_instant_card(
+    request: UseInstantCardRequest,
+    current_user: Annotated[User, Depends(get_current_user_for_update)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    match request.card_type:
+        case InstantCardType.RECEIVE_3_PERCENT:
+            current_user.total_score += current_user.total_score * 0.03
+        case InstantCardType.RECEIVE_1_PERCENT_PLUS_20:
+            current_user.total_score += current_user.total_score * 0.01 + 20
+        case InstantCardType.LOSE_2_PERCENTS:
+            current_user.total_score -= current_user.total_score * 0.02
+        case InstantCardType.RECEIVE_SCORES_FOR_PLACE:
+            players = await get_players_by_score(db)
+            for i, player in enumerate(players):
+                if player.id == current_user.id:
+                    current_user.total_score += (
+                        current_user.total_score * 0.01 * (i + 1)
+                    )
+                    break
+        case InstantCardType.RECEIVE_1_PERCENT_FROM_ALL:
+            players = await get_players_by_score(db, for_update=True)
+            for player in players:
+                if player.id != current_user.id:
+                    amount = player.total_score * 0.01
+                    current_user.total_score += amount
+                    player.total_score -= amount
+        case InstantCardType.LEADERS_LOSE_PERCENTS:
+            players = await get_players_by_score(db, for_update=True)
+            players[0].total_score -= players[0].total_score * 0.03
+            players[1].total_score -= players[1].total_score * 0.02
+            players[2].total_score -= players[2].total_score * 0.01
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

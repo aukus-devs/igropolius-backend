@@ -3,6 +3,7 @@ from pydantic import BaseModel as PydanticBaseModel
 from src.enums import (
     BonusCardEventType,
     GameCompletionType,
+    InstantCardType,
     MainBonusCardType,
     NotificationEventType,
     NotificationType,
@@ -331,3 +332,7 @@ class CreateNotificationResponse(BaseModel):
 
 class SetEventEndTimeRequest(BaseModel):
     event_end_time: int | None = None
+
+
+class UseInstantCardRequest(BaseModel):
+    card_type: InstantCardType

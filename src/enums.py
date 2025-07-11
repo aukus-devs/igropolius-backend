@@ -98,3 +98,30 @@ class NotificationEventType(Enum):
     CARD_LOST = "card-lost"
     EVENT_ENDING_SOON = "event-ending-soon"
     MESSAGE = "message"
+
+
+class InstantCardType(Enum):
+    # 1 Сюрприз — в честь вашего дня рождения все другие игроки перечисляют вам очки (1% от суммы каждого). +
+    RECEIVE_1_PERCENT_FROM_ALL = "receive_1_percent_from_all"
+    # 2 Выбыл, говорите? — получаете % очков, равный вашему месту в таблице. +
+    RECEIVE_SCORES_FOR_PLACE = "receive_scores_for_place"
+    # 3 Тогда бесплатный тостер — если вы находитесь во второй половине таблицы лидеров, получаете (5%) очков; если в первой - реролл колеса.
+    RECEIVE_5_PERCENT_OR_REROLL = "receive_5_percent_or_reroll"
+    # 4 Деньги то, видит Бог, небольшие — получите (3%) очков. +
+    RECEIVE_3_PERCENT = "receive_3_percent"
+    # 5 А вот это явно не моя проблема —  первые три места в таблице лидеров теряют (3, 2, 1)% очков. +
+    LEADERS_LOSE_PERCENTS = "LEADERS_LOSE_PERCENTS"
+    # 6 Просто мы нашли резинку — получите (1%+20) очков. +
+    RECEIVE_1_PERCENT_PLUS_20 = "receive_1_percent_plus_20"
+    # 7 Он собирает установку — плюс один тир следующего здания.
+    UPGRADE_NEXT_BUILDING = "upgrade_next_building"
+    # 8 Я не мог просчитаться — минус один тир следующего здания.
+    DOWNGRADE_NEXT_BUILDING = "downgrade_next_building"
+    # 9 Плата? — потеряйте (2%) очков. +
+    LOSE_2_PERCENTS = "lose_2_percents"
+    # 10 Вернуться к исходной стадии — реролл этого колеса.
+    REROLL = "reroll"
+    # 11 Процесс стабилизируется — реролл этого колеса, плюс один дополнительный ролл.
+    REROLL_AND_ROLL = "reroll_and_roll"
+    # 12 — игрок теряет случайную карточку; если карточек нет, потеря 3% очков.
+    LOSE_CARD = "lose_card"
