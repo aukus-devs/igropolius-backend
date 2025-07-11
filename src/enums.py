@@ -58,6 +58,7 @@ class ScoreChangeType(Enum):
     STREET_TAX = "street-tax"
     STREET_INCOME = "street-income"
     MAP_TAX = "map-tax"
+    INSTANT_CARD = "instant-card"
 
 
 class BonusCardEventType(Enum):
