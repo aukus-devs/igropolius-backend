@@ -1,5 +1,5 @@
 import re
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, cast
 from sqlalchemy import select, text, func, desc, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.db_models import CategoryHistory
@@ -107,7 +107,7 @@ async def calculate_time_by_category_name(
 
 async def get_player_categories_stats(
     db: AsyncSession, player_id: int
-) -> Dict[str, int]:
+) -> dict[str, int]:
     query = (
         select(CategoryHistory.category_name, func.count().label("count"))
         .where(CategoryHistory.player_id == player_id)
@@ -118,7 +118,7 @@ async def get_player_categories_stats(
     result = await db.execute(query)
     rows = result.all()
 
-    return {row.category_name: row.count for row in rows}
+    return cast(dict[str, int], {row.category_name: row.count for row in rows})
 
 
 async def get_current_game_duration(
