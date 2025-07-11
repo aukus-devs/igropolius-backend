@@ -105,7 +105,7 @@ class InstantCardType(Enum):
     RECEIVE_1_PERCENT_FROM_ALL = "receive_1_percent_from_all"
     # 2 Выбыл, говорите? — получаете % очков, равный вашему месту в таблице. +
     RECEIVE_SCORES_FOR_PLACE = "receive_scores_for_place"
-    # 3 Тогда бесплатный тостер — если вы находитесь во второй половине таблицы лидеров, получаете (5%) очков; если в первой - реролл колеса.
+    # 3 Тогда бесплатный тостер — если вы находитесь во второй половине таблицы лидеров, получаете (5%) очков; если в первой - реролл колеса. +
     RECEIVE_5_PERCENT_OR_REROLL = "receive_5_percent_or_reroll"
     # 4 Деньги то, видит Бог, небольшие — получите (3%) очков. +
     RECEIVE_3_PERCENT = "receive_3_percent"
@@ -123,5 +123,11 @@ class InstantCardType(Enum):
     REROLL = "reroll"
     # 11 Процесс стабилизируется — реролл этого колеса, плюс один дополнительный ролл.
     REROLL_AND_ROLL = "reroll_and_roll"
-    # 12 — игрок теряет случайную карточку; если карточек нет, потеря 3% очков.
-    LOSE_CARD = "lose_card"
+    # 12 — игрок теряет случайную карточку; если карточек нет, потеря 3% очков. +
+    LOSE_CARD_OR_3_PERCENT = "lose_card_or_3_percent"
+
+
+class InstantCardResult(Enum):
+    REROLL = "reroll"
+    CARD_LOST = "card_lost"
+    SCORES_LOST = "scores_lost"

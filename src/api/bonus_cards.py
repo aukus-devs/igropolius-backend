@@ -11,11 +11,12 @@ from src.api_models import (
     StealBonusCardRequest,
     UseBonusCardRequest,
     UseInstantCardRequest,
+    UseInstantCardResponse,
 )
 from src.db.db_session import get_db
 from src.db.db_models import PlayerCard, User
 from src.db.queries.players import get_players_by_score
-from src.enums import InstantCardType, MainBonusCardType
+from src.enums import InstantCardResult, InstantCardType, MainBonusCardType
 from src.utils.auth import get_current_user, get_current_user_for_update
 from src.utils.db import safe_commit, utc_now_ts
 from src.db.queries.notifications import (
@@ -171,12 +172,13 @@ async def lose_bonus_card(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/api/bonus-cards/instant")
+@router.post("/api/bonus-cards/instant", response_model=UseInstantCardResponse)
 async def use_instant_card(
     request: UseInstantCardRequest,
     current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    response = UseInstantCardResponse()
     match request.card_type:
         case InstantCardType.RECEIVE_3_PERCENT:
             current_user.total_score += current_user.total_score * 0.03
@@ -204,6 +206,40 @@ async def use_instant_card(
             players[0].total_score -= players[0].total_score * 0.03
             players[1].total_score -= players[1].total_score * 0.02
             players[2].total_score -= players[2].total_score * 0.01
+        case InstantCardType.RECEIVE_5_PERCENT_OR_REROLL:
+            players = await get_players_by_score(db)
+            for i, player in enumerate(players):
+                if player.id == current_user.id:
+                    if i < len(players) / 2:
+                        response.result = InstantCardResult.REROLL
+                    else:
+                        current_user.total_score += player.total_score * 0.05
+                    break
+        case InstantCardType.LOSE_CARD_OR_3_PERCENT:
+            if request.card_to_lose is None:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Card to lose must be specified",
+                )
+
+            cards_query = await db.execute(
+                select(PlayerCard)
+                .where(PlayerCard.player_id == current_user.id)
+                .where(PlayerCard.status == "active")
+                .where(PlayerCard.card_type == request.card_to_lose.value)
+                .with_for_update()
+            )
+            card = cards_query.scalars().first()
+            if not card:
+                current_user.total_score -= current_user.total_score * 0.03
+                response.result = InstantCardResult.SCORES_LOST
+            else:
+                card.status = "lose"
+                card.lost_at = utc_now_ts()
+                card.lost_on_sector = current_user.sector_id
+                response.result = InstantCardResult.CARD_LOST
+        case InstantCardType.REROLL:
+            response.result = InstantCardResult.REROLL
 
     await safe_commit(db)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return response
