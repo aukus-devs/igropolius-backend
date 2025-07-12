@@ -20,6 +20,8 @@ from src.enums import (
     InstantCardResult,
     InstantCardType,
     MainBonusCardType,
+    PlayerTurnState,
+    Role,
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user, get_current_user_for_update
@@ -60,6 +62,36 @@ async def receive_bonus_card(
         status="active",
     )
     db.add(new_card)
+
+    if current_user.turn_state == PlayerTurnState.ENTERING_PRISON:
+        # remove card from prison
+        prison_query = (
+            select(User).where(User.role == Role.PRISON).where(User.is_active == 1)
+        )
+        prison = await db.execute(prison_query)
+        prison_user = prison.scalars().first()
+        if not prison_user:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Prison user not found",
+            )
+        prison_cards_query = (
+            select(PlayerCard)
+            .where(PlayerCard.player_id == prison_user.id)
+            .where(PlayerCard.status == "active")
+            .where(PlayerCard.card_type == card)
+        )
+        prison_cards = await db.execute(prison_cards_query)
+        prison_card = prison_cards.scalars().first()
+        if not prison_card:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Prison card not found",
+            )
+        prison_card.status = "lost"
+        prison_card.lost_at = utc_now_ts()
+        prison_card.lost_on_sector = current_user.sector_id
+
     await safe_commit(db)
     return GiveBonusCardResponse(
         bonus_type=MainBonusCardType(new_card.card_type),
@@ -172,6 +204,26 @@ async def lose_bonus_card(
     card.status = "lost"
     card.lost_at = utc_now_ts()
     card.lost_on_sector = current_user.sector_id
+
+    if current_user.turn_state == PlayerTurnState.ENTERING_PRISON:
+        # move the card to prison storage
+        prison_query = (
+            select(User).where(User.role == Role.PRISON).where(User.is_active == 1)
+        )
+        prison = await db.execute(prison_query)
+        prison_user = prison.scalars().first()
+        if not prison_user:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Prison user not found",
+            )
+        new_card = PlayerCard(
+            player_id=prison_user.id,
+            card_type=card.card_type,
+            received_on_sector=current_user.sector_id,
+            status="active",
+        )
+        db.add(new_card)
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
