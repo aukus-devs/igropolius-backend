@@ -5,6 +5,7 @@ class Role(Enum):
     PLAYER = "player"
     MODER = "moder"
     ADMIN = "admin"
+    PRISON = "prison"
 
 
 class PlayerTurnState(Enum):
