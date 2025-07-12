@@ -120,7 +120,7 @@ class InstantCardType(Enum):
     DOWNGRADE_NEXT_BUILDING = "downgrade_next_building"
     # 9 Плата? — потеряйте (2%) очков. +
     LOSE_2_PERCENTS = "lose_2_percents"
-    # 10 Вернуться к исходной стадии — реролл этого колеса.
+    # 10 Вернуться к исходной стадии — реролл этого колеса. +
     REROLL = "reroll"
     # 11 Процесс стабилизируется — реролл этого колеса, плюс один дополнительный ролл.
     REROLL_AND_ROLL = "reroll_and_roll"

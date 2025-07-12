@@ -270,29 +270,18 @@ async def do_player_move(
         dice_values: list[int] = json.loads(dice_roll_record.dice_values)
         roll_result = sum(dice_values)
 
-        adjust_by1_card_query = await db.execute(
-            select(PlayerCard)
-            .where(
-                PlayerCard.player_id == current_user.id,
-                PlayerCard.status == "active",
-                PlayerCard.card_type == MainBonusCardType.ADJUST_BY_1.value,
-            )
-            .with_for_update()
-        )
-        adjust_by1_card = adjust_by1_card_query.scalars().first()
-
-        choose_1_die_card_query = await db.execute(
-            select(PlayerCard)
-            .where(
-                PlayerCard.player_id == current_user.id,
-                PlayerCard.status == "active",
-                PlayerCard.card_type == MainBonusCardType.CHOOSE_1_DIE.value,
-            )
-            .with_for_update()
-        )
-        choose_1_die_card = choose_1_die_card_query.scalars().first()
-
         if move.selected_die is not None:
+            choose_1_die_card_query = await db.execute(
+                select(PlayerCard)
+                .where(
+                    PlayerCard.player_id == current_user.id,
+                    PlayerCard.status == "active",
+                    PlayerCard.card_type == MainBonusCardType.CHOOSE_1_DIE.value,
+                )
+                .with_for_update()
+            )
+            choose_1_die_card = choose_1_die_card_query.scalars().first()
+
             if choose_1_die_card is None:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -309,6 +298,17 @@ async def do_player_move(
             choose_1_die_card.used_on_sector = sector_id_from
 
         if move.adjust_by_1 is not None:
+            adjust_by1_card_query = await db.execute(
+                select(PlayerCard)
+                .where(
+                    PlayerCard.player_id == current_user.id,
+                    PlayerCard.status == "active",
+                    PlayerCard.card_type == MainBonusCardType.ADJUST_BY_1.value,
+                )
+                .with_for_update()
+            )
+            adjust_by1_card = adjust_by1_card_query.scalars().first()
+
             if adjust_by1_card is None:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -386,6 +386,7 @@ async def save_player_game(
     )
     db.add(game)
 
+    # TODO move score calculation to backend
     score_change = PlayerScoreChange(
         player_id=current_user.id,
         score_change=request.scores,
@@ -395,25 +396,38 @@ async def save_player_game(
     )
     db.add(score_change)
 
-    if request.status == GameCompletionType.COMPLETED:
-        current_user.total_score += request.scores
-        current_user.total_score = round(current_user.total_score, 2)
-    if request.status == GameCompletionType.DROP:
-        current_user.sector_id = get_closest_prison_sector(current_user.sector_id)
+    match request.status:
+        case GameCompletionType.COMPLETED:
+            current_user.total_score += request.scores
+            current_user.total_score = round(current_user.total_score, 2)
+        case GameCompletionType.DROP:
+            prison_sector = get_closest_prison_sector(current_user.sector_id)
+            prison_move = PlayerMove(
+                player_id=current_user.id,
+                sector_from=current_user.sector_id,
+                sector_to=get_closest_prison_sector(current_user.sector_id),
+                move_type=PlayerMoveType.DROP_TO_PRISON.value,
+                map_completed=False,
+                adjusted_roll=prison_sector - current_user.sector_id,
+                random_org_roll=-1,
+            )
+            db.add(prison_move)
+            current_user.sector_id = prison_sector
 
     current_user.current_game = None
     current_user.current_game_updated_at = None
     current_user.current_game_cover = None
     await save_category_history(db, current_user.id, "NewPlayerGame")
 
-    if request.status == GameCompletionType.COMPLETED:
-        await create_game_completed_notification(
-            db, current_user.id, request.scores, request.title
-        )
-    elif request.status == GameCompletionType.REROLL:
-        await create_game_reroll_notification(db, current_user.id, request.title)
-    elif request.status == GameCompletionType.DROP:
-        await create_game_drop_notification(db, current_user.id, request.title)
+    match request.status:
+        case GameCompletionType.COMPLETED:
+            await create_game_completed_notification(
+                db, current_user.id, request.scores, request.title
+            )
+        case GameCompletionType.REROLL:
+            await create_game_reroll_notification(db, current_user.id, request.title)
+        case GameCompletionType.DROP:
+            await create_game_drop_notification(db, current_user.id, request.title)
 
     await safe_commit(db)
     return {"new_sector_id": current_user.sector_id}
