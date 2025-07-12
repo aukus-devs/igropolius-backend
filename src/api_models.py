@@ -70,6 +70,7 @@ class UserSummary(BaseModel):
     maps_completed: int
     games: list[UserGame] = []
     bonus_cards: list[BonusCard] = []
+    role: Role
 
 
 class UsersList(BaseModel):
