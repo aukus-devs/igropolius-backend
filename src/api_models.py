@@ -2,6 +2,7 @@ from pydantic import BaseModel as PydanticBaseModel
 
 from src.enums import (
     BonusCardEventType,
+    BonusCardType,
     GameCompletionType,
     InstantCardResult,
     InstantCardType,
@@ -117,7 +118,7 @@ class ScoreChangeEvent(UserEventBase):
 class BonusCardEvent(UserEventBase):
     event_type: str = "bonus-card"
     subtype: BonusCardEventType
-    bonus_type: MainBonusCardType
+    bonus_type: BonusCardType
     sector_id: int
     used_at: int | None = None
     used_on_sector: int | None = None

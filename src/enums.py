@@ -103,32 +103,55 @@ class NotificationEventType(Enum):
 
 class InstantCardType(Enum):
     # 1 Сюрприз — в честь вашего дня рождения все другие игроки перечисляют вам очки (1% от суммы каждого). +
-    RECEIVE_1_PERCENT_FROM_ALL = "receive_1_percent_from_all"
+    RECEIVE_1_PERCENT_FROM_ALL = "receive-1-percent-from-all"
     # 2 Выбыл, говорите? — получаете % очков, равный вашему месту в таблице. +
-    RECEIVE_SCORES_FOR_PLACE = "receive_scores_for_place"
+    RECEIVE_SCORES_FOR_PLACE = "receive-scores-for-place"
     # 3 Тогда бесплатный тостер — если вы находитесь во второй половине таблицы лидеров, получаете (5%) очков; если в первой - реролл колеса. +
-    RECEIVE_5_PERCENT_OR_REROLL = "receive_5_percent_or_reroll"
+    RECEIVE_5_PERCENT_OR_REROLL = "receive-5-percent-or-reroll"
     # 4 Деньги то, видит Бог, небольшие — получите (3%) очков. +
-    RECEIVE_3_PERCENT = "receive_3_percent"
+    RECEIVE_3_PERCENT = "receive-3-percent"
     # 5 А вот это явно не моя проблема —  первые три места в таблице лидеров теряют (3, 2, 1)% очков. +
-    LEADERS_LOSE_PERCENTS = "LEADERS_LOSE_PERCENTS"
+    LEADERS_LOSE_PERCENTS = "leaders-lose-percents"
     # 6 Просто мы нашли резинку — получите (1%+20) очков. +
-    RECEIVE_1_PERCENT_PLUS_20 = "receive_1_percent_plus_20"
+    RECEIVE_1_PERCENT_PLUS_20 = "receive-1-percent-plus-20"
     # 7 Он собирает установку — плюс один тир следующего здания.
-    UPGRADE_NEXT_BUILDING = "upgrade_next_building"
+    UPGRADE_NEXT_BUILDING = "upgrade-next-building"
     # 8 Я не мог просчитаться — минус один тир следующего здания.
-    DOWNGRADE_NEXT_BUILDING = "downgrade_next_building"
+    DOWNGRADE_NEXT_BUILDING = "downgrade-next-building"
     # 9 Плата? — потеряйте (2%) очков. +
-    LOSE_2_PERCENTS = "lose_2_percents"
+    LOSE_2_PERCENTS = "lose-2-percents"
     # 10 Вернуться к исходной стадии — реролл этого колеса. +
     REROLL = "reroll"
     # 11 Процесс стабилизируется — реролл этого колеса, плюс один дополнительный ролл.
-    REROLL_AND_ROLL = "reroll_and_roll"
+    REROLL_AND_ROLL = "reroll-and-roll"
     # 12 — игрок теряет случайную карточку; если карточек нет, потеря 3% очков. +
-    LOSE_CARD_OR_3_PERCENT = "lose_card_or_3_percent"
+    LOSE_CARD_OR_3_PERCENT = "lose-card-or-3-percent"
 
 
 class InstantCardResult(Enum):
     REROLL = "reroll"
-    CARD_LOST = "card_lost"
-    SCORES_LOST = "scores_lost"
+    CARD_LOST = "card-lost"
+    SCORES_LOST = "scores-lost"
+
+
+class BonusCardType(Enum):
+    ADJUST_BY_1 = "adjust-roll-by1"
+    CHOOSE_1_DIE = "choose-1-die"
+    SKIP_PRISON_DAY = "skip-prison-day"
+    REROLL_GAME = "reroll-game"
+    EVADE_STREET_TAX = "evade-street-tax"
+    EVADE_MAP_TAX = "evade-map-tax"
+    GAME_HELP_ALLOWED = "game-help-allowed"
+
+    RECEIVE_1_PERCENT_FROM_ALL = "receive-1-percent-from-all"
+    RECEIVE_SCORES_FOR_PLACE = "receive_scores-for-place"
+    RECEIVE_5_PERCENT_OR_REROLL = "receive-5-percent-or-reroll"
+    RECEIVE_3_PERCENT = "receive-3-percent"
+    LEADERS_LOSE_PERCENTS = "leaders-lose-percents"
+    RECEIVE_1_PERCENT_PLUS_20 = "receive-1-percent-plus-20"
+    UPGRADE_NEXT_BUILDING = "upgrade-next-building"
+    DOWNGRADE_NEXT_BUILDING = "downgrade-next-building"
+    LOSE_2_PERCENTS = "lose-2-percents"
+    REROLL = "reroll"
+    REROLL_AND_ROLL = "reroll-and-roll"
+    LOSE_CARD_OR_3_PERCENT = "lose-card-or-3-percent"

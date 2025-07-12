@@ -32,6 +32,7 @@ from src.db.db_models import (
     User,
 )
 from src.enums import (
+    BonusCardType,
     GameCompletionType,
     MainBonusCardType,
     PlayerMoveType,
@@ -206,7 +207,7 @@ async def get_player_events(
     bonus_card_events = [
         BonusCardEvent(
             subtype=map_bonus_card_to_event_type(e),
-            bonus_type=MainBonusCardType(e.card_type),
+            bonus_type=BonusCardType(e.card_type),
             sector_id=e.received_on_sector,
             timestamp=e.created_at,
             used_at=e.used_at,

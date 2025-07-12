@@ -327,6 +327,21 @@ async def use_instant_card(
                 response.result = InstantCardResult.CARD_LOST
         case InstantCardType.REROLL:
             response.result = InstantCardResult.REROLL
+        case _:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid instant card type",
+            )
+
+    bonus_card = PlayerCard(
+        player_id=current_user.id,
+        card_type=request.card_type.value,
+        received_on_sector=current_user.sector_id,
+        status="used",
+        used_at=utc_now_ts(),
+        used_on_sector=current_user.sector_id,
+    )
+    db.add(bonus_card)
 
     await safe_commit(db)
     return response
