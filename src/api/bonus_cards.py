@@ -65,10 +65,12 @@ async def receive_bonus_card(
     )
     db.add(new_card)
 
-    if current_user.turn_state == PlayerTurnState.ENTERING_PRISON:
+    if current_user.turn_state == PlayerTurnState.ENTERING_PRISON.value:
         # remove card from prison
         prison_query = (
-            select(User).where(User.role == Role.PRISON).where(User.is_active == 1)
+            select(User)
+            .where(User.role == Role.PRISON.value)
+            .where(User.is_active == 1)
         )
         prison = await db.execute(prison_query)
         prison_user = prison.scalars().first()
@@ -211,7 +213,9 @@ async def lose_bonus_card(
         case PlayerTurnState.ENTERING_PRISON.value:
             # move the card to prison storage
             prison_query = (
-                select(User).where(User.role == Role.PRISON).where(User.is_active == 1)
+                select(User)
+                .where(User.role == Role.PRISON.value)
+                .where(User.is_active == 1)
             )
             prison = await db.execute(prison_query)
             prison_user = prison.scalars().first()
