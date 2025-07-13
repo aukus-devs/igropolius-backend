@@ -1,6 +1,6 @@
 # models.py
 from sqlalchemy import Float, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column  # pyright: ignore[reportAttributeAccessIssue]
 from sqlalchemy.orm.decl_api import declarative_base
 
 from src.enums import PlayerTurnState, Role, StreamPlatform

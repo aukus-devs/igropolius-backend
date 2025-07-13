@@ -2,7 +2,8 @@
 import asyncio
 from contextlib import asynccontextmanager
 
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine  # pyright: ignore[reportAttributeAccessIssue]
 
 from src.db.db_models import (
     DbBase,

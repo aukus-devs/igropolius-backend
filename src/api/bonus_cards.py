@@ -14,17 +14,19 @@ from src.api_models import (
     UseInstantCardResponse,
 )
 from src.db.db_session import get_db
-from src.db.db_models import PlayerCard, PlayerScoreChange, User
+from src.db.db_models import PlayerCard, PlayerMove, PlayerScoreChange, User
 from src.db.queries.players import get_players_by_score
 from src.enums import (
     InstantCardResult,
     InstantCardType,
     MainBonusCardType,
+    PlayerMoveType,
     PlayerTurnState,
     Role,
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user, get_current_user_for_update
+from src.utils.common import get_closest_prison_sector
 from src.utils.db import safe_commit, utc_now_ts
 from src.db.queries.notifications import (
     create_card_lost_notification,
@@ -205,25 +207,45 @@ async def lose_bonus_card(
     card.lost_at = utc_now_ts()
     card.lost_on_sector = current_user.sector_id
 
-    if current_user.turn_state == PlayerTurnState.ENTERING_PRISON:
-        # move the card to prison storage
-        prison_query = (
-            select(User).where(User.role == Role.PRISON).where(User.is_active == 1)
-        )
-        prison = await db.execute(prison_query)
-        prison_user = prison.scalars().first()
-        if not prison_user:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Prison user not found",
+    match current_user.turn_state:
+        case PlayerTurnState.ENTERING_PRISON.value:
+            # move the card to prison storage
+            prison_query = (
+                select(User).where(User.role == Role.PRISON).where(User.is_active == 1)
             )
-        new_card = PlayerCard(
-            player_id=prison_user.id,
-            card_type=card.card_type,
-            received_on_sector=current_user.sector_id,
-            status="active",
-        )
-        db.add(new_card)
+            prison = await db.execute(prison_query)
+            prison_user = prison.scalars().first()
+            if not prison_user:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Prison user not found",
+                )
+            new_card = PlayerCard(
+                player_id=prison_user.id,
+                card_type=card.card_type,
+                received_on_sector=current_user.sector_id,
+                status="active",
+            )
+            db.add(new_card)
+        case PlayerTurnState.DROP_RANDOM_CARD.value:
+            # move player to prison
+            prison_sector = get_closest_prison_sector(current_user.sector_id)
+            prison_move = PlayerMove(
+                player_id=current_user.id,
+                sector_from=current_user.sector_id,
+                sector_to=get_closest_prison_sector(current_user.sector_id),
+                move_type=PlayerMoveType.DROP_TO_PRISON.value,
+                map_completed=False,
+                adjusted_roll=prison_sector - current_user.sector_id,
+                random_org_roll=-1,
+            )
+            db.add(prison_move)
+            current_user.sector_id = prison_sector
+        case _:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot lose bonus card in current turn state: {current_user.turn_state}",
+            )
 
     await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -387,7 +409,7 @@ async def use_instant_card(
 
     bonus_card = PlayerCard(
         player_id=current_user.id,
-        card_type=request.card_type.value,
+        card_type=request.card_type,
         received_on_sector=current_user.sector_id,
         status="used",
         used_at=utc_now_ts(),

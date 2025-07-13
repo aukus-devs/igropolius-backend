@@ -401,19 +401,6 @@ async def save_player_game(
         case GameCompletionType.COMPLETED:
             current_user.total_score += request.scores
             current_user.total_score = round(current_user.total_score, 2)
-        case GameCompletionType.DROP:
-            prison_sector = get_closest_prison_sector(current_user.sector_id)
-            prison_move = PlayerMove(
-                player_id=current_user.id,
-                sector_from=current_user.sector_id,
-                sector_to=get_closest_prison_sector(current_user.sector_id),
-                move_type=PlayerMoveType.DROP_TO_PRISON.value,
-                map_completed=False,
-                adjusted_roll=prison_sector - current_user.sector_id,
-                random_org_roll=-1,
-            )
-            db.add(prison_move)
-            current_user.sector_id = prison_sector
 
     current_user.current_game = None
     current_user.current_game_updated_at = None
@@ -425,9 +412,9 @@ async def save_player_game(
             await create_game_completed_notification(
                 db, current_user.id, request.scores, request.title
             )
-        case GameCompletionType.REROLL:
+        case GameCompletionType.REROLL.value:
             await create_game_reroll_notification(db, current_user.id, request.title)
-        case GameCompletionType.DROP:
+        case GameCompletionType.DROP.value:
             await create_game_drop_notification(db, current_user.id, request.title)
 
     await safe_commit(db)
