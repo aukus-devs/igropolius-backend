@@ -8,7 +8,6 @@ from src.api_models import RollDiceRequest, RollDiceResponse
 from src.db.db_session import get_db
 from src.db.db_models import DiceRoll, User
 from src.utils.auth import get_current_user
-from src.utils.db import safe_commit
 from src.utils.random_org import get_random_numbers
 
 
@@ -58,8 +57,6 @@ async def roll_dice(
     )
 
     db.add(dice_roll)
-
-    await safe_commit(db)
 
     return RollDiceResponse(
         roll_id=dice_roll.id,

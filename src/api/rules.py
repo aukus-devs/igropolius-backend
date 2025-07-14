@@ -9,7 +9,7 @@ from src.api_models import RulesResponse, RulesVersion
 from src.db.db_session import get_db
 from src.db.db_models import Rules, User
 from src.utils.auth import get_current_user
-from src.utils.db import safe_commit, utc_now_ts
+from src.utils.db import utc_now_ts
 
 
 router = APIRouter(tags=["rules"])
@@ -57,5 +57,4 @@ async def create_new_rules_version(
 
     new_rule = Rules(content=request.content)
     db.add(new_rule)
-    await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

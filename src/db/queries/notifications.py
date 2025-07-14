@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.db_models import Notification
 from src.enums import NotificationEventType, NotificationType
-from src.utils.db import safe_commit, utc_now_ts
+from src.utils.db import utc_now_ts
 
 
 async def create_notification(
@@ -31,9 +31,7 @@ async def create_notification(
         message_text=message_text,
         created_at=utc_now_ts(),
     )
-
     db.add(notification)
-    await safe_commit(db)
 
 
 async def create_game_completed_notification(

@@ -79,6 +79,8 @@ class PlayerScoreChange(DbBase):
     change_type: Mapped[str] = mapped_column(String(255), nullable=False)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=True)
+    score_before: Mapped[float] = mapped_column(Float, nullable=False)
+    score_after: Mapped[float] = mapped_column(Float, nullable=False)
 
 
 class PlayerCard(DbBase):

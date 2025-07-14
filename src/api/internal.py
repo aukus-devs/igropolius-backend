@@ -17,7 +17,6 @@ from src.db.db_session import get_db
 from src.db.db_models import EventSettings, User
 from src.enums import NotificationEventType, NotificationType, Role
 from src.utils.auth import get_current_user, get_current_user_direct
-from src.utils.db import safe_commit
 from src.db.queries.notifications import (
     create_all_players_notification,
     create_message_notification,
@@ -68,8 +67,6 @@ async def reset_internal(
     from src.utils.db import reset_database
 
     await reset_database(db)
-    await safe_commit(db)
-
     return {"success": True, "message": "Database has been reset successfully."}
 
 
@@ -282,8 +279,6 @@ async def set_event_end_time(
         else:
             event_settings = EventSettings(event_end_time=request.event_end_time)
             db.add(event_settings)
-
-        await safe_commit(db)
 
         message = (
             f"Event end time set to {request.event_end_time}"

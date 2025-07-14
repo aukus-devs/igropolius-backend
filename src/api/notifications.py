@@ -12,7 +12,6 @@ from src.api_models import (
 from src.db.db_session import get_db
 from src.db.db_models import Notification, User
 from src.utils.auth import get_current_user
-from src.utils.db import safe_commit
 
 router = APIRouter(tags=["notifications"])
 
@@ -81,5 +80,4 @@ async def mark_notifications_seen(
         .values(is_read=1)
     )
 
-    await safe_commit(db)
     return {"success": True}

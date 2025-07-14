@@ -31,6 +31,7 @@ from src.db.db_models import (
     PlayerScoreChange,
     User,
 )
+from src.db.queries.players import change_player_score
 from src.enums import (
     BonusCardType,
     GameCompletionType,
@@ -44,8 +45,8 @@ from src.db.queries.category_history import (
     get_current_game_duration,
     save_category_history,
 )
-from src.utils.common import get_closest_prison_sector, map_bonus_card_to_event_type
-from src.utils.db import safe_commit, utc_now_ts
+from src.utils.common import map_bonus_card_to_event_type
+from src.utils.db import utc_now_ts
 from src.db.queries.notifications import (
     create_game_completed_notification,
     create_game_drop_notification,
@@ -356,7 +357,6 @@ async def do_player_move(
     if map_completed:
         current_user.maps_completed += 1
 
-    await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -387,20 +387,16 @@ async def save_player_game(
     )
     db.add(game)
 
-    # TODO move score calculation to backend
-    score_change = PlayerScoreChange(
-        player_id=current_user.id,
-        score_change=request.scores,
-        change_type=ScoreChangeType.GAME_COMPLETED.value,
-        description=f"game completed: '{request.title}'",
-        sector_id=current_user.sector_id,
-    )
-    db.add(score_change)
-
     match request.status:
         case GameCompletionType.COMPLETED:
-            current_user.total_score += request.scores
-            current_user.total_score = round(current_user.total_score, 2)
+            # TODO move score calculation to backend
+            await change_player_score(
+                db,
+                current_user,
+                request.scores,
+                ScoreChangeType.GAME_COMPLETED,
+                f"game completed: '{request.title}'",
+            )
 
     current_user.current_game = None
     current_user.current_game_updated_at = None
@@ -412,21 +408,19 @@ async def save_player_game(
             await create_game_completed_notification(
                 db, current_user.id, request.scores, request.title
             )
-        case GameCompletionType.REROLL.value:
+        case GameCompletionType.REROLL:
             await create_game_reroll_notification(db, current_user.id, request.title)
-        case GameCompletionType.DROP.value:
+        case GameCompletionType.DROP:
             await create_game_drop_notification(db, current_user.id, request.title)
 
-    await safe_commit(db)
     return {"new_sector_id": current_user.sector_id}
 
 
 @router.post("/api/players/current/turn-state")
 async def update_turn_state(
     request: UpdatePlayerTurnState,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     current_user.turn_state = request.turn_state.value
-    await safe_commit(db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
