@@ -57,6 +57,8 @@ async def roll_dice(
     )
 
     db.add(dice_roll)
+    # ensure dice_roll gets an ID before response
+    await db.flush()
 
     return RollDiceResponse(
         roll_id=dice_roll.id,
