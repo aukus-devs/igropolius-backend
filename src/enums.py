@@ -145,7 +145,7 @@ class BonusCardType(Enum):
     GAME_HELP_ALLOWED = "game-help-allowed"
 
     RECEIVE_1_PERCENT_FROM_ALL = "receive-1-percent-from-all"
-    RECEIVE_SCORES_FOR_PLACE = "receive_scores-for-place"
+    RECEIVE_SCORES_FOR_PLACE = "receive-scores-for-place"
     RECEIVE_5_PERCENT_OR_REROLL = "receive-5-percent-or-reroll"
     RECEIVE_3_PERCENT = "receive-3-percent"
     LEADERS_LOSE_PERCENTS = "leaders-lose-percents"
