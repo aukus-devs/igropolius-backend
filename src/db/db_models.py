@@ -44,6 +44,8 @@ class User(DbBase):
         String(255), default=PlayerTurnState.ROLLING_DICE.value, nullable=False
     )
     maps_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    has_upgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    has_downgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
 
 class PlayerGame(DbBase):

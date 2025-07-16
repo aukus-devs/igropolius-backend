@@ -89,6 +89,8 @@ class CurrentUser(BaseModel):
     turn_state: PlayerTurnState
     maps_completed: int = 0
     last_roll_result: list[int] = []
+    has_upgrade_bonus: bool = False
+    has_downgrade_bonus: bool = False
 
 
 class UserEventBase(BaseModel):

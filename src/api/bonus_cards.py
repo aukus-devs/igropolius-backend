@@ -390,7 +390,7 @@ async def use_instant_card(
 
     bonus_card = PlayerCard(
         player_id=current_user.id,
-        card_type=request.card_type,
+        card_type=request.card_type.value,
         received_on_sector=current_user.sector_id,
         status="used",
         used_at=utc_now_ts(),
