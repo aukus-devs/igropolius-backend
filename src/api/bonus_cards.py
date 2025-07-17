@@ -228,7 +228,7 @@ async def lose_bonus_card(
                 status="active",
             )
             db.add(new_card)
-        case PlayerTurnState.DROP_RANDOM_CARD.value:
+        case PlayerTurnState.DROPPING_CARD_AFTER_GAME_DROP.value:
             # move player to prison
             prison_sector = get_closest_prison_sector(current_user.sector_id)
             prison_move = PlayerMove(
@@ -242,6 +242,8 @@ async def lose_bonus_card(
             )
             db.add(prison_move)
             current_user.sector_id = prison_sector
+        case PlayerTurnState.DROPPING_CARD_AFTER_INSTANT_ROLL.value:
+            pass
         case _:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -382,6 +384,8 @@ async def use_instant_card(
                 response.result = InstantCardResult.CARD_LOST
         case InstantCardType.REROLL:
             response.result = InstantCardResult.REROLL
+        case InstantCardType.REROLL_AND_ROLL:
+            pass
         case InstantCardType.DOWNGRADE_NEXT_BUILDING:
             if current_user.has_downgrade_bonus:
                 raise HTTPException(
