@@ -3,10 +3,12 @@ import asyncio
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from .db_session import get_session, init_db_async
-from src.db.db_models import User, IgdbGame
-from src.enums import PlayerTurnState, StreamPlatform, Role
+
+from src.db.db_models import IgdbGame, User
+from src.enums import PlayerTurnState, Role, StreamPlatform
 from src.utils.jwt import hash_password
+
+from .db_session import get_session, init_db_async
 
 
 class UserData(BaseModel):
