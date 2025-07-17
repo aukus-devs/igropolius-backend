@@ -32,6 +32,7 @@ class UserGame(BaseModel):
     review: str
     rating: float
     length: str
+    length_bonus: int | None = None
     duration: int | None = None
     vod_links: str | None = None
     cover: str | None = None

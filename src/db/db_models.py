@@ -66,7 +66,7 @@ class PlayerGame(DbBase):
     vod_links: Mapped[str] = mapped_column(String(255), nullable=True)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     game_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    item_length_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    item_length_bonus: Mapped[int] = mapped_column(Integer, nullable=True)
 
 
 class PlayerScoreChange(DbBase):
