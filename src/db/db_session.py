@@ -4,8 +4,8 @@ from contextlib import asynccontextmanager
 
 from sqlalchemy import event
 from sqlalchemy.exc import DisconnectionError, OperationalError
-from sqlalchemy.ext.asyncio import (  # pyright: ignore[reportAttributeAccessIssue]
-    async_sessionmaker,
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker,  # pyright: ignore[reportAttributeAccessIssue]
     create_async_engine,
 )
 
