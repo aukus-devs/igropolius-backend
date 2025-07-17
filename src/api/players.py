@@ -20,6 +20,7 @@ from src.api_models import (
     UsersList,
     UserSummary,
 )
+from src.consts import GAME_LENGTHS_IN_ORDER
 from src.db.db_session import get_db
 from src.db.db_models import (
     DiceRoll,
@@ -408,6 +409,29 @@ async def save_player_game(
                 ScoreChangeType.GAME_COMPLETED,
                 f"game completed: '{request.title}'",
             )
+
+            if game.length not in GAME_LENGTHS_IN_ORDER:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid game length: {game.length}. Must be one of {GAME_LENGTHS_IN_ORDER}.",
+                )
+
+            item_length_idx = GAME_LENGTHS_IN_ORDER.index(game.length)
+
+            if (
+                current_user.has_upgrade_bonus
+                and item_length_idx != len(GAME_LENGTHS_IN_ORDER) - 1
+            ):
+                next_len = GAME_LENGTHS_IN_ORDER[item_length_idx + 1]
+                game.item_length = next_len
+                game.item_length_bonus = 1
+                current_user.has_upgrade_bonus = False
+
+            if current_user.has_downgrade_bonus and item_length_idx != 0:
+                prev_len = GAME_LENGTHS_IN_ORDER[item_length_idx - 1]
+                game.item_length = prev_len
+                game.item_length_bonus = -1
+                current_user.has_downgrade_bonus = False
 
     current_user.current_game = None
     current_user.current_game_updated_at = None
