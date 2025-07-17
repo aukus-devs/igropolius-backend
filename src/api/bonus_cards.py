@@ -388,14 +388,20 @@ async def use_instant_card(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="You already have a downgrade bonus",
                 )
-            current_user.has_downgrade_bonus = True
+            if current_user.has_upgrade_bonus:
+                current_user.has_upgrade_bonus = False
+            else:
+                current_user.has_downgrade_bonus = True
         case InstantCardType.UPGRADE_NEXT_BUILDING:
             if current_user.has_upgrade_bonus:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="You already have an upgrade bonus",
                 )
-            current_user.has_upgrade_bonus = True
+            if current_user.has_downgrade_bonus:
+                current_user.has_downgrade_bonus = False
+            else:
+                current_user.has_upgrade_bonus = True
         case _:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
