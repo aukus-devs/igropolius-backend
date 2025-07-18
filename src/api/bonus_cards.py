@@ -96,6 +96,8 @@ async def receive_bonus_card(
         prison_card.lost_at = utc_now_ts()
         prison_card.lost_on_sector = current_user.sector_id
 
+    await db.flush()
+
     return GiveBonusCardResponse(
         bonus_type=MainBonusCardType(new_card.card_type),
         received_at=new_card.created_at,
