@@ -194,5 +194,3 @@ cython_debug/
 .cursorindexingignore
 
 test.db
-test.db-wal
-test.db-shm
