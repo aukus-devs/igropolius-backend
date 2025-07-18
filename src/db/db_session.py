@@ -38,9 +38,8 @@ def create_engine():
             pool_size=10,
             max_overflow=20,
             pool_timeout=30,
-            pool_recycle=600,
+            pool_recycle=3600,
             pool_pre_ping=True,
-            pool_reset_on_return="commit",
             connect_args={
                 "autocommit": False,
                 "charset": "utf8mb4",
@@ -68,14 +67,9 @@ def receive_checkout(dbapi_connection, connection_record, connection_proxy):
             cursor = dbapi_connection.cursor()
             cursor.execute("SELECT 1")
             cursor.close()
-        except Exception as e:
-            print(f"Connection checkout failed: {e}")
+        except Exception:
+            connection_proxy._pool.dispose()
             raise
-
-
-@event.listens_for(engine.sync_engine, "invalidate")
-def receive_invalidate(dbapi_connection, connection_record, exception):
-    print(f"Connection invalidated: {exception}")
 
 
 SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
@@ -91,20 +85,28 @@ async def get_db():
                 try:
                     yield session
                     await session.commit()
-                    return
+                except (OperationalError, DisconnectionError) as e:
+                    await session.rollback()
+                    if "Lost connection" in str(
+                        e
+                    ) or "MySQL server has gone away" in str(e):
+                        retry_count += 1
+                        if retry_count < max_retries:
+                            await asyncio.sleep(0.1 * retry_count)
+                            continue
+                    raise
                 except Exception:
                     await session.rollback()
                     raise
-        except (OperationalError, DisconnectionError) as e:
+                finally:
+                    await session.close()
+                break
+        except (OperationalError, DisconnectionError):
             retry_count += 1
-            if retry_count >= max_retries:
-                raise
-            if "Lost connection" in str(e) or "MySQL server has gone away" in str(e):
-                print(f"MySQL connection issue (attempt {retry_count}), retrying...")
-                await asyncio.sleep(0.1)
+            if retry_count < max_retries:
+                await asyncio.sleep(0.1 * retry_count)
                 continue
-            else:
-                raise
+            raise
 
 
 @asynccontextmanager
