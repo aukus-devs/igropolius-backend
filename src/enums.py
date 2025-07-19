@@ -133,6 +133,7 @@ class InstantCardType(Enum):
 class InstantCardResult(Enum):
     REROLL = "reroll"
     CARD_LOST = "card-lost"
+    SCORES_RECEIVED = "score-received"
     SCORES_LOST = "scores-lost"
 
 

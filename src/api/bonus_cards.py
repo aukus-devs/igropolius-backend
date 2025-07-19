@@ -353,37 +353,44 @@ async def use_instant_card(
                             ScoreChangeType.INSTANT_CARD,
                             "Received 5% bonus for losing from instant card",
                         )
+                        response.result = InstantCardResult.SCORES_RECEIVED
                     break
         case InstantCardType.LOSE_CARD_OR_3_PERCENT:
-            if request.card_to_lose is None:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Card to lose must be specified",
+            card_to_lose = None
+            if request.card_to_lose:
+                cards_query = await db.execute(
+                    select(PlayerCard)
+                    .where(PlayerCard.player_id == current_user.id)
+                    .where(PlayerCard.status == "active")
+                    .where(PlayerCard.card_type == request.card_to_lose.value)
+                    .with_for_update()
                 )
+                card_to_lose = cards_query.scalars().first()
 
-            cards_query = await db.execute(
-                select(PlayerCard)
-                .where(PlayerCard.player_id == current_user.id)
-                .where(PlayerCard.status == "active")
-                .where(PlayerCard.card_type == request.card_to_lose.value)
-                .with_for_update()
-            )
-            card = cards_query.scalars().first()
-            if not card:
-                change = current_user.total_score * 0.03
-                await change_player_score(
-                    db,
-                    current_user,
-                    -change,
-                    ScoreChangeType.INSTANT_CARD,
-                    "Lost 3% for not losing a card",
-                )
-                response.result = InstantCardResult.SCORES_LOST
-            else:
-                card.status = "lose"
-                card.lost_at = utc_now_ts()
-                card.lost_on_sector = current_user.sector_id
+            if card_to_lose:
+                card_to_lose.status = "lost"
+                card_to_lose.lost_at = utc_now_ts()
+                card_to_lose.lost_on_sector = current_user.sector_id
                 response.result = InstantCardResult.CARD_LOST
+            else:
+                cards_query = await db.execute(
+                    select(PlayerCard)
+                    .where(PlayerCard.player_id == current_user.id)
+                    .where(PlayerCard.status == "active")
+                )
+                cards = cards_query.scalars().all()
+                if not cards:
+                    change = current_user.total_score * 0.03
+                    await change_player_score(
+                        db,
+                        current_user,
+                        -change,
+                        ScoreChangeType.INSTANT_CARD,
+                        "Lost 3% for not losing a card",
+                    )
+                    response.result = InstantCardResult.SCORES_LOST
+                else:
+                    response.result = InstantCardResult.REROLL
         case InstantCardType.REROLL:
             response.result = InstantCardResult.REROLL
         case InstantCardType.REROLL_AND_ROLL:
