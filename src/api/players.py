@@ -21,7 +21,6 @@ from src.api_models import (
     UserSummary,
 )
 from src.consts import GAME_LENGTHS_IN_ORDER
-from src.db.db_session import get_db
 from src.db.db_models import (
     DiceRoll,
     EventSettings,
@@ -32,6 +31,17 @@ from src.db.db_models import (
     PlayerScoreChange,
     User,
 )
+from src.db.db_session import get_db
+from src.db.queries.category_history import (
+    calculate_game_duration_by_title,
+    get_current_game_duration,
+    save_category_history,
+)
+from src.db.queries.notifications import (
+    create_game_completed_notification,
+    create_game_drop_notification,
+    create_game_reroll_notification,
+)
 from src.db.queries.players import change_player_score
 from src.enums import (
     BonusCardType,
@@ -41,18 +51,8 @@ from src.enums import (
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user_for_update
-from src.db.queries.category_history import (
-    calculate_game_duration_by_title,
-    get_current_game_duration,
-    save_category_history,
-)
 from src.utils.common import get_closest_prison_sector, map_bonus_card_to_event_type
 from src.utils.db import utc_now_ts
-from src.db.queries.notifications import (
-    create_game_completed_notification,
-    create_game_drop_notification,
-    create_game_reroll_notification,
-)
 
 router = APIRouter(tags=["players"])
 
@@ -410,7 +410,7 @@ async def save_player_game(
                 f"game completed: '{request.title}'",
             )
 
-            if game.length not in GAME_LENGTHS_IN_ORDER:
+            if game.item_length not in GAME_LENGTHS_IN_ORDER:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Invalid game length: {game.length}. Must be one of {GAME_LENGTHS_IN_ORDER}.",
