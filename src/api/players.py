@@ -413,10 +413,10 @@ async def save_player_game(
             if game.item_length not in GAME_LENGTHS_IN_ORDER:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Invalid game length: {game.length}. Must be one of {GAME_LENGTHS_IN_ORDER}.",
+                    detail=f"Invalid game length: {game.item_length}. Must be one of {GAME_LENGTHS_IN_ORDER}.",
                 )
 
-            item_length_idx = GAME_LENGTHS_IN_ORDER.index(game.length)
+            item_length_idx = GAME_LENGTHS_IN_ORDER.index(game.item_length)
 
             if (
                 current_user.has_upgrade_bonus
