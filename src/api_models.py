@@ -117,12 +117,14 @@ class ScoreChangeEvent(UserEventBase):
     amount: float
     reason: str
     sector_id: int
+    score_before: float
+    score_after: float
 
 
 class BonusCardEvent(UserEventBase):
     event_type: str = "bonus-card"
     subtype: BonusCardEventType
-    bonus_type: BonusCardType
+    bonus_type: BonusCardType | InstantCardType
     sector_id: int
     used_at: int | None = None
     used_on_sector: int | None = None

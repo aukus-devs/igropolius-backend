@@ -235,6 +235,8 @@ async def get_player_events(
             reason=e.description,
             sector_id=e.sector_id,
             timestamp=e.created_at,
+            score_before=e.score_before,
+            score_after=e.score_after,
         )
         for e in score_changes
     ]
