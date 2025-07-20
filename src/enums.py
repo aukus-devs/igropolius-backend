@@ -66,9 +66,9 @@ class ScoreChangeType(Enum):
 class BonusCardEventType(Enum):
     RECEIVED = "received"
     USED = "used"
-    LOST = "lost"
-    STOLEN = "stolen"
-    LOOTED = "looted"
+    DROPPED = "dropped"
+    STOLEN_FROM_ME = "stolen-from-me"
+    STOLEN_BY_ME = "stolen-by-me"
 
 
 class GameCompletionType(Enum):
