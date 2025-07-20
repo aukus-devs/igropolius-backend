@@ -13,7 +13,6 @@ class PlayerTurnState(Enum):
     USING_DICE_BONUSES = "using-dice-bonuses"
     USING_PRISON_BONUSES = "using-prison-bonuses"
     ROLLING_BONUS_CARD = "rolling-bonus-card"
-    USING_REROLL_BONUSES = "using-reroll-bonuses"
     FILLING_GAME_REVIEW = "filling-game-review"
     CHOOSING_TRAIN_RIDE = "choosing-train-ride"
     USING_MAP_TAX_BONUSES = "using-map-tax-bonuses"
