@@ -39,7 +39,7 @@ class MainBonusCardType(Enum):
 class BonusCardStatus(Enum):
     ACTIVE = "active"
     USED = "used"
-    LOST = "lost"
+    DROPPED = "dropped"
     STOLEN = "stolen"
 
 

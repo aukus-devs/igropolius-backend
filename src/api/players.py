@@ -44,6 +44,7 @@ from src.db.queries.notifications import (
 )
 from src.db.queries.players import change_player_score
 from src.enums import (
+    BonusCardStatus,
     BonusCardType,
     GameCompletionType,
     MainBonusCardType,
@@ -300,7 +301,7 @@ async def do_player_move(
                         detail=f"selected_die must be one of the rolled dice: {dice_values}",
                     )
                 roll_result = move.selected_die
-                choose_1_die_card.status = "used"
+                choose_1_die_card.status = BonusCardStatus.USED.value
                 choose_1_die_card.used_at = utc_now_ts()
                 choose_1_die_card.used_on_sector = sector_id_from
 
@@ -327,7 +328,7 @@ async def do_player_move(
                         detail="adjust_by_1 must be either -1 or 1",
                     )
                 roll_result += move.adjust_by_1
-                adjust_by1_card.status = "used"
+                adjust_by1_card.status = BonusCardStatus.USED.value
                 adjust_by1_card.used_at = utc_now_ts()
                 adjust_by1_card.used_on_sector = sector_id_from
 

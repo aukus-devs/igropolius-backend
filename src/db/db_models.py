@@ -3,7 +3,7 @@ from sqlalchemy import Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column  # pyright: ignore[reportAttributeAccessIssue]
 from sqlalchemy.orm.decl_api import declarative_base
 
-from src.enums import PlayerTurnState, Role, StreamPlatform
+from src.enums import BonusCardStatus, PlayerTurnState, Role, StreamPlatform
 from src.utils.db import utc_now_ts
 
 DbBase = declarative_base()
@@ -96,7 +96,9 @@ class PlayerCard(DbBase):
     )
     player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     card_type: Mapped[str] = mapped_column(String(255), nullable=False)
-    status: Mapped[str] = mapped_column(String(255), nullable=False, default="active")
+    status: Mapped[str] = mapped_column(
+        String(255), nullable=False, default=BonusCardStatus.ACTIVE.value
+    )
     received_on_sector: Mapped[int] = mapped_column(Integer, nullable=False)
     used_at: Mapped[int] = mapped_column(Integer, nullable=True)
     used_on_sector: Mapped[int] = mapped_column(Integer, nullable=True)

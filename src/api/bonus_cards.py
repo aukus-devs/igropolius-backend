@@ -17,6 +17,7 @@ from src.db.db_session import get_db
 from src.db.db_models import PlayerCard, PlayerMove, User
 from src.db.queries.players import change_player_score, get_players_by_score
 from src.enums import (
+    BonusCardStatus,
     InstantCardResult,
     InstantCardType,
     MainBonusCardType,
@@ -92,7 +93,7 @@ async def receive_bonus_card(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Prison card not found",
             )
-        prison_card.status = "lost"
+        prison_card.status = BonusCardStatus.DROPPED.value
         prison_card.lost_at = utc_now_ts()
         prison_card.lost_on_sector = current_user.sector_id
 
@@ -132,7 +133,7 @@ async def steal_bonus_card(
             detail="No active bonus cards found for this player",
         )
 
-    card.status = "stolen"
+    card.status = BonusCardStatus.STOLEN.value
     card.stolen_at = utc_now_ts()
     card.stolen_by = current_user.id
 
@@ -141,7 +142,7 @@ async def steal_bonus_card(
         card_type=card.card_type,
         received_on_sector=current_user.sector_id,
         stolen_from_player=request.player_id,
-        status="active",
+        status=BonusCardStatus.ACTIVE.value,
     )
     db.add(new_card)
 
@@ -164,7 +165,7 @@ async def use_bonus_card(
     cards_query = await db.execute(
         select(PlayerCard)
         .where(PlayerCard.player_id == current_user.id)
-        .where(PlayerCard.status == "active")
+        .where(PlayerCard.status == BonusCardStatus.ACTIVE.value)
         .where(PlayerCard.card_type == request.bonus_type.value)
         .with_for_update()
     )
@@ -176,7 +177,7 @@ async def use_bonus_card(
             detail="No active bonus card found",
         )
 
-    card.status = "used"
+    card.status = BonusCardStatus.USED.value
     card.used_at = utc_now_ts()
     card.used_on_sector = current_user.sector_id
 
@@ -184,7 +185,7 @@ async def use_bonus_card(
 
 
 @router.post("/api/bonus-cards/lose")
-async def lose_bonus_card(
+async def drop_bonus_card(
     request: LoseBonusCardRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -192,7 +193,7 @@ async def lose_bonus_card(
     cards_query = await db.execute(
         select(PlayerCard)
         .where(PlayerCard.player_id == current_user.id)
-        .where(PlayerCard.status == "active")
+        .where(PlayerCard.status == BonusCardStatus.ACTIVE.value)
         .where(PlayerCard.card_type == request.bonus_type.value)
         .with_for_update()
     )
@@ -204,7 +205,7 @@ async def lose_bonus_card(
             detail="No active bonus card found",
         )
 
-    card.status = "lost"
+    card.status = BonusCardStatus.DROPPED.value
     card.lost_at = utc_now_ts()
     card.lost_on_sector = current_user.sector_id
 
@@ -227,7 +228,7 @@ async def lose_bonus_card(
                 player_id=prison_user.id,
                 card_type=card.card_type,
                 received_on_sector=current_user.sector_id,
-                status="active",
+                status=BonusCardStatus.ACTIVE.value,
             )
             db.add(new_card)
         case PlayerTurnState.DROPPING_CARD_AFTER_GAME_DROP.value:
@@ -361,14 +362,14 @@ async def use_instant_card(
                 cards_query = await db.execute(
                     select(PlayerCard)
                     .where(PlayerCard.player_id == current_user.id)
-                    .where(PlayerCard.status == "active")
+                    .where(PlayerCard.status == BonusCardStatus.ACTIVE.value)
                     .where(PlayerCard.card_type == request.card_to_lose.value)
                     .with_for_update()
                 )
                 card_to_lose = cards_query.scalars().first()
 
             if card_to_lose:
-                card_to_lose.status = "lost"
+                card_to_lose.status = BonusCardStatus.DROPPED.value
                 card_to_lose.lost_at = utc_now_ts()
                 card_to_lose.lost_on_sector = current_user.sector_id
                 response.result = InstantCardResult.CARD_LOST
@@ -376,7 +377,7 @@ async def use_instant_card(
                 cards_query = await db.execute(
                     select(PlayerCard)
                     .where(PlayerCard.player_id == current_user.id)
-                    .where(PlayerCard.status == "active")
+                    .where(PlayerCard.status == BonusCardStatus.ACTIVE.value)
                 )
                 cards = cards_query.scalars().all()
                 if not cards:
@@ -425,7 +426,7 @@ async def use_instant_card(
         player_id=current_user.id,
         card_type=request.card_type.value,
         received_on_sector=current_user.sector_id,
-        status="used",
+        status=BonusCardStatus.USED.value,
         used_at=utc_now_ts(),
         used_on_sector=current_user.sector_id,
     )
