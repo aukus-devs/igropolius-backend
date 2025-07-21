@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import (
     GiveBonusCardRequest,
     GiveBonusCardResponse,
-    LoseBonusCardRequest,
+    DropBonusCardRequest,
     StealBonusCardRequest,
     UseBonusCardRequest,
     UseInstantCardRequest,
@@ -186,7 +186,7 @@ async def use_bonus_card(
 
 @router.post("/api/bonus-cards/lose")
 async def drop_bonus_card(
-    request: LoseBonusCardRequest,
+    request: DropBonusCardRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):

@@ -6,7 +6,7 @@ from fastapi.params import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api_models import CurrentUserResponse, LoginRequest
+from src.api_models import CurrentUserResponse, LoginRequest, LoginResponse
 from src.db.db_session import get_db
 from src.db.db_models import DiceRoll, User
 from src.utils.auth import get_current_user
@@ -15,7 +15,7 @@ from src.utils.jwt import create_access_token, verify_password
 router = APIRouter(tags=["auth"])
 
 
-@router.post("/api/login")
+@router.post("/api/login", response_model=LoginResponse)
 async def login(
     request: LoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],

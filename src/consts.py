@@ -1,10 +1,13 @@
+from src.enums import GameLength
+
+
 SCORES_BY_GAME_LENGTH = {
-    "2-5": 10,
-    "5-10": 20,
-    "10-15": 30,
-    "15-20": 40,
-    "20-25": 50,
-    "25+": 60,
+    GameLength.TWO_TO_FIVE.value: 10,
+    GameLength.FIVE_TO_TEN.value: 20,
+    GameLength.TEN_TO_FIFTEEN.value: 30,
+    GameLength.FIFTEEN_TO_TWENTY.value: 40,
+    GameLength.TWENTY_TO_TWENTY_FIVE.value: 50,
+    GameLength.TWENTY_FIVE_PLUS.value: 60,
 }
 
 GAME_LENGTHS_IN_ORDER = list(SCORES_BY_GAME_LENGTH.keys())

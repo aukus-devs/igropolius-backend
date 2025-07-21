@@ -1,14 +1,18 @@
-from pydantic import BaseModel as PydanticBaseModel
+from typing import Annotated, Union
+from typing_extensions import Literal
+from pydantic import BaseModel as PydanticBaseModel, Field
 
 from src.enums import (
     BonusCardEventType,
     BonusCardType,
     GameCompletionType,
+    GameLength,
     InstantCardResult,
     InstantCardType,
     MainBonusCardType,
     NotificationEventType,
     NotificationType,
+    PlayerEventType,
     PlayerMoveType,
     PlayerTurnState,
     Role,
@@ -32,7 +36,7 @@ class PlayerGame(BaseModel):
     title: str
     review: str
     rating: float
-    length: str
+    length: GameLength
     length_bonus: int | None = None
     duration: int | None = None
     vod_links: str | None = None
@@ -40,7 +44,7 @@ class PlayerGame(BaseModel):
 
 
 class ActiveBonusCard(BaseModel):
-    bonus_type: BonusCardType
+    bonus_type: MainBonusCardType
     received_at: int
     received_on_sector: int
 
@@ -68,15 +72,15 @@ class PlayerDetails(BaseModel):
     avatar_link: str | None = None
     is_active: bool = True
     sector_id: int
-    total_score: float = 0.0
+    total_score: float
     maps_completed: int
-    games: list[PlayerGame] = []
-    bonus_cards: list[ActiveBonusCard] = []
+    games: list[PlayerGame]
+    bonus_cards: list[ActiveBonusCard]
     role: Role
 
 
 class PlayerListResponse(BaseModel):
-    players: list[PlayerDetails] = []
+    players: list[PlayerDetails]
     event_end_time: int | None = None
     event_start_time: int | None = None
 
@@ -91,30 +95,35 @@ class CurrentUserResponse(BaseModel):
     total_score: float = 0.0
     turn_state: PlayerTurnState
     maps_completed: int = 0
-    last_roll_result: list[int] = []
+    last_roll_result: list[int]
     has_upgrade_bonus: bool = False
     has_downgrade_bonus: bool = False
 
 
 class PlayerEventBase(BaseModel):
     timestamp: int
-    event_type: str
+
+
+class DiceRollDetails(BaseModel):
+    is_random_org_result: bool
+    random_org_check_form: str | None = None
+    data: list[int]
 
 
 class MoveEvent(PlayerEventBase):
-    event_type: str = "player-move"
+    event_type: Literal["player-move"]
     subtype: PlayerMoveType
     sector_from: int
     sector_to: int
     adjusted_roll: int
     dice_roll: list[int]
-    dice_roll_json: dict | None = None
+    dice_roll_json: DiceRollDetails | None
     map_completed: bool
-    bonuses_used: list[MainBonusCardType] = []
+    bonuses_used: list[MainBonusCardType]
 
 
 class ScoreChangeEvent(PlayerEventBase):
-    event_type: str = "score-change"
+    event_type: Literal["score-change"]
     subtype: ScoreChangeType
     amount: float
     reason: str
@@ -124,7 +133,7 @@ class ScoreChangeEvent(PlayerEventBase):
 
 
 class BonusCardEvent(PlayerEventBase):
-    event_type: str = "bonus-card"
+    event_type: Literal["bonus-card"]
     subtype: BonusCardEventType
     bonus_type: BonusCardType | InstantCardType
     sector_id: int
@@ -138,7 +147,7 @@ class BonusCardEvent(PlayerEventBase):
 
 
 class GameEvent(PlayerEventBase):
-    event_type: str = "game"
+    event_type: Literal["game"]
     subtype: GameCompletionType
     game_title: str
     game_cover: str | None = None
@@ -146,7 +155,7 @@ class GameEvent(PlayerEventBase):
 
 
 class PlayerEventsResponse(BaseModel):
-    events: list[GameEvent | BonusCardEvent | ScoreChangeEvent | MoveEvent] = []
+    events: list[GameEvent | BonusCardEvent | ScoreChangeEvent | MoveEvent]
 
 
 class GiveBonusCardRequest(BaseModel):
@@ -163,7 +172,7 @@ class UseBonusCard(BaseModel):
     bonus_type: MainBonusCardType
 
 
-class MakePlayerMove(BaseModel):
+class PlayerMoveRequest(BaseModel):
     type: PlayerMoveType
     # bonuses_used: list[MainBonusCardType] = []
     selected_die: int | None = None
@@ -185,7 +194,7 @@ class SavePlayerGameRequest(BaseModel):
     title: str
     review: str
     rating: float
-    length: str
+    length: GameLength
     vod_links: str | None = None
     scores: float
     game_id: int | None = None
@@ -206,6 +215,10 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class LoginResponse(BaseModel):
+    token: str
+
+
 class RulesVersion(BaseModel):
     content: str
     created_at: int
@@ -213,11 +226,10 @@ class RulesVersion(BaseModel):
 
 class NewRulesVersionRequest(BaseModel):
     content: str
-    created_at: int
 
 
 class RulesResponse(BaseModel):
-    versions: list[RulesVersion] = []
+    versions: list[RulesVersion]
 
 
 class PayTaxRequest(BaseModel):
@@ -232,7 +244,7 @@ class IgdbGameSummary(BaseModel):
 
 
 class IgdbGamesListResponse(BaseModel):
-    games: list[IgdbGameSummary] = []
+    games: list[IgdbGameSummary]
 
 
 class IgdbGamesSearchRequest(BaseModel):
@@ -249,7 +261,7 @@ class UseBonusCardRequest(BaseModel):
     bonus_type: MainBonusCardType
 
 
-class LoseBonusCardRequest(BaseModel):
+class DropBonusCardRequest(BaseModel):
     bonus_type: MainBonusCardType
 
 
@@ -275,7 +287,7 @@ class RollDiceResponse(BaseModel):
 class NotificationItem(BaseModel):
     id: int
     notification_type: str
-    event_type: str
+    event_type: NotificationEventType
     created_at: int
     other_player_id: int | None = None
     scores: float | None = None
@@ -287,7 +299,7 @@ class NotificationItem(BaseModel):
 
 
 class NotificationsResponse(BaseModel):
-    notifications: list[NotificationItem] = []
+    notifications: list[NotificationItem]
 
 
 class MarkNotificationsSeenRequest(BaseModel):

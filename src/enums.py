@@ -14,7 +14,6 @@ class PlayerTurnState(Enum):
     USING_PRISON_BONUSES = "using-prison-bonuses"
     ROLLING_BONUS_CARD = "rolling-bonus-card"
     FILLING_GAME_REVIEW = "filling-game-review"
-    CHOOSING_TRAIN_RIDE = "choosing-train-ride"
     USING_MAP_TAX_BONUSES = "using-map-tax-bonuses"
     USING_STREET_TAX_BONUSES = "using-street-tax-bonuses"
     DROPPING_CARD_AFTER_GAME_DROP = "dropping-card-after-game-drop"
@@ -40,6 +39,13 @@ class BonusCardStatus(Enum):
     USED = "used"
     DROPPED = "dropped"
     STOLEN = "stolen"
+
+
+class PlayerEventType(Enum):
+    GAME = "game"
+    BONUS_CARD = "bonus-card"
+    SCORE_CHANGE = "score-change"
+    PLAYER_MOVE = "player-move"
 
 
 class PlayerMoveType(Enum):
@@ -157,3 +163,13 @@ class BonusCardType(Enum):
     REROLL = "reroll"
     REROLL_AND_ROLL = "reroll-and-roll"
     LOSE_CARD_OR_3_PERCENT = "lose-card-or-3-percent"
+
+
+class GameLength(Enum):
+    DROP = "drop"
+    TWO_TO_FIVE = "2-5"
+    FIVE_TO_TEN = "5-10"
+    TEN_TO_FIFTEEN = "10-15"
+    FIFTEEN_TO_TWENTY = "15-20"
+    TWENTY_TO_TWENTY_FIVE = "20-25"
+    TWENTY_FIVE_PLUS = "25+"

@@ -10,13 +10,13 @@ from src.api_models import (
     BonusCardEvent,
     PlayerEventsResponse,
     GameEvent,
-    MakePlayerMove,
+    PlayerMoveRequest,
     MoveEvent,
     SavePlayerGameRequest,
     SavePlayerGameResponse,
     ScoreChangeEvent,
     UpdatePlayerTurnStateRequest,
-    PlayerGame,
+    PlayerGame as PlayerGameApiModel,
     PlayerListResponse,
     PlayerDetails,
 )
@@ -26,7 +26,7 @@ from src.db.db_models import (
     EventSettings,
     IgdbGame,
     PlayerCard,
-    PlayerGame,
+    PlayerGame as PlayerGameDbModel,
     PlayerMove,
     PlayerScoreChange,
     User,
@@ -62,7 +62,7 @@ router = APIRouter(tags=["players"])
 async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
     users_query = await db.execute(select(User).filter(User.is_active == 1))
     users = users_query.scalars().all()
-    games_query = await db.execute(select(PlayerGame))
+    games_query = await db.execute(select(PlayerGameDbModel))
     games = games_query.scalars().all()
     cards_query = await db.execute(
         select(PlayerCard).where(PlayerCard.status == "active")
@@ -87,10 +87,10 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
     for user in users:
         model = PlayerDetails.model_validate(user)
         model.games = [
-            PlayerGame(
+            PlayerGameApiModel(
                 sector_id=g.sector_id,
                 title=g.item_title,
-                length=g.item_length,
+                length=g.item_length.value,
                 length_bonus=g.item_length_bonus,
                 created_at=g.created_at,
                 status=cast(GameCompletionType, g.type),
@@ -109,7 +109,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
 
         model.bonus_cards = [
             ActiveBonusCard(
-                bonus_type=BonusCardType(c.card_type),
+                bonus_type=MainBonusCardType(c.card_type),
                 received_at=c.created_at,
                 received_on_sector=c.received_on_sector,
             )
@@ -166,6 +166,7 @@ async def get_player_events(
 
         move_events.append(
             MoveEvent(
+                event_type="player-move",
                 subtype=PlayerMoveType(e.move_type),
                 sector_from=e.sector_from,
                 sector_to=e.sector_to,
@@ -179,7 +180,7 @@ async def get_player_events(
         )
 
     games_query = await db.execute(
-        select(PlayerGame).where(PlayerGame.player_id == player_id)
+        select(PlayerGameDbModel).where(PlayerGameDbModel.player_id == player_id)
     )
     games = games_query.scalars().all()
 
@@ -194,6 +195,7 @@ async def get_player_events(
 
     game_events = [
         GameEvent(
+            event_type="game",
             subtype=GameCompletionType(e.type),
             game_title=e.item_title,
             game_cover=igdb_games_dict[e.game_id].cover
@@ -211,6 +213,7 @@ async def get_player_events(
     cards = cards_query.scalars().all()
     bonus_card_events = [
         BonusCardEvent(
+            event_type="bonus-card",
             subtype=map_bonus_card_to_event_type(e),
             bonus_type=BonusCardType(e.card_type),
             sector_id=e.received_on_sector,
@@ -232,6 +235,7 @@ async def get_player_events(
     score_changes = scores_query.scalars().all()
     score_change_events = [
         ScoreChangeEvent(
+            event_type="score-change",
             subtype=ScoreChangeType(e.change_type),
             amount=e.score_change,
             reason=e.description,
@@ -248,7 +252,7 @@ async def get_player_events(
 
 @router.post("/api/players/current/moves")
 async def do_player_move(
-    move: MakePlayerMove,
+    request: PlayerMoveRequest,
     current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -257,7 +261,7 @@ async def do_player_move(
     roll_result = None
     dice_roll_record_id = -1
 
-    match move.type:
+    match request.type:
         case PlayerMoveType.DICE_ROLL:
             dice_roll_query = await db.execute(
                 select(DiceRoll)
@@ -279,7 +283,7 @@ async def do_player_move(
             dice_values: list[int] = json.loads(dice_roll_record.dice_values)
             roll_result = sum(dice_values)
 
-            if move.selected_die is not None:
+            if request.selected_die is not None:
                 choose_1_die_card_query = await db.execute(
                     select(PlayerCard)
                     .where(
@@ -296,17 +300,17 @@ async def do_player_move(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail=f"Player does not have active bonus card: {MainBonusCardType.CHOOSE_1_DIE.value}",
                     )
-                if move.selected_die not in dice_values:
+                if request.selected_die not in dice_values:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail=f"selected_die must be one of the rolled dice: {dice_values}",
                     )
-                roll_result = move.selected_die
+                roll_result = request.selected_die
                 choose_1_die_card.status = BonusCardStatus.USED.value
                 choose_1_die_card.used_at = utc_now_ts()
                 choose_1_die_card.used_on_sector = sector_id_from
 
-            if move.adjust_by_1 is not None:
+            if request.adjust_by_1 is not None:
                 adjust_by1_card_query = await db.execute(
                     select(PlayerCard)
                     .where(
@@ -323,12 +327,12 @@ async def do_player_move(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail=f"Player does not have active bonus card: {MainBonusCardType.ADJUST_BY_1.value}",
                     )
-                if move.adjust_by_1 not in [-1, 1]:
+                if request.adjust_by_1 not in [-1, 1]:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="adjust_by_1 must be either -1 or 1",
                     )
-                roll_result += move.adjust_by_1
+                roll_result += request.adjust_by_1
                 adjust_by1_card.status = BonusCardStatus.USED.value
                 adjust_by1_card.used_at = utc_now_ts()
                 adjust_by1_card.used_on_sector = sector_id_from
@@ -344,7 +348,7 @@ async def do_player_move(
         case _:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid move type: {move.type}",
+                detail=f"Invalid move type: {request.type}",
             )
 
     if roll_result is None:
@@ -363,7 +367,7 @@ async def do_player_move(
         player_id=current_user.id,
         sector_from=current_user.sector_id,
         sector_to=sector_to,
-        move_type=move.type.value,
+        move_type=request.type.value,
         map_completed=map_completed,
         adjusted_roll=roll_result,
         random_org_roll=dice_roll_record_id,
@@ -389,13 +393,13 @@ async def save_player_game(
     except Exception:
         game_duration = 0
 
-    game = PlayerGame(
+    game = PlayerGameDbModel(
         player_id=current_user.id,
         type=request.status.value,
         item_title=request.title,
         item_review=request.review,
         item_rating=request.rating,
-        item_length=request.length,
+        item_length=request.length.value,
         vod_links=request.vod_links,
         sector_id=current_user.sector_id,
         game_id=request.game_id,

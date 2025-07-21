@@ -11,6 +11,7 @@ from src.api_models import (
 )
 from src.db.db_session import get_db
 from src.db.db_models import Notification, User
+from src.enums import NotificationEventType
 from src.utils.auth import get_current_user
 
 router = APIRouter(tags=["notifications"])
@@ -33,7 +34,7 @@ async def get_notifications(
             NotificationItem(
                 id=n.id,
                 notification_type=n.notification_type,
-                event_type=n.event_type,
+                event_type=NotificationEventType(n.event_type),
                 created_at=n.created_at,
                 other_player_id=n.other_player_id,
                 scores=n.scores,
