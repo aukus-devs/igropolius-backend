@@ -256,8 +256,8 @@ async def send_message_to_player(
         )
 
 
-@router.post("/api/internal/event-end-time", response_model=CreateNotificationResponse)
-async def set_event_end_time(
+@router.post("/api/internal/event-settings", response_model=CreateNotificationResponse)
+async def set_event_settings(
     request: SetEventEndTimeRequest,
     current_user: Annotated[User, Depends(get_current_user_direct)],
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -276,14 +276,18 @@ async def set_event_end_time(
 
         if event_settings:
             event_settings.event_end_time = request.event_end_time
+            event_settings.event_start_time = request.event_start_time
         else:
-            event_settings = EventSettings(event_end_time=request.event_end_time)
+            event_settings = EventSettings(
+                event_end_time=request.event_end_time,
+                event_start_time=request.event_start_time,
+            )
             db.add(event_settings)
 
         message = (
-            f"Event end time set to {request.event_end_time}"
-            if request.event_end_time
-            else "Event end time cleared"
+            f"Event end time set to {request.event_end_time}, start time set to {request.event_start_time}"
+            if request.event_end_time or request.event_start_time
+            else "Event times cleared"
         )
 
         return CreateNotificationResponse(success=True, message=message)

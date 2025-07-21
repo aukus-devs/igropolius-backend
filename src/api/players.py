@@ -126,6 +126,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
     return {
         "players": users_models,
         "event_end_time": event_settings.event_end_time if event_settings else None,
+        "event_start_time": event_settings.event_start_time if event_settings else None,
     }
 
 
