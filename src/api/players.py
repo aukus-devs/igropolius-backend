@@ -109,7 +109,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
 
         model.bonus_cards = [
             BonusCard(
-                bonus_type=c.card_type,
+                bonus_type=BonusCardType(c.card_type),
                 received_at=c.created_at,
                 received_on_sector=c.received_on_sector,
             )

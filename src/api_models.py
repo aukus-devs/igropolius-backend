@@ -39,7 +39,7 @@ class UserGame(BaseModel):
 
 
 class BonusCard(BaseModel):
-    bonus_type: str
+    bonus_type: BonusCardType
     received_at: int
     received_on_sector: int
 
