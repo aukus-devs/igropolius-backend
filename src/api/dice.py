@@ -51,6 +51,7 @@ async def roll_dice(
                 "is_random_org_result": random_result.is_random_org_result,
                 "random_org_check_form": random_result.random_org_check_form,
                 "data": random_result.data,
+                "random_org_fail_reason": random_result.random_org_fail_reason,
             }
         ),
         random_org_result=random_result.random_org_response,
