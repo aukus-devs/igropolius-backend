@@ -4,12 +4,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.api_models import RollDiceRequest, RollDiceResponse
-from src.db.db_session import get_db
 from src.db.db_models import DiceRoll, User
+from src.db.db_session import get_db
 from src.utils.auth import get_current_user
 from src.utils.random_org import get_random_numbers
-
 
 router = APIRouter(tags=["dice"])
 
@@ -34,6 +34,7 @@ async def roll_dice(
             is_random_org_result=bool(existing_roll.is_random_org_result),
             random_org_check_form=existing_roll.random_org_check_url,
             data=json.loads(existing_roll.dice_values),
+            random_org_fail_reason=existing_roll.random_org_fail_reason,
         )
 
     random_result = await get_random_numbers(
@@ -44,6 +45,7 @@ async def roll_dice(
         player_id=current_user.id,
         used=0,
         is_random_org_result=random_result.is_random_org_result,
+        random_org_fail_reason=random_result.random_org_fail_reason,
         json_short_data=json.dumps(
             {
                 "is_random_org_result": random_result.is_random_org_result,
@@ -65,4 +67,5 @@ async def roll_dice(
         is_random_org_result=random_result.is_random_org_result,
         random_org_check_form=random_result.random_org_check_form,
         data=random_result.data,
+        random_org_fail_reason=random_result.random_org_fail_reason,
     )

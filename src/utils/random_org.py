@@ -28,6 +28,7 @@ class RandomResult(BaseModel):
     random_org_check_form: str | None
     data: list[int]
     random_org_response: str | None
+    random_org_fail_reason: str | None = None
 
 
 async def get_random_numbers(
@@ -119,6 +120,7 @@ async def get_random_numbers(
                 random_org_check_form=None,
                 data=data,
                 random_org_response=response.text if response else None,
+                random_org_fail_reason=error_message,
             )
             return result
 
@@ -143,5 +145,6 @@ async def get_random_numbers(
             random_org_check_form=None,
             data=data,
             random_org_response=None,
+            random_org_fail_reason=str(e),
         )
         return result

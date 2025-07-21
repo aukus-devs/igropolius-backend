@@ -165,6 +165,7 @@ class DiceRoll(DbBase):
     is_random_org_result: Mapped[int] = mapped_column(
         Integer, default=0, nullable=False
     )
+    random_org_fail_reason: Mapped[str] = mapped_column(Text, nullable=True)
     json_short_data: Mapped[str] = mapped_column(Text, nullable=False)
     random_org_result: Mapped[str] = mapped_column(Text, nullable=True)
     dice_values: Mapped[str] = mapped_column(String(255), nullable=False)

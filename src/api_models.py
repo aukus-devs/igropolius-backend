@@ -269,6 +269,7 @@ class RollDiceResponse(BaseModel):
     is_random_org_result: bool
     random_org_check_form: str | None = None
     data: list[int]
+    random_org_fail_reason: str | None = None
 
 
 class NotificationItem(BaseModel):
