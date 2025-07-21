@@ -561,6 +561,18 @@
           "default": null,
           "title": "Random Org Check Form"
         },
+        "random_org_fail_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Random Org Fail Reason"
+        },
         "data": {
           "items": {
             "type": "integer"
