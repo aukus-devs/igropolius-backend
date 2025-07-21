@@ -96,7 +96,7 @@ async def get_random_numbers(
             return result
         else:
             if response:
-                error_message = f"Random.org API error: status_code={response.status_code}, has_signature={'signature' in response.text}"
+                error_message = f"Random.org API error: status_code={response.status_code}, response={response.text}"
             else:
                 error_message = "no response"
             logger.error(error_message)
