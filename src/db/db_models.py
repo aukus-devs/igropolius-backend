@@ -47,6 +47,11 @@ class User(DbBase):
     has_upgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     has_downgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
+    # default for pydantic conversions
+    games = []
+    bonus_cards = []
+    last_roll_result = []
+
 
 class PlayerGame(DbBase):
     __tablename__ = "player_games"
