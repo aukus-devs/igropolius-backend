@@ -1,6 +1,5 @@
-from typing import Annotated, Union
 from typing_extensions import Literal
-from pydantic import BaseModel as PydanticBaseModel, Field
+from pydantic import BaseModel as PydanticBaseModel
 
 from src.enums import (
     BonusCardEventType,
@@ -12,7 +11,6 @@ from src.enums import (
     MainBonusCardType,
     NotificationEventType,
     NotificationType,
-    PlayerEventType,
     PlayerMoveType,
     PlayerTurnState,
     Role,
@@ -107,6 +105,7 @@ class PlayerEventBase(BaseModel):
 class DiceRollDetails(BaseModel):
     is_random_org_result: bool
     random_org_check_form: str | None = None
+    random_org_fail_reason: str | None = None
     data: list[int]
 
 
