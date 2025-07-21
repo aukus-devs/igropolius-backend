@@ -21,6 +21,7 @@ from src.enums import (
 class BaseModel(PydanticBaseModel):
     model_config = {
         "from_attributes": True,
+        "extra": "forbid",  # Disallow extra fields
     }
 
 

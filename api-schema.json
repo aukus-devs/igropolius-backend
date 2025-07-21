@@ -1,0 +1,2002 @@
+{
+  "$defs": {
+    "BonusCard": {
+      "additionalProperties": false,
+      "properties": {
+        "bonus_type": {
+          "$ref": "#/$defs/BonusCardType"
+        },
+        "received_at": {
+          "title": "Received At",
+          "type": "integer"
+        },
+        "received_on_sector": {
+          "title": "Received On Sector",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "bonus_type",
+        "received_at",
+        "received_on_sector"
+      ],
+      "title": "BonusCard",
+      "type": "object"
+    },
+    "BonusCardEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "timestamp": {
+          "title": "Timestamp",
+          "type": "integer"
+        },
+        "event_type": {
+          "default": "bonus-card",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "subtype": {
+          "$ref": "#/$defs/BonusCardEventType"
+        },
+        "bonus_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BonusCardType"
+            },
+            {
+              "$ref": "#/$defs/InstantCardType"
+            }
+          ],
+          "title": "Bonus Type"
+        },
+        "sector_id": {
+          "title": "Sector Id",
+          "type": "integer"
+        },
+        "used_at": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Used At"
+        },
+        "used_on_sector": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Used On Sector"
+        },
+        "lost_at": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lost At"
+        },
+        "lost_on_sector": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lost On Sector"
+        },
+        "stolen_at": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stolen At"
+        },
+        "stolen_from_player": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stolen From Player"
+        },
+        "stolen_by": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stolen By"
+        }
+      },
+      "required": [
+        "timestamp",
+        "subtype",
+        "bonus_type",
+        "sector_id"
+      ],
+      "title": "BonusCardEvent",
+      "type": "object"
+    },
+    "BonusCardEventType": {
+      "enum": [
+        "received",
+        "used",
+        "dropped",
+        "stolen-from-me",
+        "stolen-by-me"
+      ],
+      "title": "BonusCardEventType",
+      "type": "string"
+    },
+    "BonusCardType": {
+      "enum": [
+        "adjust-roll-by1",
+        "choose-1-die",
+        "skip-prison-day",
+        "reroll-game",
+        "evade-street-tax",
+        "evade-map-tax",
+        "game-help-allowed",
+        "receive-1-percent-from-all",
+        "receive-scores-for-place",
+        "receive-5-percent-or-reroll",
+        "receive-3-percent",
+        "leaders-lose-percents",
+        "receive-1-percent-plus-20",
+        "upgrade-next-building",
+        "downgrade-next-building",
+        "lose-2-percents",
+        "reroll",
+        "reroll-and-roll",
+        "lose-card-or-3-percent"
+      ],
+      "title": "BonusCardType",
+      "type": "string"
+    },
+    "ChangePlayerScore": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ScoreChangeType"
+        },
+        "amount": {
+          "title": "Amount",
+          "type": "number"
+        },
+        "sector_id": {
+          "title": "Sector Id",
+          "type": "integer"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "amount",
+        "sector_id",
+        "reason"
+      ],
+      "title": "ChangePlayerScore",
+      "type": "object"
+    },
+    "CreateAllPlayersNotificationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "notification_type": {
+          "$ref": "#/$defs/NotificationType"
+        },
+        "event_type": {
+          "$ref": "#/$defs/NotificationEventType"
+        },
+        "other_player_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Other Player Id"
+        },
+        "scores": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scores"
+        },
+        "sector_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sector Id"
+        },
+        "game_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Game Title"
+        },
+        "card_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Card Name"
+        },
+        "event_end_time": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event End Time"
+        },
+        "message_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message Text"
+        }
+      },
+      "required": [
+        "notification_type",
+        "event_type"
+      ],
+      "title": "CreateAllPlayersNotificationRequest",
+      "type": "object"
+    },
+    "CreateEventEndingNotificationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "event_end_time": {
+          "title": "Event End Time",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "event_end_time"
+      ],
+      "title": "CreateEventEndingNotificationRequest",
+      "type": "object"
+    },
+    "CreateMessageNotificationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "notification_type": {
+          "$ref": "#/$defs/NotificationType"
+        },
+        "message_text": {
+          "title": "Message Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "notification_type",
+        "message_text"
+      ],
+      "title": "CreateMessageNotificationRequest",
+      "type": "object"
+    },
+    "CreateNotificationResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "title": "Success",
+          "type": "boolean"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "success",
+        "message"
+      ],
+      "title": "CreateNotificationResponse",
+      "type": "object"
+    },
+    "CreatePlayerMessageNotificationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "notification_type": {
+          "$ref": "#/$defs/NotificationType"
+        },
+        "message_text": {
+          "title": "Message Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "player_id",
+        "notification_type",
+        "message_text"
+      ],
+      "title": "CreatePlayerMessageNotificationRequest",
+      "type": "object"
+    },
+    "CreatePlayerNotificationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "notification_type": {
+          "$ref": "#/$defs/NotificationType"
+        },
+        "event_type": {
+          "$ref": "#/$defs/NotificationEventType"
+        },
+        "other_player_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Other Player Id"
+        },
+        "scores": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scores"
+        },
+        "sector_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sector Id"
+        },
+        "game_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Game Title"
+        },
+        "card_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Card Name"
+        },
+        "event_end_time": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event End Time"
+        },
+        "message_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message Text"
+        }
+      },
+      "required": [
+        "player_id",
+        "notification_type",
+        "event_type"
+      ],
+      "title": "CreatePlayerNotificationRequest",
+      "type": "object"
+    },
+    "CurrentUser": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "url_handle": {
+          "title": "Url Handle",
+          "type": "string"
+        },
+        "username": {
+          "title": "Username",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "moder_for": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Moder For"
+        },
+        "sector_id": {
+          "title": "Sector Id",
+          "type": "integer"
+        },
+        "total_score": {
+          "default": 0.0,
+          "title": "Total Score",
+          "type": "number"
+        },
+        "turn_state": {
+          "$ref": "#/$defs/PlayerTurnState"
+        },
+        "maps_completed": {
+          "default": 0,
+          "title": "Maps Completed",
+          "type": "integer"
+        },
+        "last_roll_result": {
+          "default": [],
+          "items": {
+            "type": "integer"
+          },
+          "title": "Last Roll Result",
+          "type": "array"
+        },
+        "has_upgrade_bonus": {
+          "default": false,
+          "title": "Has Upgrade Bonus",
+          "type": "boolean"
+        },
+        "has_downgrade_bonus": {
+          "default": false,
+          "title": "Has Downgrade Bonus",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "url_handle",
+        "username",
+        "role",
+        "sector_id",
+        "turn_state"
+      ],
+      "title": "CurrentUser",
+      "type": "object"
+    },
+    "DiceRollResult": {
+      "additionalProperties": false,
+      "properties": {
+        "roll_id": {
+          "title": "Roll Id",
+          "type": "integer"
+        },
+        "dice": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Dice",
+          "type": "array"
+        },
+        "random_org_link": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Random Org Link"
+        }
+      },
+      "required": [
+        "roll_id",
+        "dice"
+      ],
+      "title": "DiceRollResult",
+      "type": "object"
+    },
+    "EditPlayerGame": {
+      "additionalProperties": false,
+      "properties": {
+        "game_title": {
+          "title": "Game Title",
+          "type": "string"
+        },
+        "game_review": {
+          "title": "Game Review",
+          "type": "string"
+        },
+        "vod_links": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vod Links"
+        }
+      },
+      "required": [
+        "game_title",
+        "game_review"
+      ],
+      "title": "EditPlayerGame",
+      "type": "object"
+    },
+    "EventsList": {
+      "additionalProperties": false,
+      "properties": {
+        "events": {
+          "default": [],
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/GameEvent"
+              },
+              {
+                "$ref": "#/$defs/BonusCardEvent"
+              },
+              {
+                "$ref": "#/$defs/ScoreChangeEvent"
+              },
+              {
+                "$ref": "#/$defs/MoveEvent"
+              }
+            ]
+          },
+          "title": "Events",
+          "type": "array"
+        }
+      },
+      "title": "EventsList",
+      "type": "object"
+    },
+    "GameCompletionType": {
+      "enum": [
+        "completed",
+        "drop",
+        "reroll"
+      ],
+      "title": "GameCompletionType",
+      "type": "string"
+    },
+    "GameEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "timestamp": {
+          "title": "Timestamp",
+          "type": "integer"
+        },
+        "event_type": {
+          "default": "game",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "subtype": {
+          "$ref": "#/$defs/GameCompletionType"
+        },
+        "game_title": {
+          "title": "Game Title",
+          "type": "string"
+        },
+        "game_cover": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Game Cover"
+        },
+        "sector_id": {
+          "title": "Sector Id",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "timestamp",
+        "subtype",
+        "game_title",
+        "sector_id"
+      ],
+      "title": "GameEvent",
+      "type": "object"
+    },
+    "GiveBonusCard": {
+      "additionalProperties": false,
+      "properties": {
+        "bonus_type": {
+          "$ref": "#/$defs/MainBonusCardType"
+        }
+      },
+      "required": [
+        "bonus_type"
+      ],
+      "title": "GiveBonusCard",
+      "type": "object"
+    },
+    "GiveBonusCardResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "bonus_type": {
+          "$ref": "#/$defs/MainBonusCardType"
+        },
+        "received_at": {
+          "title": "Received At",
+          "type": "integer"
+        },
+        "received_on_sector": {
+          "title": "Received On Sector",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "bonus_type",
+        "received_at",
+        "received_on_sector"
+      ],
+      "title": "GiveBonusCardResponse",
+      "type": "object"
+    },
+    "IgdbGameSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "cover": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cover"
+        },
+        "release_year": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Release Year"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "IgdbGameSummary",
+      "type": "object"
+    },
+    "IgdbGamesList": {
+      "additionalProperties": false,
+      "properties": {
+        "games": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/IgdbGameSummary"
+          },
+          "title": "Games",
+          "type": "array"
+        }
+      },
+      "title": "IgdbGamesList",
+      "type": "object"
+    },
+    "IgdbGamesSearchRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "title": "Query",
+          "type": "string"
+        },
+        "limit": {
+          "default": 20,
+          "title": "Limit",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "title": "IgdbGamesSearchRequest",
+      "type": "object"
+    },
+    "InstantCardResult": {
+      "enum": [
+        "reroll",
+        "card-lost",
+        "score-received",
+        "scores-lost"
+      ],
+      "title": "InstantCardResult",
+      "type": "string"
+    },
+    "InstantCardType": {
+      "enum": [
+        "receive-1-percent-from-all",
+        "receive-scores-for-place",
+        "receive-5-percent-or-reroll",
+        "receive-3-percent",
+        "leaders-lose-percents",
+        "receive-1-percent-plus-20",
+        "upgrade-next-building",
+        "downgrade-next-building",
+        "lose-2-percents",
+        "reroll",
+        "reroll-and-roll",
+        "lose-card-or-3-percent"
+      ],
+      "title": "InstantCardType",
+      "type": "string"
+    },
+    "LoginRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "username": {
+          "title": "Username",
+          "type": "string"
+        },
+        "password": {
+          "title": "Password",
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ],
+      "title": "LoginRequest",
+      "type": "object"
+    },
+    "LoseBonusCardRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "bonus_type": {
+          "$ref": "#/$defs/MainBonusCardType"
+        }
+      },
+      "required": [
+        "bonus_type"
+      ],
+      "title": "LoseBonusCardRequest",
+      "type": "object"
+    },
+    "MainBonusCardType": {
+      "enum": [
+        "adjust-roll-by1",
+        "choose-1-die",
+        "skip-prison-day",
+        "reroll-game",
+        "evade-street-tax",
+        "evade-map-tax",
+        "game-help-allowed"
+      ],
+      "title": "MainBonusCardType",
+      "type": "string"
+    },
+    "MakePlayerMove": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/PlayerMoveType"
+        },
+        "selected_die": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Die"
+        },
+        "adjust_by_1": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adjust By 1"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "MakePlayerMove",
+      "type": "object"
+    },
+    "MarkNotificationsSeenRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "notification_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Notification Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "notification_ids"
+      ],
+      "title": "MarkNotificationsSeenRequest",
+      "type": "object"
+    },
+    "MoveEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "timestamp": {
+          "title": "Timestamp",
+          "type": "integer"
+        },
+        "event_type": {
+          "default": "player-move",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "subtype": {
+          "$ref": "#/$defs/PlayerMoveType"
+        },
+        "sector_from": {
+          "title": "Sector From",
+          "type": "integer"
+        },
+        "sector_to": {
+          "title": "Sector To",
+          "type": "integer"
+        },
+        "adjusted_roll": {
+          "title": "Adjusted Roll",
+          "type": "integer"
+        },
+        "dice_roll": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Dice Roll",
+          "type": "array"
+        },
+        "dice_roll_json": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dice Roll Json"
+        },
+        "map_completed": {
+          "title": "Map Completed",
+          "type": "boolean"
+        },
+        "bonuses_used": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MainBonusCardType"
+          },
+          "title": "Bonuses Used",
+          "type": "array"
+        }
+      },
+      "required": [
+        "timestamp",
+        "subtype",
+        "sector_from",
+        "sector_to",
+        "adjusted_roll",
+        "dice_roll",
+        "map_completed"
+      ],
+      "title": "MoveEvent",
+      "type": "object"
+    },
+    "NotificationEventType": {
+      "enum": [
+        "game-completed",
+        "game-reroll",
+        "game-drop",
+        "pay-sector-tax",
+        "building-income",
+        "pay-map-tax",
+        "bonus-increase",
+        "card-stolen",
+        "card-lost",
+        "event-ending-soon",
+        "message"
+      ],
+      "title": "NotificationEventType",
+      "type": "string"
+    },
+    "NotificationItem": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "notification_type": {
+          "title": "Notification Type",
+          "type": "string"
+        },
+        "event_type": {
+          "title": "Event Type",
+          "type": "string"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "integer"
+        },
+        "other_player_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Other Player Id"
+        },
+        "scores": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scores"
+        },
+        "sector_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sector Id"
+        },
+        "game_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Game Title"
+        },
+        "card_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Card Name"
+        },
+        "event_end_time": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event End Time"
+        },
+        "message_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message Text"
+        }
+      },
+      "required": [
+        "id",
+        "notification_type",
+        "event_type",
+        "created_at"
+      ],
+      "title": "NotificationItem",
+      "type": "object"
+    },
+    "NotificationType": {
+      "enum": [
+        "important",
+        "standard"
+      ],
+      "title": "NotificationType",
+      "type": "string"
+    },
+    "NotificationsResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "notifications": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/NotificationItem"
+          },
+          "title": "Notifications",
+          "type": "array"
+        }
+      },
+      "title": "NotificationsResponse",
+      "type": "object"
+    },
+    "PayTaxRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "tax_type": {
+          "$ref": "#/$defs/TaxType"
+        }
+      },
+      "required": [
+        "tax_type"
+      ],
+      "title": "PayTaxRequest",
+      "type": "object"
+    },
+    "PlayerMoveType": {
+      "enum": [
+        "dice-roll",
+        "train-ride",
+        "drop-to-prison"
+      ],
+      "title": "PlayerMoveType",
+      "type": "string"
+    },
+    "PlayerTurnState": {
+      "enum": [
+        "rolling-dice",
+        "using-dice-bonuses",
+        "using-prison-bonuses",
+        "rolling-bonus-card",
+        "filling-game-review",
+        "choosing-train-ride",
+        "using-map-tax-bonuses",
+        "using-street-tax-bonuses",
+        "dropping-card-after-game-drop",
+        "dropping-card-after-instant-roll",
+        "entering-prison",
+        "stealing-bonus-card",
+        "choosing-building-sector",
+        "using-map-tax-bonuses-after-train-ride"
+      ],
+      "title": "PlayerTurnState",
+      "type": "string"
+    },
+    "Role": {
+      "enum": [
+        "player",
+        "moder",
+        "admin",
+        "prison"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "RollDiceRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "num": {
+          "default": 2,
+          "title": "Num",
+          "type": "integer"
+        },
+        "min": {
+          "default": 1,
+          "title": "Min",
+          "type": "integer"
+        },
+        "max": {
+          "default": 8,
+          "title": "Max",
+          "type": "integer"
+        }
+      },
+      "title": "RollDiceRequest",
+      "type": "object"
+    },
+    "RollDiceResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "roll_id": {
+          "title": "Roll Id",
+          "type": "integer"
+        },
+        "is_random_org_result": {
+          "title": "Is Random Org Result",
+          "type": "boolean"
+        },
+        "random_org_check_form": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Random Org Check Form"
+        },
+        "data": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Data",
+          "type": "array"
+        }
+      },
+      "required": [
+        "roll_id",
+        "is_random_org_result",
+        "data"
+      ],
+      "title": "RollDiceResponse",
+      "type": "object"
+    },
+    "RulesResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "versions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/RulesVersion"
+          },
+          "title": "Versions",
+          "type": "array"
+        }
+      },
+      "title": "RulesResponse",
+      "type": "object"
+    },
+    "RulesVersion": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "title": "Content",
+          "type": "string"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "content",
+        "created_at"
+      ],
+      "title": "RulesVersion",
+      "type": "object"
+    },
+    "SavePlayerGame": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/GameCompletionType"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "review": {
+          "title": "Review",
+          "type": "string"
+        },
+        "rating": {
+          "title": "Rating",
+          "type": "number"
+        },
+        "length": {
+          "title": "Length",
+          "type": "string"
+        },
+        "vod_links": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vod Links"
+        },
+        "scores": {
+          "title": "Scores",
+          "type": "number"
+        },
+        "game_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Game Id"
+        }
+      },
+      "required": [
+        "status",
+        "title",
+        "review",
+        "rating",
+        "length",
+        "scores"
+      ],
+      "title": "SavePlayerGame",
+      "type": "object"
+    },
+    "SavePlayerGameResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "new_sector_id": {
+          "title": "New Sector Id",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "new_sector_id"
+      ],
+      "title": "SavePlayerGameResponse",
+      "type": "object"
+    },
+    "ScoreChangeEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "timestamp": {
+          "title": "Timestamp",
+          "type": "integer"
+        },
+        "event_type": {
+          "default": "score-change",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "subtype": {
+          "$ref": "#/$defs/ScoreChangeType"
+        },
+        "amount": {
+          "title": "Amount",
+          "type": "number"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "sector_id": {
+          "title": "Sector Id",
+          "type": "integer"
+        },
+        "score_before": {
+          "title": "Score Before",
+          "type": "number"
+        },
+        "score_after": {
+          "title": "Score After",
+          "type": "number"
+        }
+      },
+      "required": [
+        "timestamp",
+        "subtype",
+        "amount",
+        "reason",
+        "sector_id",
+        "score_before",
+        "score_after"
+      ],
+      "title": "ScoreChangeEvent",
+      "type": "object"
+    },
+    "ScoreChangeType": {
+      "enum": [
+        "game-completed",
+        "game-dropped",
+        "street-tax",
+        "street-income",
+        "map-tax",
+        "instant-card"
+      ],
+      "title": "ScoreChangeType",
+      "type": "string"
+    },
+    "SetEventEndTimeRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "event_end_time": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event End Time"
+        }
+      },
+      "title": "SetEventEndTimeRequest",
+      "type": "object"
+    },
+    "StealBonusCardRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "bonus_type": {
+          "$ref": "#/$defs/MainBonusCardType"
+        }
+      },
+      "required": [
+        "player_id",
+        "bonus_type"
+      ],
+      "title": "StealBonusCardRequest",
+      "type": "object"
+    },
+    "StreamCheckResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "title": "Success",
+          "type": "boolean"
+        },
+        "stats": {
+          "title": "Stats",
+          "type": "object"
+        }
+      },
+      "required": [
+        "success",
+        "stats"
+      ],
+      "title": "StreamCheckResponse",
+      "type": "object"
+    },
+    "StreamPlatform": {
+      "enum": [
+        "twitch",
+        "vk",
+        "kick",
+        "none"
+      ],
+      "title": "StreamPlatform",
+      "type": "string"
+    },
+    "TaxType": {
+      "enum": [
+        "street-tax",
+        "map-tax"
+      ],
+      "title": "TaxType",
+      "type": "string"
+    },
+    "UpdatePlayerTurnState": {
+      "additionalProperties": false,
+      "properties": {
+        "turn_state": {
+          "$ref": "#/$defs/PlayerTurnState"
+        }
+      },
+      "required": [
+        "turn_state"
+      ],
+      "title": "UpdatePlayerTurnState",
+      "type": "object"
+    },
+    "UseBonusCard": {
+      "additionalProperties": false,
+      "properties": {
+        "bonus_type": {
+          "$ref": "#/$defs/MainBonusCardType"
+        }
+      },
+      "required": [
+        "bonus_type"
+      ],
+      "title": "UseBonusCard",
+      "type": "object"
+    },
+    "UseBonusCardRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "bonus_type": {
+          "$ref": "#/$defs/MainBonusCardType"
+        }
+      },
+      "required": [
+        "bonus_type"
+      ],
+      "title": "UseBonusCardRequest",
+      "type": "object"
+    },
+    "UseInstantCardRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "card_type": {
+          "$ref": "#/$defs/InstantCardType"
+        },
+        "card_to_lose": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MainBonusCardType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "card_type"
+      ],
+      "title": "UseInstantCardRequest",
+      "type": "object"
+    },
+    "UseInstantCardResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantCardResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "UseInstantCardResponse",
+      "type": "object"
+    },
+    "UserEventBase": {
+      "additionalProperties": false,
+      "properties": {
+        "timestamp": {
+          "title": "Timestamp",
+          "type": "integer"
+        },
+        "event_type": {
+          "title": "Event Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "timestamp",
+        "event_type"
+      ],
+      "title": "UserEventBase",
+      "type": "object"
+    },
+    "UserGame": {
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "title": "Created At",
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/$defs/GameCompletionType"
+        },
+        "sector_id": {
+          "title": "Sector Id",
+          "type": "integer"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "review": {
+          "title": "Review",
+          "type": "string"
+        },
+        "rating": {
+          "title": "Rating",
+          "type": "number"
+        },
+        "length": {
+          "title": "Length",
+          "type": "string"
+        },
+        "length_bonus": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Length Bonus"
+        },
+        "duration": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration"
+        },
+        "vod_links": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vod Links"
+        },
+        "cover": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cover"
+        }
+      },
+      "required": [
+        "created_at",
+        "status",
+        "sector_id",
+        "title",
+        "review",
+        "rating",
+        "length"
+      ],
+      "title": "UserGame",
+      "type": "object"
+    },
+    "UserSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "username": {
+          "title": "Username",
+          "type": "string"
+        },
+        "first_name": {
+          "title": "First Name",
+          "type": "string"
+        },
+        "url_handle": {
+          "title": "Url Handle",
+          "type": "string"
+        },
+        "is_online": {
+          "title": "Is Online",
+          "type": "boolean"
+        },
+        "current_game": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Game"
+        },
+        "current_game_cover": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Game Cover"
+        },
+        "current_game_updated_at": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Game Updated At"
+        },
+        "current_game_duration": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Game Duration"
+        },
+        "online_count": {
+          "default": 0,
+          "title": "Online Count",
+          "type": "integer"
+        },
+        "current_auc_total_sum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Auc Total Sum"
+        },
+        "current_auc_started_at": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Auc Started At"
+        },
+        "pointauc_token": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pointauc Token"
+        },
+        "main_platform": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/StreamPlatform"
+            }
+          ],
+          "default": "none"
+        },
+        "twitch_stream_link": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Twitch Stream Link"
+        },
+        "vk_stream_link": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vk Stream Link"
+        },
+        "kick_stream_link": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kick Stream Link"
+        },
+        "telegram_link": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Telegram Link"
+        },
+        "donation_link": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Donation Link"
+        },
+        "avatar_link": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Avatar Link"
+        },
+        "is_active": {
+          "default": true,
+          "title": "Is Active",
+          "type": "boolean"
+        },
+        "sector_id": {
+          "title": "Sector Id",
+          "type": "integer"
+        },
+        "total_score": {
+          "default": 0.0,
+          "title": "Total Score",
+          "type": "number"
+        },
+        "maps_completed": {
+          "title": "Maps Completed",
+          "type": "integer"
+        },
+        "games": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/UserGame"
+          },
+          "title": "Games",
+          "type": "array"
+        },
+        "bonus_cards": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/BonusCard"
+          },
+          "title": "Bonus Cards",
+          "type": "array"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "first_name",
+        "url_handle",
+        "is_online",
+        "sector_id",
+        "maps_completed",
+        "role"
+      ],
+      "title": "UserSummary",
+      "type": "object"
+    },
+    "UsersList": {
+      "additionalProperties": false,
+      "properties": {
+        "players": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/UserSummary"
+          },
+          "title": "Players",
+          "type": "array"
+        },
+        "event_end_time": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event End Time"
+        }
+      },
+      "title": "UsersList",
+      "type": "object"
+    }
+  }
+}
