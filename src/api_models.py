@@ -25,7 +25,7 @@ class BaseModel(PydanticBaseModel):
     }
 
 
-class UserGame(BaseModel):
+class PlayerGame(BaseModel):
     created_at: int
     status: GameCompletionType
     sector_id: int
@@ -39,13 +39,13 @@ class UserGame(BaseModel):
     cover: str | None = None
 
 
-class BonusCard(BaseModel):
+class ActiveBonusCard(BaseModel):
     bonus_type: BonusCardType
     received_at: int
     received_on_sector: int
 
 
-class UserSummary(BaseModel):
+class PlayerDetails(BaseModel):
     id: int
     username: str
     first_name: str
@@ -70,18 +70,18 @@ class UserSummary(BaseModel):
     sector_id: int
     total_score: float = 0.0
     maps_completed: int
-    games: list[UserGame] = []
-    bonus_cards: list[BonusCard] = []
+    games: list[PlayerGame] = []
+    bonus_cards: list[ActiveBonusCard] = []
     role: Role
 
 
-class UsersList(BaseModel):
-    players: list[UserSummary] = []
+class PlayerListResponse(BaseModel):
+    players: list[PlayerDetails] = []
     event_end_time: int | None = None
     event_start_time: int | None = None
 
 
-class CurrentUser(BaseModel):
+class CurrentUserResponse(BaseModel):
     id: int
     url_handle: str
     username: str
@@ -96,12 +96,12 @@ class CurrentUser(BaseModel):
     has_downgrade_bonus: bool = False
 
 
-class UserEventBase(BaseModel):
+class PlayerEventBase(BaseModel):
     timestamp: int
     event_type: str
 
 
-class MoveEvent(UserEventBase):
+class MoveEvent(PlayerEventBase):
     event_type: str = "player-move"
     subtype: PlayerMoveType
     sector_from: int
@@ -113,7 +113,7 @@ class MoveEvent(UserEventBase):
     bonuses_used: list[MainBonusCardType] = []
 
 
-class ScoreChangeEvent(UserEventBase):
+class ScoreChangeEvent(PlayerEventBase):
     event_type: str = "score-change"
     subtype: ScoreChangeType
     amount: float
@@ -123,7 +123,7 @@ class ScoreChangeEvent(UserEventBase):
     score_after: float
 
 
-class BonusCardEvent(UserEventBase):
+class BonusCardEvent(PlayerEventBase):
     event_type: str = "bonus-card"
     subtype: BonusCardEventType
     bonus_type: BonusCardType | InstantCardType
@@ -137,7 +137,7 @@ class BonusCardEvent(UserEventBase):
     stolen_by: int | None = None
 
 
-class GameEvent(UserEventBase):
+class GameEvent(PlayerEventBase):
     event_type: str = "game"
     subtype: GameCompletionType
     game_title: str
@@ -145,11 +145,11 @@ class GameEvent(UserEventBase):
     sector_id: int
 
 
-class EventsList(BaseModel):
+class PlayerEventsResponse(BaseModel):
     events: list[GameEvent | BonusCardEvent | ScoreChangeEvent | MoveEvent] = []
 
 
-class GiveBonusCard(BaseModel):
+class GiveBonusCardRequest(BaseModel):
     bonus_type: MainBonusCardType
 
 
@@ -170,15 +170,8 @@ class MakePlayerMove(BaseModel):
     adjust_by_1: int | None = None
 
 
-class UpdatePlayerTurnState(BaseModel):
+class UpdatePlayerTurnStateRequest(BaseModel):
     turn_state: PlayerTurnState
-
-
-class ChangePlayerScore(BaseModel):
-    type: ScoreChangeType
-    amount: float
-    sector_id: int
-    reason: str
 
 
 class DiceRollResult(BaseModel):
@@ -187,7 +180,7 @@ class DiceRollResult(BaseModel):
     random_org_link: str | None = None
 
 
-class SavePlayerGame(BaseModel):
+class SavePlayerGameRequest(BaseModel):
     status: GameCompletionType
     title: str
     review: str
@@ -218,6 +211,11 @@ class RulesVersion(BaseModel):
     created_at: int
 
 
+class NewRulesVersionRequest(BaseModel):
+    content: str
+    created_at: int
+
+
 class RulesResponse(BaseModel):
     versions: list[RulesVersion] = []
 
@@ -233,7 +231,7 @@ class IgdbGameSummary(BaseModel):
     release_year: int | None = None
 
 
-class IgdbGamesList(BaseModel):
+class IgdbGamesListResponse(BaseModel):
     games: list[IgdbGameSummary] = []
 
 

@@ -6,7 +6,7 @@ from fastapi.params import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api_models import CurrentUser, LoginRequest
+from src.api_models import CurrentUserResponse, LoginRequest
 from src.db.db_session import get_db
 from src.db.db_models import DiceRoll, User
 from src.utils.auth import get_current_user
@@ -40,7 +40,7 @@ async def logout(
     return {"message": "Logged out successfully"}
 
 
-@router.get("/api/players/current", response_model=CurrentUser)
+@router.get("/api/players/current", response_model=CurrentUserResponse)
 async def fetch_current_user(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -52,7 +52,7 @@ async def fetch_current_user(
         .limit(1)
     )
     existing_roll = existing_roll_query.scalars().first()
-    response = CurrentUser.model_validate(current_user)
+    response = CurrentUserResponse.model_validate(current_user)
     if existing_roll:
         response.last_roll_result = json.loads(existing_roll.dice_values)
     return response

@@ -6,19 +6,19 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
-    BonusCard,
+    ActiveBonusCard,
     BonusCardEvent,
-    EventsList,
+    PlayerEventsResponse,
     GameEvent,
     MakePlayerMove,
     MoveEvent,
-    SavePlayerGame,
+    SavePlayerGameRequest,
     SavePlayerGameResponse,
     ScoreChangeEvent,
-    UpdatePlayerTurnState,
-    UserGame,
-    UsersList,
-    UserSummary,
+    UpdatePlayerTurnStateRequest,
+    PlayerGame,
+    PlayerListResponse,
+    PlayerDetails,
 )
 from src.consts import GAME_LENGTHS_IN_ORDER
 from src.db.db_models import (
@@ -58,7 +58,7 @@ from src.utils.db import utc_now_ts
 router = APIRouter(tags=["players"])
 
 
-@router.get("/api/players", response_model=UsersList)
+@router.get("/api/players", response_model=PlayerListResponse)
 async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
     users_query = await db.execute(select(User).filter(User.is_active == 1))
     users = users_query.scalars().all()
@@ -85,9 +85,9 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
 
     users_models = []
     for user in users:
-        model = UserSummary.model_validate(user)
+        model = PlayerDetails.model_validate(user)
         model.games = [
-            UserGame(
+            PlayerGame(
                 sector_id=g.sector_id,
                 title=g.item_title,
                 length=g.item_length,
@@ -108,7 +108,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         model.games.sort(key=lambda x: x.created_at, reverse=True)
 
         model.bonus_cards = [
-            BonusCard(
+            ActiveBonusCard(
                 bonus_type=BonusCardType(c.card_type),
                 received_at=c.created_at,
                 received_on_sector=c.received_on_sector,
@@ -130,7 +130,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
     }
 
 
-@router.get("/api/players/{player_id}/events", response_model=EventsList)
+@router.get("/api/players/{player_id}/events", response_model=PlayerEventsResponse)
 async def get_player_events(
     player_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -378,7 +378,7 @@ async def do_player_move(
 
 @router.post("/api/player-games", response_model=SavePlayerGameResponse)
 async def save_player_game(
-    request: SavePlayerGame,
+    request: SavePlayerGameRequest,
     current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -457,7 +457,7 @@ async def save_player_game(
 
 @router.post("/api/players/current/turn-state")
 async def update_turn_state(
-    request: UpdatePlayerTurnState,
+    request: UpdatePlayerTurnStateRequest,
     current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):

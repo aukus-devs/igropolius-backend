@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api_models import IgdbGamesList
+from src.api_models import IgdbGamesListResponse
 from src.db.db_session import get_db
 from src.db.db_models import IgdbGame, User
 from src.utils.auth import get_current_user
@@ -13,7 +13,7 @@ from src.utils.auth import get_current_user
 router = APIRouter(tags=["igdb"])
 
 
-@router.get("/api/igdb/games/search", response_model=IgdbGamesList)
+@router.get("/api/igdb/games/search", response_model=IgdbGamesListResponse)
 async def search_igdb_games_get(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],

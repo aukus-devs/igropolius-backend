@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
-    GiveBonusCard,
+    GiveBonusCardRequest,
     GiveBonusCardResponse,
     LoseBonusCardRequest,
     StealBonusCardRequest,
@@ -39,7 +39,7 @@ router = APIRouter(tags=["bonus_cards"])
 
 @router.post("/api/bonus-cards", response_model=GiveBonusCardResponse)
 async def receive_bonus_card(
-    request: GiveBonusCard,
+    request: GiveBonusCardRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
