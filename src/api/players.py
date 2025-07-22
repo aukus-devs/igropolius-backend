@@ -20,7 +20,7 @@ from src.api_models import (
     PlayerListResponse,
     PlayerDetails,
 )
-from src.consts import GAME_LENGTHS_IN_ORDER
+from src.consts import GAME_LENGTHS_IN_ORDER, TRAIN_MAP
 from src.db.db_models import (
     DiceRoll,
     EventSettings,
@@ -279,6 +279,7 @@ async def do_player_move(
                     detail="No dice roll available. Please roll dice first.",
                 )
 
+            dice_roll_record.used = 1
             dice_roll_record_id = dice_roll_record.id
 
             dice_values: list[int] = json.loads(dice_roll_record.dice_values)
@@ -338,10 +339,31 @@ async def do_player_move(
                 adjust_by1_card.used_at = utc_now_ts()
                 adjust_by1_card.used_on_sector = sector_id_from
 
-            dice_roll_record.used = 1
+            if request.ride_train:
+                train_target = TRAIN_MAP.get(current_user.sector_id)
+                if not train_target:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Player must be on a train sector to use ride train option.",
+                    )
 
-        case PlayerMoveType.TRAIN_RIDE:
-            roll_result = 10
+                train_map_completed = current_user.sector_id > train_target
+                train_move = PlayerMove(
+                    player_id=current_user.id,
+                    sector_from=current_user.sector_id,
+                    sector_to=train_target,
+                    move_type=PlayerMoveType.TRAIN_RIDE.value,
+                    map_completed=train_map_completed,
+                    adjusted_roll=10,
+                    random_org_roll=-1,
+                )
+                db.add(train_move)
+                current_user.sector_id = train_target
+                if train_map_completed:
+                    current_user.maps_completed += 1
+
+        # case PlayerMoveType.TRAIN_RIDE:
+        #     roll_result = 10
         case PlayerMoveType.DROP_TO_PRISON:
             # move player to prison
             prison_sector = get_closest_prison_sector(current_user.sector_id)

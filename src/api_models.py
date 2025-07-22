@@ -176,6 +176,7 @@ class PlayerMoveRequest(BaseModel):
     # bonuses_used: list[MainBonusCardType] = []
     selected_die: int | None = None
     adjust_by_1: int | None = None
+    ride_train: bool = False
 
 
 class UpdatePlayerTurnStateRequest(BaseModel):
