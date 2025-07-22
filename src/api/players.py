@@ -261,6 +261,9 @@ async def do_player_move(
     roll_result = None
     dice_roll_record_id = -1
 
+    choose_1_die_card = None
+    adjust_by1_card = None
+
     match request.type:
         case PlayerMoveType.DICE_ROLL:
             dice_roll_query = await db.execute(
@@ -373,6 +376,13 @@ async def do_player_move(
         random_org_roll=dice_roll_record_id,
     )
     db.add(move_item)
+    await db.flush()
+
+    if choose_1_die_card:
+        choose_1_die_card.player_move_id = move_item.id
+    if adjust_by1_card:
+        adjust_by1_card.player_move_id = move_item.id
+
     current_user.sector_id = sector_to
     if map_completed:
         current_user.maps_completed += 1

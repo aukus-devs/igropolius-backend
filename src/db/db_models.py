@@ -36,7 +36,7 @@ class User(DbBase):
     kick_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)
     telegram_link: Mapped[str] = mapped_column(String(255), nullable=True)
     donation_link: Mapped[str] = mapped_column(String(255), nullable=True)
-    is_active: Mapped[int] = mapped_column(Integer, default=True)
+    is_active: Mapped[int] = mapped_column(Integer, default=True, index=True)
     avatar_link: Mapped[str] = mapped_column(String(255), nullable=True)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     total_score: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
@@ -102,7 +102,7 @@ class PlayerCard(DbBase):
     player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     card_type: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=BonusCardStatus.ACTIVE.value
+        String(255), nullable=False, default=BonusCardStatus.ACTIVE.value, index=True
     )
     received_on_sector: Mapped[int] = mapped_column(Integer, nullable=False)
     used_at: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -112,6 +112,9 @@ class PlayerCard(DbBase):
     stolen_at: Mapped[int] = mapped_column(Integer, nullable=True)
     stolen_by: Mapped[int] = mapped_column(Integer, nullable=True)
     stolen_from_player: Mapped[int] = mapped_column(Integer, nullable=True)
+    player_move_id: Mapped[int | None] = mapped_column(
+        Integer, nullable=True, index=True
+    )
 
 
 class PlayerMove(DbBase):
@@ -135,7 +138,7 @@ class Rules(DbBase):
     __tablename__ = "rules"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    created_at: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
+    created_at: Mapped[int] = mapped_column(Integer, default=utc_now_ts, index=True)
     updated_at: Mapped[int] = mapped_column(
         Integer, default=utc_now_ts, onupdate=utc_now_ts
     )
@@ -197,7 +200,7 @@ class Notification(DbBase):
     player_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     notification_type: Mapped[str] = mapped_column(String(255), nullable=False)
     event_type: Mapped[str] = mapped_column(String(255), nullable=False)
-    is_read: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    is_read: Mapped[int] = mapped_column(Integer, default=0, nullable=False, index=True)
     other_player_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     scores: Mapped[float | None] = mapped_column(Float, nullable=True)
     sector_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
