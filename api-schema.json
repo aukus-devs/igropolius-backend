@@ -1635,6 +1635,11 @@
           ],
           "default": null,
           "title": "Adjust By 1"
+        },
+        "ride_train": {
+          "default": false,
+          "title": "Ride Train",
+          "type": "boolean"
         }
       },
       "required": [
@@ -1665,8 +1670,7 @@
         "dropping-card-after-instant-roll",
         "entering-prison",
         "stealing-bonus-card",
-        "choosing-building-sector",
-        "using-map-tax-bonuses-after-train-ride"
+        "choosing-building-sector"
       ],
       "title": "PlayerTurnState",
       "type": "string"
