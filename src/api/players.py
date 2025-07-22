@@ -156,9 +156,7 @@ async def get_player_events(
             select(PlayerCard).where(
                 PlayerCard.player_id == player_id,
                 PlayerCard.status == "used",
-                PlayerCard.used_on_sector == e.sector_to,
-                PlayerCard.used_at >= e.created_at - 60,
-                PlayerCard.used_at <= e.created_at + 60,
+                PlayerCard.player_move_id == e.id,
             )
         )
         used_cards = used_cards_query.scalars().all()
