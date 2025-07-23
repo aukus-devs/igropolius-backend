@@ -129,6 +129,7 @@ class ScoreChangeEvent(PlayerEventBase):
     sector_id: int
     score_before: float
     score_after: float
+    income_from_player: int | None = None
 
 
 class BonusCardEvent(PlayerEventBase):

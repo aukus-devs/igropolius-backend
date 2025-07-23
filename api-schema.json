@@ -1854,6 +1854,18 @@
         "score_after": {
           "title": "Score After",
           "type": "number"
+        },
+        "income_from_player": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Income From Player"
         }
       },
       "required": [

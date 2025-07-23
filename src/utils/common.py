@@ -1,6 +1,15 @@
+from sqlalchemy import distinct, select, func
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import BonusCardEvent
-from src.db.db_models import PlayerCard
-from src.enums import BonusCardEventType, BonusCardStatus, BonusCardType
+from src.consts import SECTORS_COLORS_GROUPS
+from src.db.db_models import PlayerCard, PlayerGame, User
+from src.enums import (
+    BonusCardEventType,
+    BonusCardStatus,
+    BonusCardType,
+    GameCompletionType,
+    GameLength,
+)
 
 
 def get_closest_prison_sector(current_sector: int) -> int:
@@ -87,3 +96,24 @@ def get_bonus_cards_looted_events(cards: list[PlayerCard]) -> list[BonusCardEven
             )
             events.append(event)
     return events
+
+
+def find_sector_group(sector_id: int) -> list[int] | None:
+    for group in SECTORS_COLORS_GROUPS:
+        if sector_id in group:
+            return group
+    return None
+
+
+async def player_owns_sectors_group(
+    db: AsyncSession, player: User, sectors_group: list[int]
+) -> bool:
+    query = select(func.count(distinct(PlayerGame.sector_id))).where(
+        PlayerGame.player_id == player.id,
+        PlayerGame.sector_id.in_(sectors_group),
+        PlayerGame.item_length != GameLength.DROP.value,
+        PlayerGame.type == GameCompletionType.COMPLETED.value,
+    )
+    result = await db.execute(query)
+    sectors_owned = result.scalar()
+    return sectors_owned == len(sectors_group)

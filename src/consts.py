@@ -14,6 +14,7 @@ GAME_LENGTHS_IN_ORDER = list(SCORES_BY_GAME_LENGTH.keys())
 
 
 STREET_INCOME_MULTILIER = 0.4
+STREET_INCOME_GROUP_OWNER_MULTILIER = 0.8
 STREET_TAX_PAYER_MULTILIER = 0.5
 
 MAP_TAX_PERCENT = 0.05
@@ -24,3 +25,15 @@ TRAIN_MAP = {
     26: 36,
     36: 6,
 }
+
+
+SECTORS_COLORS_GROUPS = [
+    [2, 4, 5],
+    [7, 9, 10],
+    [12, 14, 15],
+    [17, 19, 20],
+    [22, 24, 25],
+    [27, 28, 30],
+    [32, 33, 35],
+    [37, 38, 40],
+]

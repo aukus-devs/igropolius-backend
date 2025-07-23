@@ -243,6 +243,7 @@ async def get_player_events(
             timestamp=e.created_at,
             score_before=e.score_before,
             score_after=e.score_after,
+            income_from_player=e.income_from_player,
         )
         for e in score_changes
     ]

@@ -24,9 +24,16 @@ async def change_player_score(
     score_change: float,
     change_type: ScoreChangeType,
     description: str,
+    income_from_player: User | None = None,
 ) -> User:
     if not db.in_transaction():
         raise ValueError("Database session must be in a transaction")
+
+    sector_id = player.sector_id
+    income_from_player_id = None
+    if income_from_player:
+        sector_id = income_from_player.sector_id
+        income_from_player_id = income_from_player.id
 
     score_change = round(score_change, 2)
     before = player.total_score
@@ -38,7 +45,8 @@ async def change_player_score(
         score_after=after,
         change_type=change_type.value,
         description=description,
-        sector_id=player.sector_id,
+        sector_id=sector_id,
+        income_from_player=income_from_player_id,
     )
     db.add(score_change)
     player.total_score = after

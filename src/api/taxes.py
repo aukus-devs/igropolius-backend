@@ -9,6 +9,7 @@ from src.api_models import PayTaxRequest
 from src.consts import (
     MAP_TAX_PERCENT,
     SCORES_BY_GAME_LENGTH,
+    STREET_INCOME_GROUP_OWNER_MULTILIER,
     STREET_INCOME_MULTILIER,
     STREET_TAX_PAYER_MULTILIER,
 )
@@ -22,6 +23,7 @@ from src.db.queries.notifications import (
     create_map_tax_notification,
     create_sector_tax_notification,
 )
+from src.utils.common import find_sector_group, player_owns_sectors_group
 
 router = APIRouter(tags=["taxes"])
 
@@ -36,16 +38,16 @@ async def pay_tax(
 ):
     if request.tax_type == TaxType.MAP_TAX:
         # tax is 5% from current player score
-        tax_amount = round(current_user.total_score * MAP_TAX_PERCENT, 2)
+        income_amount = round(current_user.total_score * MAP_TAX_PERCENT, 2)
         await change_player_score(
             db,
             player=current_user,
-            score_change=-tax_amount,
+            score_change=-income_amount,
             change_type=ScoreChangeType.MAP_TAX,
             description="map tax 5%",
         )
 
-        await create_map_tax_notification(db, current_user.id, tax_amount)
+        await create_map_tax_notification(db, current_user.id, income_amount)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     if request.tax_type == TaxType.STREET_TAX:
@@ -66,13 +68,14 @@ async def pay_tax(
         )
         players = players_query.scalars().all()
 
+        sector_group = find_sector_group(current_user.sector_id)
         tax_payments: list[float] = []
         for game in games:
-            tax_amount = (
+            income_amount = (
                 SCORES_BY_GAME_LENGTH.get(game.item_length, 0) * STREET_INCOME_MULTILIER
             )
-            tax_amount = round(tax_amount, 2)
-            tax_payments.append(tax_amount)
+            income_amount = round(income_amount, 2)
+            tax_payments.append(income_amount)
 
             player = next((p for p in players if p.id == game.player_id), None)
             if not player:
@@ -81,41 +84,42 @@ async def pay_tax(
                 )
                 continue
 
-            before = player.total_score
-            after = round(before + tax_amount, 2)
-            player.total_score = after
+            owns_sector_group = False
+            if sector_group:
+                owns_sector_group = await player_owns_sectors_group(
+                    db, player, sector_group
+                )
+                if owns_sector_group:
+                    income_amount = (
+                        SCORES_BY_GAME_LENGTH.get(game.item_length, 0)
+                        * STREET_INCOME_GROUP_OWNER_MULTILIER
+                    )
 
-            score_change = PlayerScoreChange(
-                player_id=game.player_id,
-                score_change=tax_amount,
-                before_score=before,
-                after_score=after,
-                change_type=ScoreChangeType.STREET_INCOME.value,
+            await change_player_score(
+                db,
+                player=player,
+                score_change=income_amount,
+                change_type=ScoreChangeType.STREET_INCOME,
                 description=f"street income from {current_user.username} for '{game.item_title}'",
-                sector_id=current_user.sector_id,
+                income_from_player=current_user,
             )
-            db.add(score_change)
 
             await create_building_income_notification(
-                db, game.player_id, tax_amount, current_user.id, current_user.sector_id
+                db,
+                game.player_id,
+                income_amount,
+                current_user.id,
+                current_user.sector_id,
             )
 
         total_tax = sum(tax_payments) * STREET_TAX_PAYER_MULTILIER
-        total_tax = round(total_tax, 2)
-        before = current_user.total_score
-        after = round(before - total_tax, 2)
-
-        score_change = PlayerScoreChange(
-            player_id=current_user.id,
+        await change_player_score(
+            db,
+            player=current_user,
             score_change=-total_tax,
-            before_score=before,
-            after_score=after,
-            change_type=ScoreChangeType.STREET_TAX.value,
+            change_type=ScoreChangeType.STREET_TAX,
             description=f"street tax for {len(games)} games",
-            sector_id=current_user.sector_id,
         )
-        db.add(score_change)
-        current_user.total_score = after
 
         await create_sector_tax_notification(
             db, current_user.id, total_tax, current_user.sector_id
