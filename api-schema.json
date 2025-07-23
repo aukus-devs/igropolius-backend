@@ -53,66 +53,6 @@
           "title": "Sector Id",
           "type": "integer"
         },
-        "used_at": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Used At"
-        },
-        "used_on_sector": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Used On Sector"
-        },
-        "lost_at": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Lost At"
-        },
-        "lost_on_sector": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Lost On Sector"
-        },
-        "stolen_at": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Stolen At"
-        },
         "stolen_from_player": {
           "anyOf": [
             {

@@ -1,3 +1,4 @@
+from itertools import chain
 import json
 from typing import Annotated, cast
 
@@ -7,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
     ActiveBonusCard,
-    BonusCardEvent,
     PlayerEventsResponse,
     GameEvent,
     PlayerMoveRequest,
@@ -45,14 +45,20 @@ from src.db.queries.notifications import (
 from src.db.queries.players import change_player_score
 from src.enums import (
     BonusCardStatus,
-    BonusCardType,
     GameCompletionType,
     MainBonusCardType,
     PlayerMoveType,
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user_for_update
-from src.utils.common import get_closest_prison_sector, map_bonus_card_to_event_type
+from src.utils.common import (
+    get_closest_prison_sector,
+    get_bonus_cards_received_events,
+    get_bonus_cards_used_events,
+    get_bonus_cards_stolen_events,
+    get_bonus_cards_dropped_events,
+    get_bonus_cards_looted_events,
+)
 from src.utils.db import utc_now_ts
 
 router = APIRouter(tags=["players"])
@@ -209,23 +215,19 @@ async def get_player_events(
         select(PlayerCard).where(PlayerCard.player_id == player_id)
     )
     cards = cards_query.scalars().all()
-    bonus_card_events = [
-        BonusCardEvent(
-            event_type="bonus-card",
-            subtype=map_bonus_card_to_event_type(e),
-            bonus_type=BonusCardType(e.card_type),
-            sector_id=e.received_on_sector,
-            timestamp=e.created_at,
-            used_at=e.used_at,
-            used_on_sector=e.used_on_sector,
-            lost_at=e.lost_at,
-            lost_on_sector=e.lost_on_sector,
-            stolen_at=e.stolen_at,
-            stolen_from_player=e.stolen_from_player,
-            stolen_by=e.stolen_by,
-        )
-        for e in cards
-    ]
+
+    received_card_events = get_bonus_cards_received_events(cards)
+    used_card_events = get_bonus_cards_used_events(cards)
+    stolen_card_events = get_bonus_cards_stolen_events(cards)
+    dropped_card_events = get_bonus_cards_dropped_events(cards)
+    looted_card_events = get_bonus_cards_looted_events(cards)
+    bonus_card_events = chain(
+        received_card_events,
+        used_card_events,
+        stolen_card_events,
+        dropped_card_events,
+        looted_card_events,
+    )
 
     scores_query = await db.execute(
         select(PlayerScoreChange).where(PlayerScoreChange.player_id == player_id)
@@ -244,7 +246,7 @@ async def get_player_events(
         )
         for e in score_changes
     ]
-    all_events = move_events + game_events + bonus_card_events + score_change_events
+    all_events = chain(move_events, game_events, bonus_card_events, score_change_events)
     return {"events": all_events}
 
 
