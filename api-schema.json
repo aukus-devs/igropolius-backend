@@ -1669,8 +1669,7 @@
         "dropping-card-after-game-drop",
         "dropping-card-after-instant-roll",
         "entering-prison",
-        "stealing-bonus-card",
-        "choosing-building-sector"
+        "stealing-bonus-card"
       ],
       "title": "PlayerTurnState",
       "type": "string"
@@ -1842,6 +1841,18 @@
           ],
           "default": null,
           "title": "Game Id"
+        },
+        "target_sector": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Sector"
         }
       },
       "required": [

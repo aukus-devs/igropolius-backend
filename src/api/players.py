@@ -416,12 +416,22 @@ async def save_player_game(
     current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    game_duration = 0
     try:
         game_duration = await calculate_game_duration_by_title(
             db, request.title, current_user.id
         )
-    except Exception:
-        game_duration = 0
+    except:
+        pass
+
+    target_sector = current_user.sector_id
+    if request.target_sector:
+        if current_user.sector_id != 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Target sector can only be set when player is on sector 1.",
+            )
+        target_sector = request.target_sector
 
     game = PlayerGameDbModel(
         player_id=current_user.id,
@@ -431,7 +441,8 @@ async def save_player_game(
         item_rating=request.rating,
         item_length=request.length.value,
         vod_links=request.vod_links,
-        sector_id=current_user.sector_id,
+        sector_id=target_sector,
+        player_sector_id=current_user.sector_id,
         game_id=request.game_id,
         duration=game_duration,
     )
