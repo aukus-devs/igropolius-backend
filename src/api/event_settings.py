@@ -16,6 +16,6 @@ async def get_event_settings(db: Annotated[AsyncSession, Depends(get_db)]):
     settings_query = await db.execute(select(EventSettings))
     settings_records = settings_query.scalars().all()
 
-    settings_dict = {record.key: record.value for record in settings_records}
+    settings_dict = {record.key_name: record.value for record in settings_records}
 
     return EventSettingsResponse(settings=settings_dict)

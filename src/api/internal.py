@@ -86,7 +86,7 @@ async def create_event_ending_soon_notification_for_all(
 
     try:
         event_end_time_query = await db.execute(
-            select(EventSettings).where(EventSettings.key == "event_end_time")
+            select(EventSettings).where(EventSettings.key_name == "event_end_time")
         )
         event_end_time_setting = event_end_time_query.scalars().first()
 
@@ -272,7 +272,7 @@ async def set_event_settings(
         if request.event_start_time is not None:
             start_time_query = await db.execute(
                 select(EventSettings)
-                .where(EventSettings.key == "event_start_time")
+                .where(EventSettings.key_name == "event_start_time")
                 .with_for_update()
             )
             start_time_setting = start_time_query.scalars().first()
@@ -288,7 +288,7 @@ async def set_event_settings(
         if request.event_end_time is not None:
             end_time_query = await db.execute(
                 select(EventSettings)
-                .where(EventSettings.key == "event_end_time")
+                .where(EventSettings.key_name == "event_end_time")
                 .with_for_update()
             )
             end_time_setting = end_time_query.scalars().first()

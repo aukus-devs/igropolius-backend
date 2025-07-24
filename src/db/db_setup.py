@@ -180,14 +180,14 @@ async def create_games():
 
 async def create_event_settings():
     async with get_session() as db:
-        existing_settings_query = await db.execute(select(EventSettings.key))
+        existing_settings_query = await db.execute(select(EventSettings.key_name))
         existing_keys = set(existing_settings_query.scalars().all())
 
         default_settings = {"event_start_time": "1", "event_end_time": "2"}
 
         for key, value in default_settings.items():
             if key not in existing_keys:
-                setting = EventSettings(key=key, value=value)
+                setting = EventSettings(key_name=key, value=value)
                 db.add(setting)
 
         await db.commit()
