@@ -281,7 +281,7 @@ async def set_event_settings(
                 start_time_setting.value = str(request.event_start_time)
             else:
                 start_time_setting = EventSettings(
-                    key="event_start_time", value=str(request.event_start_time)
+                    key_name="event_start_time", value=str(request.event_start_time)
                 )
                 db.add(start_time_setting)
 
@@ -297,7 +297,7 @@ async def set_event_settings(
                 end_time_setting.value = str(request.event_end_time)
             else:
                 end_time_setting = EventSettings(
-                    key="event_end_time", value=str(request.event_end_time)
+                    key_name="event_end_time", value=str(request.event_end_time)
                 )
                 db.add(end_time_setting)
 
