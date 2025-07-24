@@ -1,5 +1,5 @@
-from itertools import chain
 import json
+from itertools import chain
 from typing import Annotated, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -8,28 +8,31 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
     ActiveBonusCard,
-    PlayerEventsResponse,
     GameEvent,
-    PlayerMoveRequest,
     MoveEvent,
+    PlayerDetails,
+    PlayerEventsResponse,
+    PlayerListResponse,
+    PlayerMoveRequest,
     SavePlayerGameRequest,
     SavePlayerGameResponse,
     ScoreChangeEvent,
     UpdatePlayerTurnStateRequest,
+)
+from src.api_models import (
     PlayerGame as PlayerGameApiModel,
-    PlayerListResponse,
-    PlayerDetails,
 )
 from src.consts import GAME_LENGTHS_IN_ORDER, TRAIN_MAP
 from src.db.db_models import (
     DiceRoll,
-    EventSettings,
     IgdbGame,
     PlayerCard,
-    PlayerGame as PlayerGameDbModel,
     PlayerMove,
     PlayerScoreChange,
     User,
+)
+from src.db.db_models import (
+    PlayerGame as PlayerGameDbModel,
 )
 from src.db.db_session import get_db
 from src.db.queries.category_history import (
@@ -52,12 +55,12 @@ from src.enums import (
 )
 from src.utils.auth import get_current_user_for_update
 from src.utils.common import (
-    get_closest_prison_sector,
-    get_bonus_cards_received_events,
-    get_bonus_cards_used_events,
-    get_bonus_cards_stolen_events,
     get_bonus_cards_dropped_events,
     get_bonus_cards_looted_events,
+    get_bonus_cards_received_events,
+    get_bonus_cards_stolen_events,
+    get_bonus_cards_used_events,
+    get_closest_prison_sector,
 )
 from src.utils.db import utc_now_ts
 
@@ -74,11 +77,6 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         select(PlayerCard).where(PlayerCard.status == "active")
     )
     cards = cards_query.scalars().all()
-
-    event_settings_query = await db.execute(
-        select(EventSettings).order_by(EventSettings.updated_at.desc()).limit(1)
-    )
-    event_settings = event_settings_query.scalars().first()
 
     game_ids = {g.game_id for g in games if g.game_id is not None}
     igdb_games_dict = {}
@@ -129,11 +127,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
 
         users_models.append(model)
 
-    return {
-        "players": users_models,
-        "event_end_time": event_settings.event_end_time if event_settings else None,
-        "event_start_time": event_settings.event_start_time if event_settings else None,
-    }
+    return PlayerListResponse(players=users_models)
 
 
 @router.get("/api/players/{player_id}/events", response_model=PlayerEventsResponse)

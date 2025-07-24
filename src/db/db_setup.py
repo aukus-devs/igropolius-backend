@@ -3,10 +3,12 @@ import asyncio
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from .db_session import get_session, init_db_async
-from src.db.db_models import User, IgdbGame
-from src.enums import PlayerTurnState, StreamPlatform, Role
+
+from src.db.db_models import EventSettings, IgdbGame, User
+from src.enums import PlayerTurnState, Role, StreamPlatform
 from src.utils.jwt import hash_password
+
+from .db_session import get_session, init_db_async
 
 
 class UserData(BaseModel):
@@ -176,6 +178,21 @@ async def create_games():
             await db.commit()
 
 
+async def create_event_settings():
+    async with get_session() as db:
+        existing_settings_query = await db.execute(select(EventSettings.key))
+        existing_keys = set(existing_settings_query.scalars().all())
+
+        default_settings = {"event_start_time": "1", "event_end_time": "2"}
+
+        for key, value in default_settings.items():
+            if key not in existing_keys:
+                setting = EventSettings(key=key, value=value)
+                db.add(setting)
+
+        await db.commit()
+
+
 async def main():
     await init_db_async()
     print("Database initialized successfully.")
@@ -185,6 +202,9 @@ async def main():
 
     await create_games()
     print("Test games created successfully.")
+
+    await create_event_settings()
+    print("Event settings initialized successfully.")
 
 
 if __name__ == "__main__":

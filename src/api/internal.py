@@ -13,16 +13,16 @@ from src.api_models import (
     SetEventEndTimeRequest,
     StreamCheckResponse,
 )
-from src.db.db_session import get_db
 from src.db.db_models import EventSettings, User
-from src.enums import NotificationEventType, NotificationType, Role
-from src.utils.auth import get_current_user, get_current_user_direct
+from src.db.db_session import get_db
 from src.db.queries.notifications import (
     create_all_players_notification,
     create_message_notification,
     create_player_message_notification,
     create_player_notification,
 )
+from src.enums import NotificationEventType, NotificationType, Role
+from src.utils.auth import get_current_user, get_current_user_direct
 
 router = APIRouter(tags=["internal"])
 
@@ -85,12 +85,12 @@ async def create_event_ending_soon_notification_for_all(
         )
 
     try:
-        event_settings_query = await db.execute(
-            select(EventSettings).order_by(EventSettings.updated_at.desc()).limit(1)
+        event_end_time_query = await db.execute(
+            select(EventSettings).where(EventSettings.key == "event_end_time")
         )
-        event_settings = event_settings_query.scalars().first()
+        event_end_time_setting = event_end_time_query.scalars().first()
 
-        if not event_settings or not event_settings.event_end_time:
+        if not event_end_time_setting or not event_end_time_setting.value:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Event end time is not configured",
@@ -100,7 +100,7 @@ async def create_event_ending_soon_notification_for_all(
             db=db,
             notification_type=NotificationType.IMPORTANT,
             event_type=NotificationEventType.EVENT_ENDING_SOON,
-            event_end_time=event_settings.event_end_time,
+            event_end_time=int(event_end_time_setting.value),
         )
 
         return CreateNotificationResponse(
@@ -269,20 +269,37 @@ async def set_event_settings(
         )
 
     try:
-        event_settings_query = await db.execute(
-            select(EventSettings).order_by(EventSettings.updated_at.desc()).limit(1)
-        )
-        event_settings = event_settings_query.scalars().first()
-
-        if event_settings:
-            event_settings.event_end_time = request.event_end_time
-            event_settings.event_start_time = request.event_start_time
-        else:
-            event_settings = EventSettings(
-                event_end_time=request.event_end_time,
-                event_start_time=request.event_start_time,
+        if request.event_start_time is not None:
+            start_time_query = await db.execute(
+                select(EventSettings)
+                .where(EventSettings.key == "event_start_time")
+                .with_for_update()
             )
-            db.add(event_settings)
+            start_time_setting = start_time_query.scalars().first()
+
+            if start_time_setting:
+                start_time_setting.value = str(request.event_start_time)
+            else:
+                start_time_setting = EventSettings(
+                    key="event_start_time", value=str(request.event_start_time)
+                )
+                db.add(start_time_setting)
+
+        if request.event_end_time is not None:
+            end_time_query = await db.execute(
+                select(EventSettings)
+                .where(EventSettings.key == "event_end_time")
+                .with_for_update()
+            )
+            end_time_setting = end_time_query.scalars().first()
+
+            if end_time_setting:
+                end_time_setting.value = str(request.event_end_time)
+            else:
+                end_time_setting = EventSettings(
+                    key="event_end_time", value=str(request.event_end_time)
+                )
+                db.add(end_time_setting)
 
         message = (
             f"Event end time set to {request.event_end_time}, start time set to {request.event_start_time}"
@@ -294,5 +311,5 @@ async def set_event_settings(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to set event end time: {str(e)}",
+            detail=f"Failed to update event settings: {str(e)}",
         )

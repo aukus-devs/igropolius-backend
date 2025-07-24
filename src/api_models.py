@@ -1,5 +1,5 @@
-from typing_extensions import Literal
 from pydantic import BaseModel as PydanticBaseModel
+from typing_extensions import Literal
 
 from src.enums import (
     BonusCardEventType,
@@ -79,8 +79,6 @@ class PlayerDetails(BaseModel):
 
 class PlayerListResponse(BaseModel):
     players: list[PlayerDetails]
-    event_end_time: int | None = None
-    event_start_time: int | None = None
 
 
 class CurrentUserResponse(BaseModel):
@@ -351,6 +349,10 @@ class CreateNotificationResponse(BaseModel):
 class SetEventEndTimeRequest(BaseModel):
     event_start_time: int | None = None
     event_end_time: int | None = None
+
+
+class EventSettingsResponse(BaseModel):
+    settings: dict[str, str | None] = {}
 
 
 class UseInstantCardRequest(BaseModel):

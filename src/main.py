@@ -5,6 +5,7 @@ from src.api import (
     auth,
     bonus_cards,
     dice,
+    event_settings,
     igdb,
     internal,
     notifications,
@@ -34,5 +35,6 @@ app.include_router(bonus_cards.router)
 app.include_router(taxes.router)
 app.include_router(igdb.router)
 app.include_router(dice.router)
+app.include_router(event_settings.router)
 app.include_router(internal.router)
 app.include_router(notifications.router)

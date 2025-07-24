@@ -220,5 +220,5 @@ class EventSettings(DbBase):
     updated_at: Mapped[int] = mapped_column(
         Integer, default=utc_now_ts, onupdate=utc_now_ts
     )
-    event_start_time: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    event_end_time: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    key: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    value: Mapped[str | None] = mapped_column(Text, nullable=True)
