@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from typing import Any, Dict
 
 import cloudscraper
@@ -10,8 +11,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.db_models import IgdbGame, PlayerGame, User
-from src.enums import StreamPlatform
 from src.db.queries.category_history import save_category_history
+from src.enums import StreamPlatform
 from src.utils.db import safe_commit, utc_now_ts
 
 logging.basicConfig(level=logging.INFO)
@@ -33,18 +34,22 @@ kick_headers = {
 }
 
 
+def _clean_game_name(game_name: str) -> str:
+    return re.sub(r"\s*\(\d{4}\)$", "", game_name).strip()
+
+
 async def _player_has_completed_game(
     db: AsyncSession, player_id: int, game_name: str
 ) -> bool:
+    clean_name = _clean_game_name(game_name)
     query = await db.execute(
-        select(PlayerGame)
-        .where(PlayerGame.player_id == player_id)
-        .where(PlayerGame.item_title == game_name)
-        .limit(1)
+        select(PlayerGame).where(PlayerGame.player_id == player_id)
     )
-
-    existing_game = query.scalars().first()
-    return existing_game is not None
+    games = query.scalars().all()
+    for g in games:
+        if _clean_game_name(g.item_title) == clean_name:
+            return True
+    return False
 
 
 async def _get_game_cover(db: AsyncSession, game_name: str) -> str | None:
