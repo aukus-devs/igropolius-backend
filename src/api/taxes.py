@@ -71,12 +71,6 @@ async def pay_tax(
         sector_group = find_sector_group(current_user.sector_id)
         tax_payments: list[float] = []
         for game in games:
-            income_amount = (
-                SCORES_BY_GAME_LENGTH.get(game.item_length, 0) * STREET_INCOME_MULTILIER
-            )
-            income_amount = round(income_amount, 2)
-            tax_payments.append(income_amount)
-
             player = next((p for p in players if p.id == game.player_id), None)
             if not player:
                 logger.error(
@@ -84,16 +78,17 @@ async def pay_tax(
                 )
                 continue
 
-            owns_sector_group = False
+            multiplier = STREET_INCOME_MULTILIER
             if sector_group:
                 owns_sector_group = await player_owns_sectors_group(
                     db, player, sector_group
                 )
                 if owns_sector_group:
-                    income_amount = (
-                        SCORES_BY_GAME_LENGTH.get(game.item_length, 0)
-                        * STREET_INCOME_GROUP_OWNER_MULTILIER
-                    )
+                    multiplier = STREET_INCOME_GROUP_OWNER_MULTILIER
+
+            income_amount = SCORES_BY_GAME_LENGTH.get(game.item_length, 0) * multiplier
+            income_amount = round(income_amount, 2)
+            tax_payments.append(income_amount)
 
             await change_player_score(
                 db,
