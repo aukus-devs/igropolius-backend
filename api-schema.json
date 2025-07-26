@@ -412,17 +412,6 @@
           "title": "Id",
           "type": "integer"
         },
-        "url_handle": {
-          "title": "Url Handle",
-          "type": "string"
-        },
-        "username": {
-          "title": "Username",
-          "type": "string"
-        },
-        "role": {
-          "$ref": "#/$defs/Role"
-        },
         "moder_for": {
           "anyOf": [
             {
@@ -435,22 +424,8 @@
           "default": null,
           "title": "Moder For"
         },
-        "sector_id": {
-          "title": "Sector Id",
-          "type": "integer"
-        },
-        "total_score": {
-          "default": 0.0,
-          "title": "Total Score",
-          "type": "number"
-        },
         "turn_state": {
           "$ref": "#/$defs/PlayerTurnState"
-        },
-        "maps_completed": {
-          "default": 0,
-          "title": "Maps Completed",
-          "type": "integer"
         },
         "last_roll_result": {
           "items": {
@@ -472,10 +447,6 @@
       },
       "required": [
         "id",
-        "url_handle",
-        "username",
-        "role",
-        "sector_id",
         "turn_state",
         "last_roll_result"
       ],
