@@ -20,6 +20,7 @@ class PlayerTurnState(Enum):
     DROPPING_CARD_AFTER_INSTANT_ROLL = "dropping-card-after-instant-roll"
     ENTERING_PRISON = "entering-prison"
     STEALING_BONUS_CARD = "stealing-bonus-card"
+    CHOOSING_BUILDING_SECTOR = "choosing-building-sector"
 
 
 class MainBonusCardType(Enum):

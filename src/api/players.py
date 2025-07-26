@@ -10,6 +10,7 @@ from src.api_models import (
     ActiveBonusCard,
     GameEvent,
     MoveEvent,
+    MovePlayerGameRequest,
     PlayerDetails,
     PlayerEventsResponse,
     PlayerListResponse,
@@ -51,6 +52,7 @@ from src.enums import (
     GameCompletionType,
     MainBonusCardType,
     PlayerMoveType,
+    PlayerTurnState,
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user_for_update
@@ -422,13 +424,6 @@ async def save_player_game(
         pass
 
     target_sector = current_user.sector_id
-    if request.target_sector:
-        if current_user.sector_id != 1:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Target sector can only be set when player is on sector 1.",
-            )
-        target_sector = request.target_sector
 
     game = PlayerGameDbModel(
         player_id=current_user.id,
@@ -504,4 +499,45 @@ async def update_turn_state(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     current_user.turn_state = request.turn_state.value
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/api/player-games/move")
+async def move_player_game(
+    request: MovePlayerGameRequest,
+    current_user: Annotated[User, Depends(get_current_user_for_update)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    if current_user.sector_id != 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Player can only move game when on sector 1.",
+        )
+
+    if current_user.turn_state != PlayerTurnState.CHOOSING_BUILDING_SECTOR.value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Player must be in CHOOSING_BUILDING_SECTOR state to move game.",
+        )
+
+    game_query = await db.execute(
+        select(PlayerGameDbModel)
+        .where(
+            PlayerGameDbModel.player_id == current_user.id,
+            PlayerGameDbModel.type == GameCompletionType.COMPLETED.value,
+            PlayerGameDbModel.player_sector_id == 1,
+            PlayerGameDbModel.sector_id == 1,
+        )
+        .order_by(PlayerGameDbModel.id.desc())
+        .limit(1)
+        .with_for_update()
+    )
+    game = game_query.scalars().first()
+    if not game:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No completed game found for the player on sector 1.",
+        )
+
+    game.sector_id = request.new_sector_id
     return Response(status_code=status.HTTP_204_NO_CONTENT)

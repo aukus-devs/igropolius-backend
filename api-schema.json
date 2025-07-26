@@ -606,6 +606,28 @@
       "title": "EditPlayerGame",
       "type": "object"
     },
+    "EventSettingsResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "settings": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Settings",
+          "type": "object"
+        }
+      },
+      "title": "EventSettingsResponse",
+      "type": "object"
+    },
     "GameCompletionType": {
       "enum": [
         "completed",
@@ -949,6 +971,20 @@
         "bonuses_used"
       ],
       "title": "MoveEvent",
+      "type": "object"
+    },
+    "MovePlayerGameRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "new_sector_id": {
+          "title": "New Sector Id",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "new_sector_id"
+      ],
+      "title": "MovePlayerGameRequest",
       "type": "object"
     },
     "NewRulesVersionRequest": {
@@ -1514,30 +1550,6 @@
           },
           "title": "Players",
           "type": "array"
-        },
-        "event_end_time": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Event End Time"
-        },
-        "event_start_time": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Event Start Time"
         }
       },
       "required": [
@@ -1609,7 +1621,8 @@
         "dropping-card-after-game-drop",
         "dropping-card-after-instant-roll",
         "entering-prison",
-        "stealing-bonus-card"
+        "stealing-bonus-card",
+        "choosing-building-sector"
       ],
       "title": "PlayerTurnState",
       "type": "string"
@@ -1781,18 +1794,6 @@
           ],
           "default": null,
           "title": "Game Id"
-        },
-        "target_sector": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Target Sector"
         }
       },
       "required": [

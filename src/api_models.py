@@ -192,10 +192,13 @@ class SavePlayerGameRequest(BaseModel):
     vod_links: str | None = None
     scores: float
     game_id: int | None = None
-    target_sector: int | None = None
 
 
 class SavePlayerGameResponse(BaseModel):
+    new_sector_id: int
+
+
+class MovePlayerGameRequest(BaseModel):
     new_sector_id: int
 
 
