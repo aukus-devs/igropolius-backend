@@ -28,6 +28,7 @@ class BaseModel(PydanticBaseModel):
 
 
 class PlayerGame(BaseModel):
+    id: int
     created_at: int
     status: GameCompletionType
     sector_id: int
@@ -83,14 +84,14 @@ class PlayerListResponse(BaseModel):
 
 class CurrentUserResponse(BaseModel):
     id: int
-    url_handle: str
-    username: str
-    role: Role
+    # url_handle: str
+    # username: str
+    # role: Role
     moder_for: int | None = None
-    sector_id: int
-    total_score: float = 0.0
+    # sector_id: int
+    # total_score: float = 0.0
     turn_state: PlayerTurnState
-    maps_completed: int = 0
+    # maps_completed: int = 0
     last_roll_result: list[int]
     has_upgrade_bonus: bool = False
     has_downgrade_bonus: bool = False
@@ -192,10 +193,13 @@ class SavePlayerGameRequest(BaseModel):
     vod_links: str | None = None
     scores: float
     game_id: int | None = None
-    target_sector: int | None = None
 
 
 class SavePlayerGameResponse(BaseModel):
+    new_sector_id: int
+
+
+class MovePlayerGameRequest(BaseModel):
     new_sector_id: int
 
 

@@ -412,17 +412,6 @@
           "title": "Id",
           "type": "integer"
         },
-        "url_handle": {
-          "title": "Url Handle",
-          "type": "string"
-        },
-        "username": {
-          "title": "Username",
-          "type": "string"
-        },
-        "role": {
-          "$ref": "#/$defs/Role"
-        },
         "moder_for": {
           "anyOf": [
             {
@@ -435,22 +424,8 @@
           "default": null,
           "title": "Moder For"
         },
-        "sector_id": {
-          "title": "Sector Id",
-          "type": "integer"
-        },
-        "total_score": {
-          "default": 0.0,
-          "title": "Total Score",
-          "type": "number"
-        },
         "turn_state": {
           "$ref": "#/$defs/PlayerTurnState"
-        },
-        "maps_completed": {
-          "default": 0,
-          "title": "Maps Completed",
-          "type": "integer"
         },
         "last_roll_result": {
           "items": {
@@ -472,10 +447,6 @@
       },
       "required": [
         "id",
-        "url_handle",
-        "username",
-        "role",
-        "sector_id",
         "turn_state",
         "last_roll_result"
       ],
@@ -604,6 +575,28 @@
         "game_review"
       ],
       "title": "EditPlayerGame",
+      "type": "object"
+    },
+    "EventSettingsResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "settings": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Settings",
+          "type": "object"
+        }
+      },
+      "title": "EventSettingsResponse",
       "type": "object"
     },
     "GameCompletionType": {
@@ -949,6 +942,20 @@
         "bonuses_used"
       ],
       "title": "MoveEvent",
+      "type": "object"
+    },
+    "MovePlayerGameRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "new_sector_id": {
+          "title": "New Sector Id",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "new_sector_id"
+      ],
+      "title": "MovePlayerGameRequest",
       "type": "object"
     },
     "NewRulesVersionRequest": {
@@ -1418,6 +1425,10 @@
     "PlayerGame": {
       "additionalProperties": false,
       "properties": {
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
         "created_at": {
           "title": "Created At",
           "type": "integer"
@@ -1494,6 +1505,7 @@
         }
       },
       "required": [
+        "id",
         "created_at",
         "status",
         "sector_id",
@@ -1514,30 +1526,6 @@
           },
           "title": "Players",
           "type": "array"
-        },
-        "event_end_time": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Event End Time"
-        },
-        "event_start_time": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Event Start Time"
         }
       },
       "required": [
@@ -1609,7 +1597,8 @@
         "dropping-card-after-game-drop",
         "dropping-card-after-instant-roll",
         "entering-prison",
-        "stealing-bonus-card"
+        "stealing-bonus-card",
+        "choosing-building-sector"
       ],
       "title": "PlayerTurnState",
       "type": "string"
@@ -1781,18 +1770,6 @@
           ],
           "default": null,
           "title": "Game Id"
-        },
-        "target_sector": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Target Sector"
         }
       },
       "required": [
