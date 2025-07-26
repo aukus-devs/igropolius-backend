@@ -165,7 +165,7 @@ class BonusCardType(Enum):
 
 
 class GameLength(Enum):
-    DROP = "drop"
+    EMPTY = ""
     TWO_TO_FIVE = "2-5"
     FIVE_TO_TEN = "5-10"
     TEN_TO_FIFTEEN = "10-15"

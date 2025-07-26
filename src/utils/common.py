@@ -111,7 +111,6 @@ async def player_owns_sectors_group(
     query = select(func.count(distinct(PlayerGame.sector_id))).where(
         PlayerGame.player_id == player.id,
         PlayerGame.sector_id.in_(sectors_group),
-        PlayerGame.item_length != GameLength.DROP.value,
         PlayerGame.type == GameCompletionType.COMPLETED.value,
     )
     result = await db.execute(query)
