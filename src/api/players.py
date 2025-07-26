@@ -94,6 +94,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         model = PlayerDetails.model_validate(user)
         model.games = [
             PlayerGameApiModel(
+                id=g.id,
                 sector_id=g.sector_id,
                 title=g.item_title,
                 length=g.item_length,
