@@ -1843,6 +1843,29 @@
           ],
           "default": null,
           "title": "Income From Player"
+        },
+        "bonus_card": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BonusCardType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "bonus_card_owner": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bonus Card Owner"
         }
       },
       "required": [

@@ -241,6 +241,8 @@ async def get_player_events(
             score_before=e.score_before,
             score_after=e.score_after,
             income_from_player=e.income_from_player,
+            bonus_card=e.bonus_card,
+            bonus_card_owner=e.bonus_card_owner,
         )
         for e in score_changes
     ]

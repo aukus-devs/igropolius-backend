@@ -18,6 +18,7 @@ from src.db.db_models import PlayerCard, PlayerMove, User
 from src.db.queries.players import change_player_score, get_players_by_score
 from src.enums import (
     BonusCardStatus,
+    BonusCardType,
     InstantCardResult,
     InstantCardType,
     MainBonusCardType,
@@ -272,6 +273,8 @@ async def use_instant_card(
                 change,
                 ScoreChangeType.INSTANT_CARD,
                 "Received 3% bonus from instant card",
+                bonus_card=BonusCardType(request.card_type.value),
+                bonus_card_owner=current_user.id,
             )
         case InstantCardType.RECEIVE_1_PERCENT_PLUS_20:
             change = current_user.total_score * 0.01 + 20
@@ -281,6 +284,8 @@ async def use_instant_card(
                 change,
                 ScoreChangeType.INSTANT_CARD,
                 "Received 1% bonus plus 20 from instant card",
+                bonus_card=BonusCardType(request.card_type.value),
+                bonus_card_owner=current_user.id,
             )
         case InstantCardType.LOSE_2_PERCENTS:
             change = current_user.total_score * 0.02
@@ -290,6 +295,8 @@ async def use_instant_card(
                 -change,
                 ScoreChangeType.INSTANT_CARD,
                 "Lost 2% from instant card",
+                bonus_card=BonusCardType(request.card_type.value),
+                bonus_card_owner=current_user.id,
             )
         case InstantCardType.RECEIVE_SCORES_FOR_PLACE:
             players = await get_players_by_score(db)
@@ -303,6 +310,8 @@ async def use_instant_card(
                         change,
                         ScoreChangeType.INSTANT_CARD,
                         f"Received scores for place {i + 1} from instant card",
+                        bonus_card=BonusCardType(request.card_type.value),
+                        bonus_card_owner=current_user.id,
                     )
                     break
         case InstantCardType.RECEIVE_1_PERCENT_FROM_ALL:
@@ -317,6 +326,8 @@ async def use_instant_card(
                         -change,
                         ScoreChangeType.INSTANT_CARD,
                         f"Lost 1% to {current_user.username} from instant card",
+                        bonus_card=BonusCardType(request.card_type.value),
+                        bonus_card_owner=current_user.id,
                     )
                     receive_total += change
 
@@ -326,6 +337,8 @@ async def use_instant_card(
                 receive_total,
                 ScoreChangeType.INSTANT_CARD,
                 "Received 1% from all players from instant card",
+                bonus_card=BonusCardType(request.card_type.value),
+                bonus_card_owner=current_user.id,
             )
         case InstantCardType.LEADERS_LOSE_PERCENTS:
             players = await get_players_by_score(db, for_update=True, limit=3)
@@ -337,6 +350,8 @@ async def use_instant_card(
                     -change,
                     ScoreChangeType.INSTANT_CARD,
                     f"Leader lost {3 - i}% from instant card",
+                    bonus_card=BonusCardType(request.card_type.value),
+                    bonus_card_owner=current_user.id,
                 )
 
         case InstantCardType.RECEIVE_5_PERCENT_OR_REROLL:
@@ -353,6 +368,8 @@ async def use_instant_card(
                             change,
                             ScoreChangeType.INSTANT_CARD,
                             "Received 5% bonus for losing from instant card",
+                            bonus_card=BonusCardType(request.card_type.value),
+                            bonus_card_owner=current_user.id,
                         )
                         response.result = InstantCardResult.SCORES_RECEIVED
                     break
@@ -388,6 +405,8 @@ async def use_instant_card(
                         -change,
                         ScoreChangeType.INSTANT_CARD,
                         "Lost 3% for not losing a card",
+                        bonus_card=BonusCardType(request.card_type.value),
+                        bonus_card_owner=current_user.id,
                     )
                     response.result = InstantCardResult.SCORES_LOST
                 else:

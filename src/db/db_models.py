@@ -91,6 +91,8 @@ class PlayerScoreChange(DbBase):
     score_before: Mapped[float] = mapped_column(Float, nullable=False)
     score_after: Mapped[float] = mapped_column(Float, nullable=False)
     income_from_player: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    bonus_card: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    bonus_card_owner: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
 
 class PlayerCard(DbBase):

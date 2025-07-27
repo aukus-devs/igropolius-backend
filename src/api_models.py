@@ -129,6 +129,8 @@ class ScoreChangeEvent(PlayerEventBase):
     score_before: float
     score_after: float
     income_from_player: int | None = None
+    bonus_card: BonusCardType | None = None
+    bonus_card_owner: int | None = None
 
 
 class BonusCardEvent(PlayerEventBase):

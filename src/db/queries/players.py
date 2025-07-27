@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.db_models import PlayerScoreChange, User
-from src.enums import ScoreChangeType
+from src.enums import BonusCardType, ScoreChangeType
 
 
 async def get_players_by_score(
@@ -25,6 +25,8 @@ async def change_player_score(
     change_type: ScoreChangeType,
     description: str,
     income_from_player: User | None = None,
+    bonus_card: BonusCardType | None = None,
+    bonus_card_owner: int | None = None,
 ) -> User:
     if not db.in_transaction():
         raise ValueError("Database session must be in a transaction")
@@ -47,6 +49,8 @@ async def change_player_score(
         description=description,
         sector_id=sector_id,
         income_from_player=income_from_player_id,
+        bonus_card=bonus_card.value if bonus_card else None,
+        bonus_card_owner=bonus_card_owner,
     )
     db.add(score_change)
     player.total_score = after
