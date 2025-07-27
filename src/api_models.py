@@ -14,6 +14,7 @@ from src.enums import (
     PlayerMoveType,
     PlayerTurnState,
     Role,
+    RulesCategory,
     ScoreChangeType,
     StreamPlatform,
     TaxType,
@@ -222,11 +223,13 @@ class LoginResponse(BaseModel):
 
 class RulesVersion(BaseModel):
     content: str
+    category: RulesCategory
     created_at: int
 
 
 class NewRulesVersionRequest(BaseModel):
     content: str
+    category: RulesCategory
 
 
 class RulesResponse(BaseModel):

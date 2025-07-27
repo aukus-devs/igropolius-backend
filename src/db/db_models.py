@@ -147,6 +147,7 @@ class Rules(DbBase):
         Integer, default=utc_now_ts, onupdate=utc_now_ts
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    category: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
 
 
 class IgdbGame(DbBase):

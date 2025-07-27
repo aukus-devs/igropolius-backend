@@ -172,3 +172,9 @@ class GameLength(Enum):
     FIFTEEN_TO_TWENTY = "15-20"
     TWENTY_TO_TWENTY_FIVE = "20-25"
     TWENTY_FIVE_PLUS = "25+"
+
+
+class RulesCategory(Enum):
+    GENERAL = "general"
+    GAMEPLAY = "gameplay"
+    DONATIONS = "donations"

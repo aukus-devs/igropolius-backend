@@ -964,10 +964,14 @@
         "content": {
           "title": "Content",
           "type": "string"
+        },
+        "category": {
+          "$ref": "#/$defs/RulesCategory"
         }
       },
       "required": [
-        "content"
+        "content",
+        "category"
       ],
       "title": "NewRulesVersionRequest",
       "type": "object"
@@ -1686,6 +1690,15 @@
       "title": "RollDiceResponse",
       "type": "object"
     },
+    "RulesCategory": {
+      "enum": [
+        "general",
+        "gameplay",
+        "donations"
+      ],
+      "title": "RulesCategory",
+      "type": "string"
+    },
     "RulesResponse": {
       "additionalProperties": false,
       "properties": {
@@ -1710,6 +1723,9 @@
           "title": "Content",
           "type": "string"
         },
+        "category": {
+          "$ref": "#/$defs/RulesCategory"
+        },
         "created_at": {
           "title": "Created At",
           "type": "integer"
@@ -1717,6 +1733,7 @@
       },
       "required": [
         "content",
+        "category",
         "created_at"
       ],
       "title": "RulesVersion",
