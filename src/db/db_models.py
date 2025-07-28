@@ -46,6 +46,8 @@ class User(DbBase):
     maps_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     has_upgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     has_downgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    color: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    model_name: Mapped[str] = mapped_column(String(255), nullable=False, default="")
 
     # default for pydantic conversions
     games = []

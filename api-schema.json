@@ -1364,6 +1364,14 @@
         },
         "role": {
           "$ref": "#/$defs/Role"
+        },
+        "color": {
+          "title": "Color",
+          "type": "string"
+        },
+        "model_name": {
+          "title": "Model Name",
+          "type": "string"
         }
       },
       "required": [
@@ -1377,7 +1385,9 @@
         "maps_completed",
         "games",
         "bonus_cards",
-        "role"
+        "role",
+        "color",
+        "model_name"
       ],
       "title": "PlayerDetails",
       "type": "object"

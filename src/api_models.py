@@ -77,6 +77,8 @@ class PlayerDetails(BaseModel):
     games: list[PlayerGame]
     bonus_cards: list[ActiveBonusCard]
     role: Role
+    color: str
+    model_name: str
 
 
 class PlayerListResponse(BaseModel):
