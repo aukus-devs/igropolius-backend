@@ -36,4 +36,5 @@ SECTORS_COLORS_GROUPS = [
     [27, 28, 30],
     [32, 33, 35],
     [37, 38, 40],
+    list(TRAIN_MAP.keys()),
 ]
