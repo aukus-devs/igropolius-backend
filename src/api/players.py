@@ -477,6 +477,15 @@ async def save_player_game(
                 game.item_length_bonus = -1
                 current_user.has_downgrade_bonus = False
 
+        case GameCompletionType.DROP:
+            await change_player_score(
+                db,
+                current_user,
+                -current_user.total_scores * 0.08,
+                ScoreChangeType.GAME_DROPPED,
+                f"game dropped: '{request.title}'",
+            )
+
     current_user.current_game = None
     current_user.current_game_updated_at = None
     current_user.current_game_cover = None
