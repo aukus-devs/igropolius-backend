@@ -15,6 +15,7 @@ from src.api_models import (
     PlayerEventsResponse,
     PlayerListResponse,
     PlayerMoveRequest,
+    PlayerMoveResponse,
     SavePlayerGameRequest,
     SavePlayerGameResponse,
     ScoreChangeEvent,
@@ -250,7 +251,7 @@ async def get_player_events(
     return {"events": all_events}
 
 
-@router.post("/api/players/current/moves")
+@router.post("/api/players/current/moves", response_model=PlayerMoveResponse)
 async def do_player_move(
     request: PlayerMoveRequest,
     current_user: Annotated[User, Depends(get_current_user_for_update)],
@@ -409,7 +410,7 @@ async def do_player_move(
     if map_completed:
         current_user.maps_completed += 1
 
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return {"new_sector_id": sector_to, "map_completed": map_completed}
 
 
 @router.post("/api/player-games", response_model=SavePlayerGameResponse)

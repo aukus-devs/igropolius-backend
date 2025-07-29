@@ -1590,6 +1590,25 @@
       "title": "PlayerMoveRequest",
       "type": "object"
     },
+    "PlayerMoveResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "new_sector_id": {
+          "title": "New Sector Id",
+          "type": "integer"
+        },
+        "map_completed": {
+          "title": "Map Completed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "new_sector_id",
+        "map_completed"
+      ],
+      "title": "PlayerMoveResponse",
+      "type": "object"
+    },
     "PlayerMoveType": {
       "enum": [
         "dice-roll",

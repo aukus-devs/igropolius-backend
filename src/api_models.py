@@ -179,6 +179,11 @@ class PlayerMoveRequest(BaseModel):
     ride_train: bool = False
 
 
+class PlayerMoveResponse(BaseModel):
+    new_sector_id: int
+    map_completed: bool
+
+
 class UpdatePlayerTurnStateRequest(BaseModel):
     turn_state: PlayerTurnState
 
