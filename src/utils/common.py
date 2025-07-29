@@ -55,7 +55,7 @@ def get_bonus_cards_stolen_events(cards: list[PlayerCard]) -> list[BonusCardEven
                 event_type="bonus-card",
                 subtype=BonusCardEventType.STOLEN_FROM_ME,
                 bonus_type=BonusCardType(card.card_type),
-                sector_id=card.sector_id,
+                sector_id=card.lost_on_sector,
                 timestamp=card.stolen_at,
                 stolen_by=card.stolen_by,
             )

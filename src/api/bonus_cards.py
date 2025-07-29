@@ -134,9 +134,21 @@ async def steal_bonus_card(
             detail="No active bonus cards found for this player",
         )
 
+    owner_query = await db.execute(
+        select(User).where(User.id == card.player_id).with_for_update()
+    )
+    owner = owner_query.scalars().first()
+
+    if not owner:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Owner of the bonus card not found",
+        )
+
     card.status = BonusCardStatus.STOLEN.value
     card.stolen_at = utc_now_ts()
     card.stolen_by = current_user.id
+    card.lost_on_sector = owner.sector_id
 
     new_card = PlayerCard(
         player_id=current_user.id,
