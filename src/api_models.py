@@ -140,7 +140,7 @@ class BonusCardEvent(PlayerEventBase):
     event_type: Literal["bonus-card"]
     subtype: BonusCardEventType
     bonus_type: BonusCardType | InstantCardType
-    sector_id: int
+    sector_id: int | None = None
     stolen_from_player: int | None = None
     stolen_by: int | None = None
 

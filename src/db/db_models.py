@@ -111,13 +111,13 @@ class PlayerCard(DbBase):
         String(255), nullable=False, default=BonusCardStatus.ACTIVE.value, index=True
     )
     received_on_sector: Mapped[int] = mapped_column(Integer, nullable=False)
-    used_at: Mapped[int] = mapped_column(Integer, nullable=True)
-    used_on_sector: Mapped[int] = mapped_column(Integer, nullable=True)
-    lost_at: Mapped[int] = mapped_column(Integer, nullable=True)
-    lost_on_sector: Mapped[int] = mapped_column(Integer, nullable=True)
-    stolen_at: Mapped[int] = mapped_column(Integer, nullable=True)
-    stolen_by: Mapped[int] = mapped_column(Integer, nullable=True)
-    stolen_from_player: Mapped[int] = mapped_column(Integer, nullable=True)
+    used_at: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    used_on_sector: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    lost_at: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    lost_on_sector: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    stolen_at: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    stolen_by: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    stolen_from_player: Mapped[int | None] = mapped_column(Integer, nullable=True)
     player_move_id: Mapped[int | None] = mapped_column(
         Integer, nullable=True, index=True
     )

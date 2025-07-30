@@ -14,7 +14,7 @@ from src.consts import (
     STREET_TAX_PAYER_MULTILIER,
 )
 from src.db.db_session import get_db
-from src.db.db_models import PlayerGame, PlayerScoreChange, User
+from src.db.db_models import PlayerGame, User
 from src.db.queries.players import change_player_score
 from src.enums import GameCompletionType, ScoreChangeType, TaxType
 from src.utils.auth import get_current_user_for_update

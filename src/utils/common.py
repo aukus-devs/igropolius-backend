@@ -20,7 +20,7 @@ def get_closest_prison_sector(current_sector: int) -> int:
 def get_bonus_cards_received_events(cards: list[PlayerCard]) -> list[BonusCardEvent]:
     events = []
     for card in cards:
-        if card.status == BonusCardStatus.ACTIVE.value:
+        if card.stolen_from_player is None:
             event = BonusCardEvent(
                 event_type="bonus-card",
                 subtype=BonusCardEventType.RECEIVED,
@@ -41,7 +41,7 @@ def get_bonus_cards_used_events(cards: list[PlayerCard]) -> list[BonusCardEvent]
                 subtype=BonusCardEventType.USED,
                 bonus_type=BonusCardType(card.card_type),
                 sector_id=card.used_on_sector,
-                timestamp=card.used_at,
+                timestamp=card.used_at or card.updated_at,
             )
             events.append(event)
     return events
@@ -56,7 +56,7 @@ def get_bonus_cards_stolen_events(cards: list[PlayerCard]) -> list[BonusCardEven
                 subtype=BonusCardEventType.STOLEN_FROM_ME,
                 bonus_type=BonusCardType(card.card_type),
                 sector_id=card.lost_on_sector,
-                timestamp=card.stolen_at,
+                timestamp=card.stolen_at or card.updated_at,
                 stolen_by=card.stolen_by,
             )
             events.append(event)
@@ -72,7 +72,7 @@ def get_bonus_cards_dropped_events(cards: list[PlayerCard]) -> list[BonusCardEve
                 subtype=BonusCardEventType.DROPPED,
                 bonus_type=BonusCardType(card.card_type),
                 sector_id=card.lost_on_sector,
-                timestamp=card.lost_at,
+                timestamp=card.lost_at or card.updated_at,
             )
             events.append(event)
     return events
@@ -81,16 +81,13 @@ def get_bonus_cards_dropped_events(cards: list[PlayerCard]) -> list[BonusCardEve
 def get_bonus_cards_looted_events(cards: list[PlayerCard]) -> list[BonusCardEvent]:
     events = []
     for card in cards:
-        if (
-            card.status == BonusCardStatus.ACTIVE.value
-            and card.stolen_from_player is not None
-        ):
+        if card.stolen_from_player is not None:
             event = BonusCardEvent(
                 event_type="bonus-card",
                 subtype=BonusCardEventType.STOLEN_BY_ME,
                 bonus_type=BonusCardType(card.card_type),
-                sector_id=card.sector_id,
-                timestamp=card.stolen_at,
+                sector_id=card.received_on_sector,
+                timestamp=card.created_at,
                 stolen_from_player=card.stolen_from_player,
             )
             events.append(event)
