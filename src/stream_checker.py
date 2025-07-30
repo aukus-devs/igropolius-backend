@@ -172,6 +172,9 @@ async def _check_single_player_stream(player: User, db: AsyncSession) -> bool:
 
 
 async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
+    if player.twitch_stream_link is None:
+        return False
+
     try:
         username = player.twitch_stream_link.rsplit("/", 1)[1]
 
@@ -231,6 +234,9 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
 
 
 async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
+    if player.vk_stream_link is None:
+        return False
+
     try:
         avatar_url = _get_vk_user_avatar(player.vk_stream_link)
         if avatar_url and avatar_url != player.avatar_link:
@@ -291,6 +297,9 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
 
 
 async def _check_kick_stream(player: User, db: AsyncSession) -> bool:
+    if player.kick_stream_link is None:
+        return False
+
     try:
         username = player.kick_stream_link.rsplit("/", 1)[1]
         data = _get_kick_channel_data(username)

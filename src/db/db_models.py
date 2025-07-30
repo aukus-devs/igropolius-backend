@@ -1,8 +1,8 @@
 # models.py
 from sqlalchemy import Float, Integer, String, Text
-from sqlalchemy.orm import (  # pyright: ignore[reportAttributeAccessIssue]
+from sqlalchemy.orm import (
     Mapped,
-    mapped_column,
+    mapped_column,  # pyright: ignore[reportAttributeAccessIssue]
 )
 from sqlalchemy.orm.decl_api import declarative_base
 
@@ -28,29 +28,29 @@ class User(DbBase):
     current_game_cover: Mapped[str | None] = mapped_column(String(255), nullable=True)
     current_game_updated_at: Mapped[int | None] = mapped_column(Integer, nullable=True)
     online_count: Mapped[int] = mapped_column(Integer, default=0)
-    current_auc_total_sum: Mapped[float] = mapped_column(Float, nullable=True)
-    current_auc_started_at: Mapped[int] = mapped_column(Integer, nullable=True)
-    pointauc_token: Mapped[str] = mapped_column(String(255), nullable=True)
+    current_auc_total_sum: Mapped[float | None] = mapped_column(Float, nullable=True)
+    current_auc_started_at: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    pointauc_token: Mapped[str | None] = mapped_column(String(255), nullable=True)
     main_platform: Mapped[str] = mapped_column(
         String(255), default=StreamPlatform.NONE.value, nullable=False
     )
-    twitch_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)
-    vk_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)
-    kick_stream_link: Mapped[str] = mapped_column(String(255), nullable=True)
-    telegram_link: Mapped[str] = mapped_column(String(255), nullable=True)
-    donation_link: Mapped[str] = mapped_column(String(255), nullable=True)
-    is_active: Mapped[int] = mapped_column(Integer, default=True, index=True)
-    avatar_link: Mapped[str] = mapped_column(String(255), nullable=True)
-    sector_id: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    total_score: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
-    turn_state: Mapped[str] = mapped_column(
+    twitch_stream_link: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    vk_stream_link: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    kick_stream_link: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    telegram_link: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    donation_link: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    is_active: Mapped[int] = mapped_column(Integer, default=1, index=True)
+    avatar_link: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    sector_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    turn_state: Mapped[str | None] = mapped_column(
         String(255), default=PlayerTurnState.ROLLING_DICE.value, nullable=True
     )
-    maps_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    maps_completed: Mapped[int | None] = mapped_column(Integer, nullable=True)
     has_upgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     has_downgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    color: Mapped[str] = mapped_column(String(255), nullable=False, default="")
-    model_name: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    color: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    model_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     moder_for: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # default for pydantic conversions

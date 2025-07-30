@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException, status
 
 from src.db.db_models import PlayerScoreChange, User
 from src.enums import BonusCardType, ScoreChangeType
@@ -30,6 +31,16 @@ async def change_player_score(
 ) -> User:
     if not db.in_transaction():
         raise ValueError("Database session must be in a transaction")
+
+    if (
+        player.sector_id is None
+        or player.maps_completed is None
+        or player.total_score is None
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Player data is not set",
+        )
 
     sector_id = player.sector_id
     income_from_player_id = None

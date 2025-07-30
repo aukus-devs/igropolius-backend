@@ -73,9 +73,18 @@ router = APIRouter(tags=["players"])
 
 
 @router.get("/api/players", response_model=PlayerListResponse)
-async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
-    users_query = await db.execute(select(User).filter(User.is_active == 1))
-    users = users_query.scalars().all()
+async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
+    players_query = await db.execute(
+        select(User)
+        .filter(User.is_active == 1)
+        .filter(User.sector_id.isnot(None))
+        .filter(User.total_score.isnot(None))
+        .filter(User.turn_state.isnot(None), User.turn_state != "")
+        .filter(User.maps_completed.isnot(None))
+        .filter(User.color.isnot(None), User.color != "")
+        .filter(User.model_name.isnot(None), User.model_name != "")
+    )
+    players = players_query.scalars().all()
     games_query = await db.execute(select(PlayerGameDbModel))
     games = games_query.scalars().all()
     cards_query = await db.execute(
@@ -93,7 +102,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         igdb_games_dict = {game.id: game for game in igdb_games}
 
     users_models = []
-    for user in users:
+    for user in players:
         model = PlayerDetails.model_validate(user)
         model.games = [
             PlayerGameApiModel(
@@ -260,6 +269,16 @@ async def do_player_move(
     current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    if (
+        current_user.sector_id is None
+        or current_user.maps_completed is None
+        or current_user.total_score is None
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Player data is not set",
+        )
+
     sector_id_from = current_user.sector_id
 
     roll_result = None
@@ -422,6 +441,16 @@ async def save_player_game(
     current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    if (
+        current_user.sector_id is None
+        or current_user.maps_completed is None
+        or current_user.total_score is None
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Player data is not set",
+        )
+
     game_duration = 0
     try:
         game_duration = await calculate_game_duration_by_title(

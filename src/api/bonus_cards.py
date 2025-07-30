@@ -203,6 +203,12 @@ async def drop_bonus_card(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    if current_user.sector_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Player sector is not set",
+        )
+
     cards_query = await db.execute(
         select(PlayerCard)
         .where(PlayerCard.player_id == current_user.id)
@@ -275,6 +281,12 @@ async def use_instant_card(
     current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    if current_user.sector_id is None or current_user.total_score is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Player sector or score is not set",
+        )
+
     response = UseInstantCardResponse()
     match request.card_type:
         case InstantCardType.RECEIVE_3_PERCENT:
@@ -330,6 +342,12 @@ async def use_instant_card(
             players = await get_players_by_score(db, for_update=True)
             receive_total = 0
             for player in players:
+                if player.total_score is None:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Player total score is not set",
+                    )
+
                 if player.id != current_user.id:
                     change = player.total_score * 0.01
                     await change_player_score(
@@ -355,6 +373,12 @@ async def use_instant_card(
         case InstantCardType.LEADERS_LOSE_PERCENTS:
             players = await get_players_by_score(db, for_update=True, limit=3)
             for i, player in enumerate(players):
+                if player.total_score is None:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Player total score is not set",
+                    )
+
                 change = player.total_score * 0.01 * (3 - i)
                 await change_player_score(
                     db,
@@ -373,6 +397,11 @@ async def use_instant_card(
                     if i < len(players) / 2:
                         response.result = InstantCardResult.REROLL
                     else:
+                        if player.total_score is None:
+                            raise HTTPException(
+                                status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Player total score is not set",
+                            )
                         change = player.total_score * 0.05
                         await change_player_score(
                             db,

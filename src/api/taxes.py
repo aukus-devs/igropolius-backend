@@ -36,6 +36,16 @@ async def pay_tax(
     current_user: Annotated[User, Depends(get_current_user_for_update)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    if (
+        current_user.sector_id is None
+        or current_user.maps_completed is None
+        or current_user.total_score is None
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Player data is not set",
+        )
+
     if request.tax_type == TaxType.MAP_TAX:
         # tax is 5% from current player score
         income_amount = round(current_user.total_score * MAP_TAX_PERCENT, 2)

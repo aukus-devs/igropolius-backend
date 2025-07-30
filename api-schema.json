@@ -50,8 +50,16 @@
           "title": "Bonus Type"
         },
         "sector_id": {
-          "title": "Sector Id",
-          "type": "integer"
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sector Id"
         },
         "stolen_from_player": {
           "anyOf": [
@@ -82,8 +90,7 @@
         "timestamp",
         "event_type",
         "subtype",
-        "bonus_type",
-        "sector_id"
+        "bonus_type"
       ],
       "title": "BonusCardEvent",
       "type": "object"
@@ -412,6 +419,13 @@
           "title": "Id",
           "type": "integer"
         },
+        "username": {
+          "title": "Username",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
         "moder_for": {
           "anyOf": [
             {
@@ -425,7 +439,15 @@
           "title": "Moder For"
         },
         "turn_state": {
-          "$ref": "#/$defs/PlayerTurnState"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlayerTurnState"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "last_roll_result": {
           "items": {
@@ -447,7 +469,8 @@
       },
       "required": [
         "id",
-        "turn_state",
+        "username",
+        "role",
         "last_roll_result"
       ],
       "title": "CurrentUserResponse",
@@ -557,6 +580,10 @@
           "title": "Game Review",
           "type": "string"
         },
+        "rating": {
+          "title": "Rating",
+          "type": "number"
+        },
         "vod_links": {
           "anyOf": [
             {
@@ -568,11 +595,24 @@
           ],
           "default": null,
           "title": "Vod Links"
+        },
+        "game_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Game Id"
         }
       },
       "required": [
         "game_title",
-        "game_review"
+        "game_review",
+        "rating"
       ],
       "title": "EditPlayerGame",
       "type": "object"
@@ -1443,6 +1483,10 @@
           "title": "Id",
           "type": "integer"
         },
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
         "created_at": {
           "title": "Created At",
           "type": "integer"
@@ -1520,6 +1564,7 @@
       },
       "required": [
         "id",
+        "player_id",
         "created_at",
         "status",
         "sector_id",
