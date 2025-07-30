@@ -71,14 +71,14 @@ class PlayerDetails(BaseModel):
     donation_link: str | None = None
     avatar_link: str | None = None
     is_active: bool = True
-    sector_id: int
-    total_score: float
-    maps_completed: int
-    games: list[PlayerGame]
-    bonus_cards: list[ActiveBonusCard]
+    sector_id: int | None = None
+    total_score: float | None = None
+    maps_completed: int | None = None
+    games: list[PlayerGame] | None = None
+    bonus_cards: list[ActiveBonusCard] | None = None
     role: Role
-    color: str
-    model_name: str
+    color: str | None = None
+    model_name: str | None = None
 
 
 class PlayerListResponse(BaseModel):
