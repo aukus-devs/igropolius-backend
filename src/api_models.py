@@ -88,8 +88,8 @@ class PlayerListResponse(BaseModel):
 class CurrentUserResponse(BaseModel):
     id: int
     # url_handle: str
-    # username: str
-    # role: Role
+    username: str
+    role: Role
     moder_for: int | None = None
     # sector_id: int
     # total_score: float = 0.0
