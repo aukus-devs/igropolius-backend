@@ -93,7 +93,7 @@ class CurrentUserResponse(BaseModel):
     moder_for: int | None = None
     # sector_id: int
     # total_score: float = 0.0
-    turn_state: PlayerTurnState
+    turn_state: PlayerTurnState | None = None
     # maps_completed: int = 0
     last_roll_result: list[int]
     has_upgrade_bonus: bool = False
