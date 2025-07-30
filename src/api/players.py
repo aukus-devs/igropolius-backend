@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
     ActiveBonusCard,
+    EditPlayerGame,
     GameEvent,
     MoveEvent,
     MovePlayerGameRequest,
@@ -54,6 +55,7 @@ from src.enums import (
     MainBonusCardType,
     PlayerMoveType,
     PlayerTurnState,
+    Role,
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user_for_update
@@ -553,4 +555,50 @@ async def move_player_game(
         )
 
     game.sector_id = request.new_sector_id
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.patch("/api/player-games/{game_id}")
+async def edit_player_game(
+    game_id: int,
+    request: EditPlayerGame,
+    current_user: Annotated[User, Depends(get_current_user_for_update)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    game_query = await db.execute(
+        select(PlayerGameDbModel)
+        .where(PlayerGameDbModel.id == game_id)
+        .with_for_update()
+    )
+    game = game_query.scalars().first()
+
+    if not game:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Game not found.",
+        )
+
+    can_edit = False
+
+    if current_user.role == Role.ADMIN.value:
+        can_edit = True
+    elif current_user.role == Role.PLAYER.value and game.player_id == current_user.id:
+        can_edit = True
+    elif (
+        current_user.role == Role.MODER.value
+        and current_user.moder_for == game.player_id
+    ):
+        can_edit = True
+
+    if not can_edit:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to edit this game.",
+        )
+
+    game.item_title = request.game_title
+    game.item_review = request.game_review
+    game.item_rating = request.rating
+    game.vod_links = request.vod_links or ""
+
     return Response(status_code=status.HTTP_204_NO_CONTENT)

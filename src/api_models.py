@@ -216,6 +216,7 @@ class MovePlayerGameRequest(BaseModel):
 class EditPlayerGame(BaseModel):
     game_title: str
     game_review: str
+    rating: float
     vod_links: str | None = None
 
 
