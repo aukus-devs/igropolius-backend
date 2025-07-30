@@ -98,6 +98,7 @@ async def get_users(db: Annotated[AsyncSession, Depends(get_db)]):
         model.games = [
             PlayerGameApiModel(
                 id=g.id,
+                player_id=g.player_id,
                 sector_id=g.sector_id,
                 title=g.item_title,
                 length=g.item_length,

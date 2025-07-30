@@ -30,6 +30,7 @@ class BaseModel(PydanticBaseModel):
 
 class PlayerGame(BaseModel):
     id: int
+    player_id: int
     created_at: int
     status: GameCompletionType
     sector_id: int
