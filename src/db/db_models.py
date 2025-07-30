@@ -1,6 +1,9 @@
 # models.py
 from sqlalchemy import Float, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column  # pyright: ignore[reportAttributeAccessIssue]
+from sqlalchemy.orm import (  # pyright: ignore[reportAttributeAccessIssue]
+    Mapped,
+    mapped_column,
+)
 from sqlalchemy.orm.decl_api import declarative_base
 
 from src.enums import BonusCardStatus, PlayerTurnState, Role, StreamPlatform
@@ -41,7 +44,7 @@ class User(DbBase):
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     total_score: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
     turn_state: Mapped[str] = mapped_column(
-        String(255), default=PlayerTurnState.ROLLING_DICE.value, nullable=False
+        String(255), default=PlayerTurnState.ROLLING_DICE.value, nullable=True
     )
     maps_completed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     has_upgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
