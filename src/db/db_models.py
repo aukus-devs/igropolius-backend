@@ -51,6 +51,7 @@ class User(DbBase):
     has_downgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     color: Mapped[str] = mapped_column(String(255), nullable=False, default="")
     model_name: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    moder_for: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # default for pydantic conversions
     games = []
