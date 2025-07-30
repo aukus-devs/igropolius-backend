@@ -601,5 +601,7 @@ async def edit_player_game(
     game.item_review = request.game_review
     game.item_rating = request.rating
     game.vod_links = request.vod_links or ""
+    if request.game_id is not None:
+        game.game_id = request.game_id
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)

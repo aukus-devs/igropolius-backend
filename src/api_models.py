@@ -219,6 +219,7 @@ class EditPlayerGame(BaseModel):
     game_review: str
     rating: float
     vod_links: str | None = None
+    game_id: int | None = None
 
 
 class LoginRequest(BaseModel):
