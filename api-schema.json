@@ -1402,9 +1402,6 @@
           "title": "Bonus Cards",
           "type": "array"
         },
-        "role": {
-          "$ref": "#/$defs/Role"
-        },
         "color": {
           "title": "Color",
           "type": "string"
@@ -1425,7 +1422,6 @@
         "maps_completed",
         "games",
         "bonus_cards",
-        "role",
         "color",
         "model_name"
       ],
@@ -1585,10 +1581,18 @@
           },
           "title": "Players",
           "type": "array"
+        },
+        "prison_cards": {
+          "items": {
+            "$ref": "#/$defs/MainBonusCardType"
+          },
+          "title": "Prison Cards",
+          "type": "array"
         }
       },
       "required": [
-        "players"
+        "players",
+        "prison_cards"
       ],
       "title": "PlayerListResponse",
       "type": "object"

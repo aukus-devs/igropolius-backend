@@ -143,7 +143,22 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
 
         users_models.append(model)
 
-    return PlayerListResponse(players=users_models)
+    prison_player_ids_subquery = (
+        select(User.id)
+        .where(User.role == Role.PRISON.value, User.is_active == 1)
+        .scalar_subquery()
+    )
+
+    prison_query = await db.execute(
+        select(PlayerCard).where(
+            PlayerCard.player_id.in_(prison_player_ids_subquery),
+            PlayerCard.status == BonusCardStatus.ACTIVE.value,
+        )
+    )
+    prison_cards = prison_query.scalars().all()
+    prison_cards_bonuses = [MainBonusCardType(card.card_type) for card in prison_cards]
+
+    return PlayerListResponse(players=users_models, prison_cards=prison_cards_bonuses)
 
 
 @router.get("/api/players/{player_id}/events", response_model=PlayerEventsResponse)

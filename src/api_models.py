@@ -83,6 +83,7 @@ class PlayerDetails(BaseModel):
 
 class PlayerListResponse(BaseModel):
     players: list[PlayerDetails]
+    prison_cards: list[MainBonusCardType]
 
 
 class CurrentUserResponse(BaseModel):
