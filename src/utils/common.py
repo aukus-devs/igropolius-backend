@@ -8,6 +8,7 @@ from src.enums import (
     BonusCardStatus,
     BonusCardType,
     GameCompletionType,
+    InstantCardType,
 )
 
 
@@ -20,7 +21,7 @@ def get_closest_prison_sector(current_sector: int) -> int:
 def get_bonus_cards_received_events(cards: list[PlayerCard]) -> list[BonusCardEvent]:
     events = []
     for card in cards:
-        if card.stolen_from_player is None:
+        if card.stolen_from_player is None and not is_instant_card(card.card_type):
             event = BonusCardEvent(
                 event_type="bonus-card",
                 subtype=BonusCardEventType.RECEIVED,
@@ -112,3 +113,10 @@ async def player_owns_sectors_group(
     result = await db.execute(query)
     sectors_owned = result.scalar()
     return sectors_owned == len(sectors_group)
+
+
+InstantCardsValues = {i.value for i in InstantCardType}
+
+
+def is_instant_card(value: str) -> bool:
+    return value in InstantCardsValues
