@@ -9,7 +9,11 @@ from src.enums import BonusCardType, ScoreChangeType
 async def get_players_by_score(
     db: AsyncSession, *, for_update: bool = False, limit: int | None = None
 ) -> list[User]:
-    query = select(User).where(User.is_active == True).order_by(User.total_score.desc())
+    query = (
+        select(User)
+        .where(User.is_active == True, User.total_score.isnot(None))
+        .order_by(User.total_score.desc())
+    )
     if limit is not None:
         query = query.limit(limit)
     if for_update:
