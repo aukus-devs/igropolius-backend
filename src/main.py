@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+import logging
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import json
 
 from src.api import (
     auth,
@@ -13,9 +16,44 @@ from src.api import (
     rules,
     taxes,
 )
+from src.config import setup_logging
+
+setup_logging()
+logger = logging.getLogger(__name__)
+
+async def logging_middleware(request: Request, call_next):
+    try:
+        response = await call_next(request)
+        
+        if response.status_code >= 400:
+            logger.error(f"Failed request: {request.method} {request.url} - Status: {response.status_code}")
+            
+            response_body = b""
+            async for chunk in response.body_iterator:
+                response_body += chunk
+            
+            try:
+                body_text = response_body.decode()
+                if body_text:
+                    logger.error(f"Error response body: {body_text}")
+            except Exception as e:
+                logger.error(f"Could not decode response body: {e}")
+            
+            return Response(
+                content=response_body,
+                status_code=response.status_code,
+                headers=dict(response.headers),
+                media_type=response.media_type
+            )
+        
+        return response
+    except Exception as e:
+        logger.error(f"Middleware error: {e}")
+        raise
 
 app = FastAPI()
 
+app.middleware("http")(logging_middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
