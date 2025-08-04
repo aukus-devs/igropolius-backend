@@ -446,7 +446,7 @@ async def use_instant_card(
         case InstantCardType.REROLL:
             response.result = InstantCardResult.REROLL
         case InstantCardType.REROLL_AND_ROLL:
-            pass
+            response.result = InstantCardResult.REROLL
         case InstantCardType.DOWNGRADE_NEXT_BUILDING:
             if current_user.has_downgrade_bonus:
                 raise HTTPException(
