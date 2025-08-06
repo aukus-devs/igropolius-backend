@@ -51,13 +51,29 @@ async def reset_database(db: AsyncSession):
     )
     from src.enums import PlayerTurnState
 
-    reset_players_query = update(User).values(
-        {
-            "sector_id": 1,
-            "total_score": 0.0,
-            "turn_state": PlayerTurnState.ROLLING_DICE.value,
-            "maps_completed": 0,
-        }
+    reset_players_query = (
+        update(User)
+        .filter(
+            User.is_active == 1,
+            User.sector_id.isnot(None),
+            User.total_score.isnot(None),
+            User.turn_state.isnot(None),
+        )
+        .values(
+            {
+                "sector_id": 1,
+                "total_score": 0.0,
+                "turn_state": PlayerTurnState.ROLLING_DICE.value,
+                "maps_completed": 0,
+                "is_online": 0,
+                "current_game": None,
+                "current_game_cover": None,
+                "current_game_updated_at": None,
+                "online_count": 0,
+                "has_upgrade_bonus": 0,
+                "has_downgrade_bonus": 0,
+            }
+        )
     )
     await db.execute(reset_players_query)
 

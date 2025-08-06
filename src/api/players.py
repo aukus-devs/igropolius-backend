@@ -648,7 +648,7 @@ async def edit_player_game(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/api/player")
+@router.post("/api/players")
 async def update_player(
     request: UpdatePlayerRequest,
     current_user: Annotated[User, Depends(get_current_user_for_update)],

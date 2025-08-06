@@ -2123,6 +2123,25 @@
       "title": "UpdatePlayerInternalRequest",
       "type": "object"
     },
+    "UpdatePlayerRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "model_name": {
+          "title": "Model Name",
+          "type": "string"
+        },
+        "color": {
+          "title": "Color",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_name",
+        "color"
+      ],
+      "title": "UpdatePlayerRequest",
+      "type": "object"
+    },
     "UpdatePlayerTurnStateRequest": {
       "additionalProperties": false,
       "properties": {
