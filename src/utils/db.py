@@ -40,7 +40,9 @@ async def log_error_to_db(
 
 async def reset_database(db: AsyncSession):
     from src.db.db_models import (
+        CategoryHistory,
         DiceRoll,
+        Notification,
         PlayerCard,
         PlayerGame,
         PlayerMove,
@@ -75,3 +77,9 @@ async def reset_database(db: AsyncSession):
 
     delete_dice_rolls = delete(DiceRoll)
     await db.execute(delete_dice_rolls)
+
+    delete_notifications = delete(Notification)
+    await db.execute(delete_notifications)
+
+    delete_categories_history = delete(CategoryHistory)
+    await db.execute(delete_categories_history)
