@@ -345,6 +345,21 @@ async def update_player_internal(
             user.turn_state = request.turn_state.value
 
         if request.bonus_card is not None:
+            existing_card_query = await db.execute(
+                select(PlayerCard).where(
+                    PlayerCard.player_id == request.player_id,
+                    PlayerCard.card_type == request.bonus_card.value,
+                    PlayerCard.status == BonusCardStatus.ACTIVE.value,
+                )
+            )
+            existing_card = existing_card_query.scalars().first()
+
+            if existing_card:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Player already has an active {request.bonus_card.value} card",
+                )
+
             new_card = PlayerCard(
                 player_id=request.player_id,
                 card_type=request.bonus_card.value,
