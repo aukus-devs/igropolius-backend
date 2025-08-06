@@ -2105,17 +2105,6 @@
           ],
           "default": null
         },
-        "instant_card": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/InstantCardType"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
         "turn_state": {
           "anyOf": [
             {

@@ -353,15 +353,6 @@ async def update_player_internal(
             )
             db.add(new_card)
 
-        if request.instant_card is not None:
-            new_card = PlayerCard(
-                player_id=request.player_id,
-                card_type=request.instant_card.value,
-                received_on_sector=user.sector_id,
-                status=BonusCardStatus.ACTIVE.value,
-            )
-            db.add(new_card)
-
         await db.commit()
 
         return {
