@@ -388,3 +388,8 @@ class UseInstantCardRequest(BaseModel):
 
 class UseInstantCardResponse(BaseModel):
     result: InstantCardResult | None = None
+
+
+class UpdatePlayerRequest(BaseModel):
+    model_name: str
+    color: str

@@ -21,6 +21,7 @@ from src.api_models import (
     SavePlayerGameResponse,
     ScoreChangeEvent,
     UpdatePlayerTurnStateRequest,
+    UpdatePlayerRequest,
 )
 from src.api_models import (
     PlayerGame as PlayerGameApiModel,
@@ -644,4 +645,41 @@ async def edit_player_game(
     game.vod_links = request.vod_links or ""
     game.game_id = request.game_id
 
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/api/player")
+async def update_player(
+    request: UpdatePlayerRequest,
+    current_user: Annotated[User, Depends(get_current_user_for_update)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    same_model_query = await db.execute(
+        select(User).where(
+            User.model_name == request.model_name,
+            User.id != current_user.id,
+        )
+    )
+    same_model_user = same_model_query.scalars().first()
+    if same_model_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Model name already exists for another user.",
+        )
+
+    same_color_query = await db.execute(
+        select(User).where(
+            User.color == request.color,
+            User.id != current_user.id,
+        )
+    )
+    same_color_user = same_color_query.scalars().first()
+    if same_color_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Color already exists for another user.",
+        )
+
+    current_user.model_name = request.model_name
+    current_user.color = request.color
     return Response(status_code=status.HTTP_204_NO_CONTENT)
