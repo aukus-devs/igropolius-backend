@@ -2075,6 +2075,65 @@
       "title": "TaxType",
       "type": "string"
     },
+    "UpdatePlayerInternalRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "sector_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sector Id"
+        },
+        "bonus_card": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MainBonusCardType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "instant_card": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InstantCardType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "turn_state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlayerTurnState"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "player_id"
+      ],
+      "title": "UpdatePlayerInternalRequest",
+      "type": "object"
+    },
     "UpdatePlayerTurnStateRequest": {
       "additionalProperties": false,
       "properties": {

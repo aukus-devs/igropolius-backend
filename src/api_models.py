@@ -370,6 +370,14 @@ class SetEventEndTimeRequest(BaseModel):
     event_end_time: int | None = None
 
 
+class UpdatePlayerInternalRequest(BaseModel):
+    player_id: int
+    sector_id: int | None = None
+    bonus_card: MainBonusCardType | None = None
+    instant_card: InstantCardType | None = None
+    turn_state: PlayerTurnState | None = None
+
+
 class EventSettingsResponse(BaseModel):
     settings: dict[str, str | None] = {}
 

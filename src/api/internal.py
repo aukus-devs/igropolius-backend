@@ -12,8 +12,9 @@ from src.api_models import (
     CreatePlayerNotificationRequest,
     SetEventEndTimeRequest,
     StreamCheckResponse,
+    UpdatePlayerInternalRequest,
 )
-from src.db.db_models import EventSettings, User
+from src.db.db_models import EventSettings, PlayerCard, User
 from src.db.db_session import get_db
 from src.db.queries.notifications import (
     create_all_players_notification,
@@ -21,7 +22,7 @@ from src.db.queries.notifications import (
     create_player_message_notification,
     create_player_notification,
 )
-from src.enums import NotificationEventType, NotificationType, Role
+from src.enums import BonusCardStatus, NotificationEventType, NotificationType, Role
 from src.utils.auth import get_current_user, get_current_user_direct
 
 router = APIRouter(tags=["internal"])
@@ -312,4 +313,66 @@ async def set_event_settings(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update event settings: {str(e)}",
+        )
+
+
+@router.post("/api/internal/player")
+async def update_player_internal(
+    request: UpdatePlayerInternalRequest,
+    current_user: Annotated[User, Depends(get_current_user_direct)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    if current_user.role != Role.ADMIN.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can perform this action",
+        )
+
+    try:
+        user_query = await db.execute(select(User).where(User.id == request.player_id))
+        user = user_query.scalars().first()
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Player with id {request.player_id} not found",
+            )
+
+        if request.sector_id is not None:
+            user.sector_id = request.sector_id
+
+        if request.turn_state is not None:
+            user.turn_state = request.turn_state.value
+
+        if request.bonus_card is not None:
+            new_card = PlayerCard(
+                player_id=request.player_id,
+                card_type=request.bonus_card.value,
+                received_on_sector=user.sector_id,
+                status=BonusCardStatus.ACTIVE.value,
+            )
+            db.add(new_card)
+
+        if request.instant_card is not None:
+            new_card = PlayerCard(
+                player_id=request.player_id,
+                card_type=request.instant_card.value,
+                received_on_sector=user.sector_id,
+                status=BonusCardStatus.ACTIVE.value,
+            )
+            db.add(new_card)
+
+        await db.commit()
+
+        return {
+            "success": True,
+            "message": f"Player {request.player_id} updated successfully",
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update player: {str(e)}",
         )
