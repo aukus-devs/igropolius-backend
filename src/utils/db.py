@@ -72,6 +72,8 @@ async def reset_database(db: AsyncSession):
                 "online_count": 0,
                 "has_upgrade_bonus": 0,
                 "has_downgrade_bonus": 0,
+                "color": "",
+                "model_name": "",
             }
         )
     )
