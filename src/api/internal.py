@@ -71,7 +71,7 @@ async def reset_internal(
         )
     )
     endpoint_reset_db_setting = endpoint_reset_db_query.scalars().first()
-    if endpoint_reset_db_setting is None or endpoint_reset_db_setting.value == "0":
+    if endpoint_reset_db_setting is None or endpoint_reset_db_setting.value != "1":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Endpoint is disabled or not configured in EventSettings table",
