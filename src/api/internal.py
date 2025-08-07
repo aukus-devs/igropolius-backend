@@ -65,6 +65,18 @@ async def reset_internal(
             detail="Only admins can perform this action",
         )
 
+    endpoint_reset_db_query = await db.execute(
+        select(EventSettings).where(
+            EventSettings.key_name == "endpoint_reset_db_enabled"
+        )
+    )
+    endpoint_reset_db_setting = endpoint_reset_db_query.scalars().first()
+    if endpoint_reset_db_setting is None or endpoint_reset_db_setting.value == "0":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Endpoint is disabled or not configured in EventSettings table",
+        )
+
     from src.utils.db import reset_database
 
     await reset_database(db)
@@ -302,11 +314,28 @@ async def set_event_settings(
                 )
                 db.add(end_time_setting)
 
-        message = (
-            f"Event end time set to {request.event_end_time}, start time set to {request.event_start_time}"
-            if request.event_end_time or request.event_start_time
-            else "Event times cleared"
-        )
+        if request.endpoint_reset_db_enabled is not None:
+            endpoint_reset_db_query = await db.execute(
+                select(EventSettings).where(
+                    EventSettings.key_name == "endpoint_reset_db_enabled"
+                )
+            )
+            endpoint_reset_db_setting = endpoint_reset_db_query.scalars().first()
+
+            if endpoint_reset_db_setting:
+                endpoint_reset_db_setting.value = str(request.endpoint_reset_db_enabled)
+            else:
+                endpoint_reset_db_setting = EventSettings(
+                    key_name="endpoint_reset_db_enabled",
+                    value=str(request.endpoint_reset_db_enabled),
+                )
+                db.add(endpoint_reset_db_setting)
+
+        await db.commit()
+        result = await db.execute(select(EventSettings))
+        settings = result.scalars().all()
+        settings_str = ", ".join(f"{s.key_name}: {s.value}" for s in settings)
+        message = f"Event settings updated to: {settings_str}"
 
         return CreateNotificationResponse(success=True, message=message)
     except Exception as e:

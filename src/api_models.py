@@ -368,6 +368,7 @@ class CreateNotificationResponse(BaseModel):
 class SetEventEndTimeRequest(BaseModel):
     event_start_time: int | None = None
     event_end_time: int | None = None
+    endpoint_reset_db_enabled: int | None = None
 
 
 class UpdatePlayerInternalRequest(BaseModel):

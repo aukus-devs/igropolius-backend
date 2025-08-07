@@ -183,7 +183,11 @@ async def create_event_settings():
         existing_settings_query = await db.execute(select(EventSettings.key_name))
         existing_keys = set(existing_settings_query.scalars().all())
 
-        default_settings = {"event_start_time": "1", "event_end_time": "2"}
+        default_settings = {
+            "event_start_time": "1",
+            "event_end_time": "2",
+            "endpoint_reset_db_enabled": "0",
+        }
 
         for key, value in default_settings.items():
             if key not in existing_keys:
