@@ -643,7 +643,7 @@ async def edit_player_game(
     game.vod_links = request.vod_links or ""
     game.game_id = request.game_id
     game.duration = await calculate_game_duration_by_title(
-        db, request.game_title, current_user.id
+        db, request.game_title, game.player_id
     )
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
