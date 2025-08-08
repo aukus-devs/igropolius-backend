@@ -648,6 +648,41 @@
       "title": "GameCompletionType",
       "type": "string"
     },
+    "GameDurationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "game_name": {
+          "title": "Game Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "game_name"
+      ],
+      "title": "GameDurationRequest",
+      "type": "object"
+    },
+    "GameDurationResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "duration": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duration"
+        }
+      },
+      "required": [
+        "duration"
+      ],
+      "title": "GameDurationResponse",
+      "type": "object"
+    },
     "GameEvent": {
       "additionalProperties": false,
       "properties": {
@@ -2014,6 +2049,18 @@
           ],
           "default": null,
           "title": "Event End Time"
+        },
+        "endpoint_reset_db_enabled": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint Reset Db Enabled"
         }
       },
       "title": "SetEventEndTimeRequest",

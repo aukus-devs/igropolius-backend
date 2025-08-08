@@ -391,6 +391,14 @@ class UseInstantCardResponse(BaseModel):
     result: InstantCardResult | None = None
 
 
+class GameDurationRequest(BaseModel):
+    game_name: str
+
+
+class GameDurationResponse(BaseModel):
+    duration: int | None
+
+
 class UpdatePlayerRequest(BaseModel):
     model_name: str
     color: str

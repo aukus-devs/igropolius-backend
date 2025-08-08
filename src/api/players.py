@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import (
     ActiveBonusCard,
     EditPlayerGame,
+    GameDurationRequest,
+    GameDurationResponse,
     GameEvent,
     MoveEvent,
     MovePlayerGameRequest,
@@ -20,8 +22,8 @@ from src.api_models import (
     SavePlayerGameRequest,
     SavePlayerGameResponse,
     ScoreChangeEvent,
-    UpdatePlayerTurnStateRequest,
     UpdatePlayerRequest,
+    UpdatePlayerTurnStateRequest,
 )
 from src.api_models import (
     PlayerGame as PlayerGameApiModel,
@@ -687,3 +689,15 @@ async def update_player(
     current_user.model_name = request.model_name
     current_user.color = request.color
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/api/game-duration", response_model=GameDurationResponse)
+async def get_game_duration(
+    request: GameDurationRequest,
+    current_user: Annotated[User, Depends(get_current_user_for_update)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    duration = await calculate_game_duration_by_title(
+        db, request.game_name, current_user.id
+    )
+    return GameDurationResponse(duration=duration if duration > 0 else None)
