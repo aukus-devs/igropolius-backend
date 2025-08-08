@@ -658,6 +658,7 @@ async def update_player(
         select(User).where(
             User.model_name == request.model_name,
             User.id != current_user.id,
+            User.is_active == 1,
         )
     )
     same_model_user = same_model_query.scalars().first()
@@ -671,6 +672,7 @@ async def update_player(
         select(User).where(
             User.color == request.color,
             User.id != current_user.id,
+            User.is_active == 1,
         )
     )
     same_color_user = same_color_query.scalars().first()
