@@ -466,13 +466,9 @@ async def save_player_game(
             detail="Player data is not set",
         )
 
-    game_duration = 0
-    try:
-        game_duration = await calculate_game_duration_by_title(
-            db, request.title, current_user.id
-        )
-    except:
-        pass
+    game_duration = await calculate_game_duration_by_title(
+        db, request.title, current_user.id
+    )
 
     target_sector = current_user.sector_id
 
@@ -646,6 +642,9 @@ async def edit_player_game(
     game.item_rating = request.rating
     game.vod_links = request.vod_links or ""
     game.game_id = request.game_id
+    game.duration = await calculate_game_duration_by_title(
+        db, request.game_title, current_user.id
+    )
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
