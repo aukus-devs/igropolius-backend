@@ -1591,6 +1591,18 @@
           ],
           "default": null,
           "title": "Cover"
+        },
+        "game_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Game Id"
         }
       },
       "required": [

@@ -121,6 +121,9 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
                 cover=igdb_games_dict[g.game_id].cover
                 if g.game_id and g.game_id in igdb_games_dict
                 else None,
+                game_id=g.game_id
+                if g.game_id and g.game_id in igdb_games_dict
+                else None,
             )
             for g in games
             if g.player_id == user.id

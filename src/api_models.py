@@ -42,6 +42,7 @@ class PlayerGame(BaseModel):
     duration: int | None = None
     vod_links: str | None = None
     cover: str | None = None
+    game_id: int | None = None
 
 
 class ActiveBonusCard(BaseModel):
