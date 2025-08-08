@@ -128,7 +128,12 @@ async def refresh_stream_statuses(db: AsyncSession) -> Dict[str, Any]:
     }
 
     try:
-        query = await db.execute(select(User).filter(User.is_active == 1))
+        query = await db.execute(
+            select(User).filter(
+                User.is_active == 1,
+                User.sector_id.isnot(None),
+            )
+        )
         players = query.scalars().all()
         stats["total_players"] = len(players)
 

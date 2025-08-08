@@ -655,10 +655,11 @@ async def update_player(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     same_model_query = await db.execute(
-        select(User).where(
+        select(User).filter(
             User.model_name == request.model_name,
             User.id != current_user.id,
             User.is_active == 1,
+            User.sector_id.isnot(None),
         )
     )
     same_model_user = same_model_query.scalars().first()
@@ -669,10 +670,11 @@ async def update_player(
         )
 
     same_color_query = await db.execute(
-        select(User).where(
+        select(User).filter(
             User.color == request.color,
             User.id != current_user.id,
             User.is_active == 1,
+            User.sector_id.isnot(None),
         )
     )
     same_color_user = same_color_query.scalars().first()

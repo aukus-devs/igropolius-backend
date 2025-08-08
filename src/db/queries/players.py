@@ -11,7 +11,11 @@ async def get_players_by_score(
 ) -> list[User]:
     query = (
         select(User)
-        .where(User.is_active == True, User.total_score.isnot(None))
+        .where(
+            User.is_active == 1,
+            User.total_score.isnot(None),
+            User.sector_id.isnot(None),
+        )
         .order_by(User.total_score.desc())
     )
     if limit is not None:
