@@ -251,19 +251,20 @@ async def drop_bonus_card(
             )
             db.add(new_card)
         case PlayerTurnState.DROPPING_CARD_AFTER_GAME_DROP.value:
-            # move player to prison
-            prison_sector = get_closest_prison_sector(current_user.sector_id)
-            prison_move = PlayerMove(
-                player_id=current_user.id,
-                sector_from=current_user.sector_id,
-                sector_to=get_closest_prison_sector(current_user.sector_id),
-                move_type=PlayerMoveType.DROP_TO_PRISON.value,
-                map_completed=False,
-                adjusted_roll=prison_sector - current_user.sector_id,
-                random_org_roll=-1,
-            )
-            db.add(prison_move)
-            current_user.sector_id = prison_sector
+            # move player to prison, will be done by FE in separate api call
+            pass
+            # prison_sector = get_closest_prison_sector(current_user.sector_id)
+            # prison_move = PlayerMove(
+            #     player_id=current_user.id,
+            #     sector_from=current_user.sector_id,
+            #     sector_to=get_closest_prison_sector(current_user.sector_id),
+            #     move_type=PlayerMoveType.DROP_TO_PRISON.value,
+            #     map_completed=False,
+            #     adjusted_roll=prison_sector - current_user.sector_id,
+            #     random_org_roll=-1,
+            # )
+            # db.add(prison_move)
+            # current_user.sector_id = prison_sector
         case PlayerTurnState.DROPPING_CARD_AFTER_INSTANT_ROLL.value:
             pass
         case _:
