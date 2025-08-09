@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import delete, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -48,8 +48,22 @@ async def reset_database(db: AsyncSession):
         PlayerMove,
         PlayerScoreChange,
         User,
+        Rules,
     )
     from src.enums import PlayerTurnState
+
+    # reset rules to the latest version for each category
+    rules_ids_by_category_query = select(
+        Rules.category, func.max(Rules.id).label("max_id")
+    ).group_by(Rules.category)
+
+    rules_by_category = await db.execute(rules_ids_by_category_query)
+    for category, max_id in rules_by_category:
+        if max_id is not None:
+            delete_rules_query = delete(Rules).where(
+                Rules.category == category, Rules.id != max_id
+            )
+            await db.execute(delete_rules_query)
 
     reset_players_query = (
         update(User)
