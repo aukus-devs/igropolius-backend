@@ -42,3 +42,4 @@ SECTORS_COLORS_GROUPS = [
 
 
 BUILDING_SECTORS = set(chain(chain.from_iterable(SECTORS_COLORS_GROUPS), [1]))
+BONUS_SECTORS = {3, 8, 13, 18, 23, 29, 34, 39}

@@ -28,7 +28,7 @@ from src.api_models import (
 from src.api_models import (
     PlayerGame as PlayerGameApiModel,
 )
-from src.consts import BUILDING_SECTORS, GAME_LENGTHS_IN_ORDER, TRAIN_MAP
+from src.consts import BUILDING_SECTORS, GAME_LENGTHS_IN_ORDER, TRAIN_MAP, BONUS_SECTORS
 from src.db.db_models import (
     DiceRoll,
     IgdbGame,
@@ -526,6 +526,9 @@ async def save_player_game(
                     game.item_length = GAME_LENGTHS_IN_ORDER[current_stage_idx]
                     game.item_length_bonus += step
                     current_user.building_upgrade_bonus -= step
+
+            if target_sector in BONUS_SECTORS:
+                current_user.building_upgrade_bonus += 2
 
         case GameCompletionType.DROP:
             await change_player_score(
