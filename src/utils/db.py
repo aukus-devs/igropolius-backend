@@ -84,8 +84,7 @@ async def reset_database(db: AsyncSession):
                 "current_game_cover": None,
                 "current_game_updated_at": None,
                 "online_count": 0,
-                "has_upgrade_bonus": 0,
-                "has_downgrade_bonus": 0,
+                "building_upgrade_bonus": 0,
                 "color": "",
                 "model_name": "",
             }

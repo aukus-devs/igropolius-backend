@@ -47,8 +47,9 @@ class User(DbBase):
         String(255), default=PlayerTurnState.ROLLING_DICE.value, nullable=True
     )
     maps_completed: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    has_upgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    has_downgrade_bonus: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    building_upgrade_bonus: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=False
+    )
     color: Mapped[str | None] = mapped_column(String(255), nullable=True)
     model_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     moder_for: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -77,7 +78,7 @@ class PlayerGame(DbBase):
     vod_links: Mapped[str] = mapped_column(String(255), nullable=True)
     sector_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     game_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    item_length_bonus: Mapped[int] = mapped_column(Integer, nullable=True)
+    item_length_bonus: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     player_sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
 

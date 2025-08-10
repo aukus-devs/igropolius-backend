@@ -455,16 +455,6 @@
           },
           "title": "Last Roll Result",
           "type": "array"
-        },
-        "has_upgrade_bonus": {
-          "default": false,
-          "title": "Has Upgrade Bonus",
-          "type": "boolean"
-        },
-        "has_downgrade_bonus": {
-          "default": false,
-          "title": "Has Downgrade Bonus",
-          "type": "boolean"
         }
       },
       "required": [
@@ -1444,6 +1434,10 @@
         "model_name": {
           "title": "Model Name",
           "type": "string"
+        },
+        "building_upgrade_bonus": {
+          "title": "Building Upgrade Bonus",
+          "type": "integer"
         }
       },
       "required": [
@@ -1458,7 +1452,8 @@
         "games",
         "bonus_cards",
         "color",
-        "model_name"
+        "model_name",
+        "building_upgrade_bonus"
       ],
       "title": "PlayerDetails",
       "type": "object"
@@ -1545,16 +1540,8 @@
           "$ref": "#/$defs/GameLength"
         },
         "length_bonus": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Length Bonus"
+          "title": "Length Bonus",
+          "type": "integer"
         },
         "duration": {
           "anyOf": [
@@ -1614,7 +1601,8 @@
         "title",
         "review",
         "rating",
-        "length"
+        "length",
+        "length_bonus"
       ],
       "title": "PlayerGame",
       "type": "object"

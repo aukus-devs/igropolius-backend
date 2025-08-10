@@ -38,7 +38,7 @@ class PlayerGame(BaseModel):
     review: str
     rating: float
     length: GameLength
-    length_bonus: int | None = None
+    length_bonus: int
     duration: int | None = None
     vod_links: str | None = None
     cover: str | None = None
@@ -80,6 +80,7 @@ class PlayerDetails(BaseModel):
     bonus_cards: list[ActiveBonusCard]
     color: str
     model_name: str
+    building_upgrade_bonus: int
 
 
 class PlayerListResponse(BaseModel):
@@ -98,8 +99,6 @@ class CurrentUserResponse(BaseModel):
     turn_state: PlayerTurnState | None = None
     # maps_completed: int = 0
     last_roll_result: list[int]
-    has_upgrade_bonus: bool = False
-    has_downgrade_bonus: bool = False
 
 
 class PlayerEventBase(BaseModel):

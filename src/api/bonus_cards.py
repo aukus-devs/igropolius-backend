@@ -449,25 +449,9 @@ async def use_instant_card(
         case InstantCardType.REROLL_AND_ROLL:
             response.result = InstantCardResult.REROLL
         case InstantCardType.DOWNGRADE_NEXT_BUILDING:
-            if current_user.has_downgrade_bonus:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="You already have a downgrade bonus",
-                )
-            if current_user.has_upgrade_bonus:
-                current_user.has_upgrade_bonus = False
-            else:
-                current_user.has_downgrade_bonus = True
+            current_user.building_upgrade_bonus -= 1
         case InstantCardType.UPGRADE_NEXT_BUILDING:
-            if current_user.has_upgrade_bonus:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="You already have an upgrade bonus",
-                )
-            if current_user.has_downgrade_bonus:
-                current_user.has_downgrade_bonus = False
-            else:
-                current_user.has_upgrade_bonus = True
+            current_user.building_upgrade_bonus += 1
         case _:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

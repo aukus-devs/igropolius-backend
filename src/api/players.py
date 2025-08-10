@@ -487,6 +487,7 @@ async def save_player_game(
         player_sector_id=current_user.sector_id,
         game_id=request.game_id,
         duration=game_duration,
+        item_length_bonus=0,
     )
     db.add(game)
 
@@ -509,20 +510,20 @@ async def save_player_game(
 
             item_length_idx = GAME_LENGTHS_IN_ORDER.index(game.item_length)
 
-            if (
-                current_user.has_upgrade_bonus
-                and item_length_idx != len(GAME_LENGTHS_IN_ORDER) - 1
-            ):
-                next_len = GAME_LENGTHS_IN_ORDER[item_length_idx + 1]
-                game.item_length = next_len
-                game.item_length_bonus = 1
-                current_user.has_upgrade_bonus = False
-
-            if current_user.has_downgrade_bonus and item_length_idx != 0:
-                prev_len = GAME_LENGTHS_IN_ORDER[item_length_idx - 1]
-                game.item_length = prev_len
-                game.item_length_bonus = -1
-                current_user.has_downgrade_bonus = False
+            if current_user.building_upgrade_bonus != 0:
+                bonus = current_user.building_upgrade_bonus
+                bonus_step = 1 if bonus > 0 else -1
+                bonus_steps = [bonus_step] * abs(bonus)
+                current_stage_idx = item_length_idx
+                for step in bonus_steps:
+                    current_stage_idx = current_stage_idx + step
+                    if current_stage_idx < 0 or current_stage_idx >= len(
+                        GAME_LENGTHS_IN_ORDER
+                    ):
+                        break
+                    game.item_length = GAME_LENGTHS_IN_ORDER[current_stage_idx]
+                    game.item_length_bonus += step
+                    current_user.building_upgrade_bonus -= step
 
         case GameCompletionType.DROP:
             await change_player_score(
