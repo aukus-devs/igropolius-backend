@@ -28,7 +28,7 @@ from src.api_models import (
 from src.api_models import (
     PlayerGame as PlayerGameApiModel,
 )
-from src.consts import GAME_LENGTHS_IN_ORDER, TRAIN_MAP
+from src.consts import BUILDING_SECTORS, GAME_LENGTHS_IN_ORDER, TRAIN_MAP
 from src.db.db_models import (
     DiceRoll,
     IgdbGame,
@@ -510,7 +510,9 @@ async def save_player_game(
 
             item_length_idx = GAME_LENGTHS_IN_ORDER.index(game.item_length)
 
-            if current_user.building_upgrade_bonus != 0:
+            is_building_sector = target_sector in BUILDING_SECTORS
+
+            if current_user.building_upgrade_bonus != 0 and is_building_sector:
                 bonus = current_user.building_upgrade_bonus
                 bonus_step = 1 if bonus > 0 else -1
                 bonus_steps = [bonus_step] * abs(bonus)

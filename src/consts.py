@@ -1,3 +1,4 @@
+from itertools import chain
 from src.enums import GameLength
 
 
@@ -38,3 +39,6 @@ SECTORS_COLORS_GROUPS = [
     [37, 38, 40],
     list(TRAIN_MAP.keys()),
 ]
+
+
+BUILDING_SECTORS = set(chain(chain.from_iterable(SECTORS_COLORS_GROUPS), [1]))
