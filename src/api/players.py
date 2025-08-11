@@ -297,7 +297,8 @@ async def do_player_move(
             detail="Player data is not set",
         )
 
-    sector_id_from = current_user.sector_id
+    original_sector = current_user.sector_id
+    map_completed = False
 
     roll_result = None
     dice_roll_record_id = -1
@@ -353,7 +354,7 @@ async def do_player_move(
                 roll_result = request.selected_die
                 choose_1_die_card.status = BonusCardStatus.USED.value
                 choose_1_die_card.used_at = utc_now_ts()
-                choose_1_die_card.used_on_sector = sector_id_from
+                choose_1_die_card.used_on_sector = original_sector
 
             if request.adjust_by_1 is not None:
                 adjust_by1_card_query = await db.execute(
@@ -380,7 +381,7 @@ async def do_player_move(
                 roll_result += request.adjust_by_1
                 adjust_by1_card.status = BonusCardStatus.USED.value
                 adjust_by1_card.used_at = utc_now_ts()
-                adjust_by1_card.used_on_sector = sector_id_from
+                adjust_by1_card.used_on_sector = original_sector
 
             if request.ride_train:
                 train_target = TRAIN_MAP.get(current_user.sector_id)
@@ -390,20 +391,18 @@ async def do_player_move(
                         detail="Player must be on a train sector to use ride train option.",
                     )
 
-                train_map_completed = current_user.sector_id > train_target
+                map_completed = original_sector > train_target
                 train_move = PlayerMove(
                     player_id=current_user.id,
                     sector_from=current_user.sector_id,
                     sector_to=train_target,
                     move_type=PlayerMoveType.TRAIN_RIDE.value,
-                    map_completed=train_map_completed,
+                    map_completed=map_completed,
                     adjusted_roll=10,
                     random_org_roll=-1,
                 )
                 db.add(train_move)
                 current_user.sector_id = train_target
-                if train_map_completed:
-                    current_user.maps_completed += 1
 
         # case PlayerMoveType.TRAIN_RIDE:
         #     roll_result = 10
@@ -424,7 +423,6 @@ async def do_player_move(
         )
 
     sector_to = current_user.sector_id + roll_result
-    map_completed = False
     if sector_to > 40:
         sector_to = sector_to % 40
         map_completed = True
