@@ -54,7 +54,7 @@ async def pay_tax(
             player=current_user,
             score_change=-income_amount,
             change_type=ScoreChangeType.MAP_TAX,
-            description="map tax 5%",
+            description="map tax 10%",
         )
 
         await create_map_tax_notification(db, current_user.id, income_amount)

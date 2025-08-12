@@ -30,6 +30,7 @@ from src.api_models import (
 )
 from src.consts import (
     BUILDING_SECTORS,
+    DROP_SCORE_LOST_MINIMUM,
     DROP_SCORE_LOST_PERCENT,
     GAME_LENGTHS_IN_ORDER,
     TRAIN_MAP,
@@ -535,10 +536,14 @@ async def save_player_game(
                 current_user.building_upgrade_bonus += 2
 
         case GameCompletionType.DROP:
+            score_lost = max(
+                current_user.total_score * DROP_SCORE_LOST_PERCENT,
+                DROP_SCORE_LOST_MINIMUM,
+            )
             await change_player_score(
                 db,
                 current_user,
-                -current_user.total_score * DROP_SCORE_LOST_PERCENT,
+                -score_lost,
                 ScoreChangeType.GAME_DROPPED,
                 f"game dropped: '{request.title}'",
             )
