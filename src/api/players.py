@@ -28,7 +28,13 @@ from src.api_models import (
 from src.api_models import (
     PlayerGame as PlayerGameApiModel,
 )
-from src.consts import BUILDING_SECTORS, GAME_LENGTHS_IN_ORDER, TRAIN_MAP, BONUS_SECTORS
+from src.consts import (
+    BUILDING_SECTORS,
+    DROP_SCORE_LOST_PERCENT,
+    GAME_LENGTHS_IN_ORDER,
+    TRAIN_MAP,
+    BONUS_SECTORS,
+)
 from src.db.db_models import (
     DiceRoll,
     IgdbGame,
@@ -532,7 +538,7 @@ async def save_player_game(
             await change_player_score(
                 db,
                 current_user,
-                -current_user.total_score * 0.08,
+                -current_user.total_score * DROP_SCORE_LOST_PERCENT,
                 ScoreChangeType.GAME_DROPPED,
                 f"game dropped: '{request.title}'",
             )
