@@ -291,35 +291,35 @@ async def use_instant_card(
     response = UseInstantCardResponse()
     match request.card_type:
         case InstantCardType.RECEIVE_3_PERCENT:
-            change = current_user.total_score * 0.03
+            change = 4
             await change_player_score(
                 db,
                 current_user,
                 change,
                 ScoreChangeType.INSTANT_CARD,
-                "Received 3% bonus from instant card",
+                "Received 4 scores from instant card",
                 bonus_card=BonusCardType(request.card_type.value),
                 bonus_card_owner=current_user.id,
             )
         case InstantCardType.RECEIVE_1_PERCENT_PLUS_20:
-            change = current_user.total_score * 0.01 + 20
+            change = 20
             await change_player_score(
                 db,
                 current_user,
                 change,
                 ScoreChangeType.INSTANT_CARD,
-                "Received 1% bonus plus 20 from instant card",
+                "Received 20 scores from instant card",
                 bonus_card=BonusCardType(request.card_type.value),
                 bonus_card_owner=current_user.id,
             )
         case InstantCardType.LOSE_2_PERCENTS:
-            change = current_user.total_score * 0.02
+            change = -4
             await change_player_score(
                 db,
                 current_user,
-                -change,
+                change,
                 ScoreChangeType.INSTANT_CARD,
-                "Lost 2% from instant card",
+                "Lost 4 scores from instant card",
                 bonus_card=BonusCardType(request.card_type.value),
                 bonus_card_owner=current_user.id,
             )
@@ -328,7 +328,7 @@ async def use_instant_card(
             receive_total = 0
             for i, player in enumerate(players):
                 if player.id == current_user.id:
-                    change = current_user.total_score * 0.01 * (i + 1)
+                    change = i + 1
                     await change_player_score(
                         db,
                         current_user,
@@ -347,13 +347,13 @@ async def use_instant_card(
                     continue
 
                 if player.id != current_user.id:
-                    change = player.total_score * 0.01
+                    change = 3
                     await change_player_score(
                         db,
                         player,
                         -change,
                         ScoreChangeType.INSTANT_CARD,
-                        f"Lost 1% to {current_user.username} from instant card",
+                        f"Sent 3 to {current_user.username} from instant card",
                         bonus_card=BonusCardType(request.card_type.value),
                         bonus_card_owner=current_user.id,
                     )
@@ -364,48 +364,51 @@ async def use_instant_card(
                 current_user,
                 receive_total,
                 ScoreChangeType.INSTANT_CARD,
-                "Received 1% from all players from instant card",
+                "Received 3 from all players from instant card",
                 bonus_card=BonusCardType(request.card_type.value),
                 bonus_card_owner=current_user.id,
             )
         case InstantCardType.LEADERS_LOSE_PERCENTS:
             players = await get_players_by_score(db, for_update=True, limit=3)
+            scores_lost = [5, 4, 3]
             for i, player in enumerate(players):
                 if player.total_score is None:
                     continue
 
-                change = player.total_score * 0.01 * (3 - i)
+                change = scores_lost[i]
                 await change_player_score(
                     db,
                     player,
                     -change,
                     ScoreChangeType.INSTANT_CARD,
-                    f"Leader lost {3 - i}% from instant card",
+                    f"Place {i} lost {change} from instant card",
                     bonus_card=BonusCardType(request.card_type.value),
                     bonus_card_owner=current_user.id,
                 )
 
         case InstantCardType.RECEIVE_5_PERCENT_OR_REROLL:
             players = await get_players_by_score(db)
-            for i, player in enumerate(players):
-                if player.id == current_user.id:
-                    if i < len(players) / 2:
-                        response.result = InstantCardResult.REROLL
-                    else:
-                        if player.total_score is None:
-                            continue
-                        change = player.total_score * 0.05
-                        await change_player_score(
-                            db,
-                            current_user,
-                            change,
-                            ScoreChangeType.INSTANT_CARD,
-                            "Received 5% bonus for losing from instant card",
-                            bonus_card=BonusCardType(request.card_type.value),
-                            bonus_card_owner=current_user.id,
-                        )
-                        response.result = InstantCardResult.SCORES_RECEIVED
-                    break
+            last_3_places = players[-3:]
+
+            in_last_3_places = any(
+                player.id == current_user.id for player in last_3_places
+            )
+
+            if in_last_3_places:
+                change = 8
+                await change_player_score(
+                    db,
+                    current_user,
+                    change,
+                    ScoreChangeType.INSTANT_CARD,
+                    "Received 8 bonus for being in last 3 places from instant card",
+                    bonus_card=BonusCardType(request.card_type.value),
+                    bonus_card_owner=current_user.id,
+                )
+                response.result = InstantCardResult.SCORES_RECEIVED
+            else:
+                response.result = InstantCardResult.REROLL
+
         case InstantCardType.LOSE_CARD_OR_3_PERCENT:
             card_to_lose = None
             if request.card_to_lose:
@@ -431,11 +434,11 @@ async def use_instant_card(
                 )
                 cards = cards_query.scalars().all()
                 if not cards:
-                    change = current_user.total_score * 0.03
+                    change = -6
                     await change_player_score(
                         db,
                         current_user,
-                        -change,
+                        change,
                         ScoreChangeType.INSTANT_CARD,
                         "Lost 3% for not losing a card",
                         bonus_card=BonusCardType(request.card_type.value),
@@ -452,6 +455,27 @@ async def use_instant_card(
             current_user.building_upgrade_bonus -= 1
         case InstantCardType.UPGRADE_NEXT_BUILDING:
             current_user.building_upgrade_bonus += 1
+        case InstantCardType.RECEVIE_SCORES_FOR_ACTIVE_CARDS:
+            cards_query = await db.execute(
+                select(PlayerCard)
+                .where(PlayerCard.player_id == current_user.id)
+                .where(PlayerCard.status == BonusCardStatus.ACTIVE.value)
+            )
+            cards = cards_query.scalars().all()
+            if not cards:
+                response.result = InstantCardResult.REROLL
+            else:
+                change = len(cards) * 2
+                await change_player_score(
+                    db,
+                    current_user,
+                    change,
+                    ScoreChangeType.INSTANT_CARD,
+                    f"Received scores for {len} active cards",
+                    bonus_card=BonusCardType(request.card_type.value),
+                    bonus_card_owner=current_user.id,
+                )
+                response.result = InstantCardResult.SCORES_RECEIVED
         case _:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

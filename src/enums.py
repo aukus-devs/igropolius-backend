@@ -132,6 +132,8 @@ class InstantCardType(Enum):
     REROLL_AND_ROLL = "reroll-and-roll"
     # 12 — игрок теряет случайную карточку; если карточек нет, потеря 3% очков. +
     LOSE_CARD_OR_3_PERCENT = "lose-card-or-3-percent"
+    # 13 Коллекционер — получите количество очков, равное удвоенному количеству ваших карточек. Если карточек нет - реролл колеса.
+    RECEVIE_SCORES_FOR_ACTIVE_CARDS = "receive-scores-for-active-cards"
 
 
 class InstantCardResult(Enum):
