@@ -126,7 +126,8 @@
         "lose-2-percents",
         "reroll",
         "reroll-and-roll",
-        "lose-card-or-3-percent"
+        "lose-card-or-3-percent",
+        "receive-scores-for-active-cards"
       ],
       "title": "BonusCardType",
       "type": "string"
@@ -870,7 +871,8 @@
         "lose-2-percents",
         "reroll",
         "reroll-and-roll",
-        "lose-card-or-3-percent"
+        "lose-card-or-3-percent",
+        "receive-scores-for-active-cards"
       ],
       "title": "InstantCardType",
       "type": "string"

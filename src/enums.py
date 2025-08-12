@@ -164,6 +164,7 @@ class BonusCardType(Enum):
     REROLL = "reroll"
     REROLL_AND_ROLL = "reroll-and-roll"
     LOSE_CARD_OR_3_PERCENT = "lose-card-or-3-percent"
+    RECEVIE_SCORES_FOR_ACTIVE_CARDS = "receive-scores-for-active-cards"
 
 
 class GameLength(Enum):
