@@ -120,3 +120,7 @@ InstantCardsValues = {i.value for i in InstantCardType}
 
 def is_instant_card(value: str) -> bool:
     return value in InstantCardsValues
+
+
+def is_first_day() -> bool:
+    return False

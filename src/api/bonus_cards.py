@@ -13,6 +13,7 @@ from src.api_models import (
     UseInstantCardRequest,
     UseInstantCardResponse,
 )
+from src.consts import FIRST_DAY_SCORE_BONUS
 from src.db.db_session import get_db
 from src.db.db_models import PlayerCard, PlayerMove, User
 from src.db.queries.players import change_player_score, get_players_by_score
@@ -28,7 +29,7 @@ from src.enums import (
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user, get_current_user_for_update
-from src.utils.common import get_closest_prison_sector
+from src.utils.common import is_first_day
 from src.utils.db import utc_now_ts
 from src.db.queries.notifications import (
     create_card_lost_notification,
@@ -324,21 +325,34 @@ async def use_instant_card(
                 bonus_card_owner=current_user.id,
             )
         case InstantCardType.RECEIVE_SCORES_FOR_PLACE:
-            players = await get_players_by_score(db)
-            receive_total = 0
-            for i, player in enumerate(players):
-                if player.id == current_user.id:
-                    change = i + 1
-                    await change_player_score(
-                        db,
-                        current_user,
-                        change,
-                        ScoreChangeType.INSTANT_CARD,
-                        f"Received scores for place {i + 1} from instant card",
-                        bonus_card=BonusCardType(request.card_type.value),
-                        bonus_card_owner=current_user.id,
-                    )
-                    break
+            first_day = is_first_day()
+            if first_day:
+                change = FIRST_DAY_SCORE_BONUS
+                await change_player_score(
+                    db,
+                    current_user,
+                    change,
+                    ScoreChangeType.INSTANT_CARD,
+                    "Received first day bonus from instant card",
+                    bonus_card=BonusCardType(request.card_type.value),
+                    bonus_card_owner=current_user.id,
+                )
+            else:
+                players = await get_players_by_score(db)
+                receive_total = 0
+                for i, player in enumerate(players):
+                    if player.id == current_user.id:
+                        change = i + 1
+                        await change_player_score(
+                            db,
+                            current_user,
+                            change,
+                            ScoreChangeType.INSTANT_CARD,
+                            f"Received scores for place {i + 1} from instant card",
+                            bonus_card=BonusCardType(request.card_type.value),
+                            bonus_card_owner=current_user.id,
+                        )
+                        break
         case InstantCardType.RECEIVE_1_PERCENT_FROM_ALL:
             players = await get_players_by_score(db, for_update=True)
             receive_total = 0
@@ -369,45 +383,71 @@ async def use_instant_card(
                 bonus_card_owner=current_user.id,
             )
         case InstantCardType.LEADERS_LOSE_PERCENTS:
-            players = await get_players_by_score(db, for_update=True, limit=3)
-            scores_lost = [5, 4, 3]
-            for i, player in enumerate(players):
-                if player.total_score is None:
-                    continue
-
-                change = scores_lost[i]
-                await change_player_score(
-                    db,
-                    player,
-                    -change,
-                    ScoreChangeType.INSTANT_CARD,
-                    f"Place {i} lost {change} from instant card",
-                    bonus_card=BonusCardType(request.card_type.value),
-                    bonus_card_owner=current_user.id,
-                )
-
-        case InstantCardType.RECEIVE_5_PERCENT_OR_REROLL:
-            players = await get_players_by_score(db)
-            last_3_places = players[-3:]
-
-            in_last_3_places = any(
-                player.id == current_user.id for player in last_3_places
-            )
-
-            if in_last_3_places:
-                change = 8
+            first_day = is_first_day()
+            if first_day:
+                change = FIRST_DAY_SCORE_BONUS
                 await change_player_score(
                     db,
                     current_user,
                     change,
                     ScoreChangeType.INSTANT_CARD,
-                    "Received 8 bonus for being in last 3 places from instant card",
+                    "Received first day bonus from instant card",
                     bonus_card=BonusCardType(request.card_type.value),
                     bonus_card_owner=current_user.id,
                 )
-                response.result = InstantCardResult.SCORES_RECEIVED
             else:
-                response.result = InstantCardResult.REROLL
+                players = await get_players_by_score(db, for_update=True, limit=3)
+                scores_lost = [5, 4, 3]
+                for i, player in enumerate(players):
+                    if player.total_score is None:
+                        continue
+
+                    change = scores_lost[i]
+                    await change_player_score(
+                        db,
+                        player,
+                        -change,
+                        ScoreChangeType.INSTANT_CARD,
+                        f"Place {i} lost {change} from instant card",
+                        bonus_card=BonusCardType(request.card_type.value),
+                        bonus_card_owner=current_user.id,
+                    )
+
+        case InstantCardType.RECEIVE_5_PERCENT_OR_REROLL:
+            first_day = is_first_day()
+            if first_day:
+                change = FIRST_DAY_SCORE_BONUS
+                await change_player_score(
+                    db,
+                    current_user,
+                    change,
+                    ScoreChangeType.INSTANT_CARD,
+                    "Received first day bonus from instant card",
+                    bonus_card=BonusCardType(request.card_type.value),
+                    bonus_card_owner=current_user.id,
+                )
+            else:
+                players = await get_players_by_score(db)
+                last_3_places = players[-3:]
+
+                in_last_3_places = any(
+                    player.id == current_user.id for player in last_3_places
+                )
+
+                if in_last_3_places:
+                    change = 8
+                    await change_player_score(
+                        db,
+                        current_user,
+                        change,
+                        ScoreChangeType.INSTANT_CARD,
+                        "Received 8 bonus for being in last 3 places from instant card",
+                        bonus_card=BonusCardType(request.card_type.value),
+                        bonus_card_owner=current_user.id,
+                    )
+                    response.result = InstantCardResult.SCORES_RECEIVED
+                else:
+                    response.result = InstantCardResult.REROLL
 
         case InstantCardType.LOSE_CARD_OR_3_PERCENT:
             card_to_lose = None
