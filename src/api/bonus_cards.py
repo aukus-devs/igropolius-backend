@@ -15,7 +15,7 @@ from src.api_models import (
 )
 from src.consts import FIRST_DAY_SCORE_BONUS
 from src.db.db_session import get_db
-from src.db.db_models import PlayerCard, PlayerMove, User
+from src.db.db_models import PlayerCard, User
 from src.db.queries.players import change_player_score, get_players_by_score
 from src.enums import (
     BonusCardStatus,
@@ -23,7 +23,6 @@ from src.enums import (
     InstantCardResult,
     InstantCardType,
     MainBonusCardType,
-    PlayerMoveType,
     PlayerTurnState,
     Role,
     ScoreChangeType,
@@ -325,7 +324,7 @@ async def use_instant_card(
                 bonus_card_owner=current_user.id,
             )
         case InstantCardType.RECEIVE_SCORES_FOR_PLACE:
-            first_day = is_first_day()
+            first_day = await is_first_day(db)
             if first_day:
                 change = FIRST_DAY_SCORE_BONUS
                 await change_player_score(
@@ -383,7 +382,7 @@ async def use_instant_card(
                 bonus_card_owner=current_user.id,
             )
         case InstantCardType.LEADERS_LOSE_PERCENTS:
-            first_day = is_first_day()
+            first_day = await is_first_day(db)
             if first_day:
                 change = FIRST_DAY_SCORE_BONUS
                 await change_player_score(
@@ -414,7 +413,7 @@ async def use_instant_card(
                     )
 
         case InstantCardType.RECEIVE_5_PERCENT_OR_REROLL:
-            first_day = is_first_day()
+            first_day = await is_first_day(db)
             if first_day:
                 change = FIRST_DAY_SCORE_BONUS
                 await change_player_score(

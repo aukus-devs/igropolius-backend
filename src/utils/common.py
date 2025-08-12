@@ -1,8 +1,8 @@
 from sqlalchemy import distinct, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import BonusCardEvent
-from src.consts import SECTORS_COLORS_GROUPS
-from src.db.db_models import PlayerCard, PlayerGame, User
+from src.consts import FIRST_DAY_SECONDS, SECTORS_COLORS_GROUPS
+from src.db.db_models import EventSettings, PlayerCard, PlayerGame, User
 from src.enums import (
     BonusCardEventType,
     BonusCardStatus,
@@ -10,6 +10,7 @@ from src.enums import (
     GameCompletionType,
     InstantCardType,
 )
+from src.utils.db import utc_now_ts
 
 
 def get_closest_prison_sector(current_sector: int) -> int:
@@ -122,5 +123,14 @@ def is_instant_card(value: str) -> bool:
     return value in InstantCardsValues
 
 
-def is_first_day() -> bool:
-    return False
+async def is_first_day(db: AsyncSession) -> bool:
+    settings_query = select(EventSettings).where(
+        EventSettings.key_name == "event_start_time"
+    )
+    result = await db.execute(settings_query)
+    setting = result.scalar_one_or_none()
+    if setting is None:
+        return False
+    start_time = int(setting.value)
+    utc_now = utc_now_ts()
+    return utc_now < start_time + FIRST_DAY_SECONDS
