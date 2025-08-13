@@ -389,6 +389,7 @@ class UseInstantCardRequest(BaseModel):
 
 class UseInstantCardResponse(BaseModel):
     result: InstantCardResult | None = None
+    score_change: float | None = None
 
 
 class GameDurationRequest(BaseModel):

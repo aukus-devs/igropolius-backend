@@ -118,7 +118,6 @@
         "receive-1-percent-from-all",
         "receive-scores-for-place",
         "receive-5-percent-or-reroll",
-        "receive-3-percent",
         "leaders-lose-percents",
         "receive-1-percent-plus-20",
         "upgrade-next-building",
@@ -852,8 +851,7 @@
       "enum": [
         "reroll",
         "card-lost",
-        "score-received",
-        "scores-lost"
+        "score-change"
       ],
       "title": "InstantCardResult",
       "type": "string"
@@ -863,7 +861,6 @@
         "receive-1-percent-from-all",
         "receive-scores-for-place",
         "receive-5-percent-or-reroll",
-        "receive-3-percent",
         "leaders-lose-percents",
         "receive-1-percent-plus-20",
         "upgrade-next-building",
@@ -2267,6 +2264,18 @@
             }
           ],
           "default": null
+        },
+        "score_change": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score Change"
         }
       },
       "title": "UseInstantCardResponse",
