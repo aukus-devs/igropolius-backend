@@ -516,6 +516,8 @@ async def save_player_game(
             item_length_idx = GAME_LENGTHS_IN_ORDER.index(game.item_length)
 
             is_building_sector = target_sector in BUILDING_SECTORS
+            if target_sector == 1:
+                current_user.building_upgrade_bonus += 1
 
             if current_user.building_upgrade_bonus != 0 and is_building_sector:
                 bonus = current_user.building_upgrade_bonus
