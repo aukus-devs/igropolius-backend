@@ -1,7 +1,11 @@
 from sqlalchemy import distinct, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.api_models import BonusCardEvent
-from src.consts import FIRST_DAY_SECONDS, SECTORS_COLORS_GROUPS
+from src.consts import (
+    FIRST_DAY_SECONDS,
+    SECTORS_COLORS_GROUPS,
+    SECTOR_SCORE_MULTIPLIERS,
+)
 from src.db.db_models import EventSettings, PlayerCard, PlayerGame, User
 from src.enums import (
     BonusCardEventType,
@@ -134,3 +138,7 @@ async def is_first_day(db: AsyncSession) -> bool:
     start_time = int(setting.value)
     utc_now = utc_now_ts()
     return utc_now < start_time + FIRST_DAY_SECONDS
+
+
+def get_sector_score_multiplier(sector_id: int) -> float:
+    return SECTOR_SCORE_MULTIPLIERS.get(sector_id, 1)

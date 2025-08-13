@@ -202,7 +202,6 @@ class SavePlayerGameRequest(BaseModel):
     rating: float
     length: GameLength
     vod_links: str | None = None
-    scores: float
     game_id: int | None = None
 
 

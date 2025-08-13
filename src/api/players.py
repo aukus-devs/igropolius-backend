@@ -34,6 +34,8 @@ from src.consts import (
     DROP_SCORE_LOST_PERCENT,
     GAME_LENGTHS_IN_ORDER,
     PARKING_SECTOR_ID,
+    SCORE_BONUS_PER_MAP_COMPLETION,
+    SCORES_BY_GAME_LENGTH,
     START_SECTOR_ID,
     TRAIN_MAP,
     BONUS_SECTORS,
@@ -78,6 +80,7 @@ from src.utils.common import (
     get_bonus_cards_stolen_events,
     get_bonus_cards_used_events,
     get_closest_prison_sector,
+    get_sector_score_multiplier,
 )
 from src.utils.db import utc_now_ts
 
@@ -500,20 +503,31 @@ async def save_player_game(
 
     match request.status:
         case GameCompletionType.COMPLETED:
-            # TODO move score calculation to backend
-            await change_player_score(
-                db,
-                current_user,
-                request.scores,
-                ScoreChangeType.GAME_COMPLETED,
-                f"game completed: '{request.title}'",
-            )
-
             if game.item_length not in GAME_LENGTHS_IN_ORDER:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Invalid game length: {game.item_length}. Must be one of {GAME_LENGTHS_IN_ORDER}.",
                 )
+
+            multiplier = get_sector_score_multiplier(target_sector)
+            base_scores = SCORES_BY_GAME_LENGTH[request.length.value]
+            map_completion_bonus = (
+                current_user.maps_completed * SCORE_BONUS_PER_MAP_COMPLETION
+            )
+
+            total_bonus = base_scores * multiplier + map_completion_bonus
+
+            await change_player_score(
+                db,
+                current_user,
+                total_bonus,
+                ScoreChangeType.GAME_COMPLETED,
+                f"game completed: '{request.title}'",
+            )
+
+            await create_game_completed_notification(
+                db, current_user.id, total_bonus, request.title
+            )
 
             item_length_idx = GAME_LENGTHS_IN_ORDER.index(game.item_length)
 
@@ -552,22 +566,14 @@ async def save_player_game(
                 ScoreChangeType.GAME_DROPPED,
                 f"game dropped: '{request.title}'",
             )
+            await create_game_drop_notification(db, current_user.id, request.title)
+        case GameCompletionType.REROLL:
+            await create_game_reroll_notification(db, current_user.id, request.title)
 
     current_user.current_game = None
     current_user.current_game_updated_at = None
     current_user.current_game_cover = None
     await save_category_history(db, current_user.id, "NewPlayerGame")
-
-    match request.status:
-        case GameCompletionType.COMPLETED:
-            await create_game_completed_notification(
-                db, current_user.id, request.scores, request.title
-            )
-        case GameCompletionType.REROLL:
-            await create_game_reroll_notification(db, current_user.id, request.title)
-        case GameCompletionType.DROP:
-            await create_game_drop_notification(db, current_user.id, request.title)
-
     return {"new_sector_id": current_user.sector_id}
 
 
