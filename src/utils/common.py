@@ -11,6 +11,7 @@ from src.enums import (
     BonusCardEventType,
     BonusCardStatus,
     BonusCardType,
+    EventSetting,
     GameCompletionType,
     InstantCardType,
 )
@@ -127,15 +128,20 @@ def is_instant_card(value: str) -> bool:
     return value in InstantCardsValues
 
 
+async def get_event_setting(db: AsyncSession, setting: EventSetting) -> str | None:
+    query = select(EventSettings).where(EventSettings.key_name == setting.value)
+    result = await db.execute(query)
+    db_setting = result.scalar_one_or_none()
+    if db_setting:
+        return db_setting.value
+    return None
+
+
 async def is_first_day(db: AsyncSession) -> bool:
-    settings_query = select(EventSettings).where(
-        EventSettings.key_name == "event_start_time"
-    )
-    result = await db.execute(settings_query)
-    setting = result.scalar_one_or_none()
+    setting = await get_event_setting(db, EventSetting.EVENT_START_TIME)
     if setting is None:
         return False
-    start_time = int(setting.value)
+    start_time = int(setting)
     utc_now = utc_now_ts()
     return utc_now < start_time + FIRST_DAY_SECONDS
 

@@ -180,3 +180,10 @@ class RulesCategory(Enum):
     GENERAL = "general"
     GAMEPLAY = "gameplay"
     DONATIONS = "donations"
+
+
+class EventSetting(Enum):
+    INSTANT_CARD_SCORE_MULTIPLIER = "instant_card_score_multiplier"
+    EVENT_START_TIME = "event_start_time"
+    EVENT_END_TIME = "event_end_time"
+    ENDPOINT_RESET_DB_ENABLED = "endpoint_reset_db_enabled"

@@ -20,6 +20,7 @@ from src.db.queries.players import change_player_score, get_players_by_score
 from src.enums import (
     BonusCardStatus,
     BonusCardType,
+    EventSetting,
     InstantCardResult,
     InstantCardType,
     MainBonusCardType,
@@ -28,7 +29,7 @@ from src.enums import (
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user, get_current_user_for_update
-from src.utils.common import is_first_day
+from src.utils.common import get_event_setting, is_first_day
 from src.utils.db import utc_now_ts
 from src.db.queries.notifications import (
     create_card_lost_notification,
@@ -288,6 +289,10 @@ async def use_instant_card(
             detail="Player sector or score is not set",
         )
 
+    score_multiplier = float(
+        await get_event_setting(db, EventSetting.INSTANT_CARD_SCORE_MULTIPLIER) or 1
+    )
+
     response = UseInstantCardResponse()
     match request.card_type:
         # case InstantCardType.RECEIVE_3_PERCENT:
@@ -302,7 +307,7 @@ async def use_instant_card(
         #         bonus_card_owner=current_user.id,
         #     )
         case InstantCardType.RECEIVE_1_PERCENT_PLUS_20:
-            change = 10
+            change = 10 * score_multiplier
             await change_player_score(
                 db,
                 current_user,
@@ -315,7 +320,7 @@ async def use_instant_card(
             response.result = InstantCardResult.SCORE_CHANGE
             response.score_change = change
         case InstantCardType.LOSE_2_PERCENTS:
-            change = -4
+            change = -4 * score_multiplier
             await change_player_score(
                 db,
                 current_user,
@@ -346,7 +351,7 @@ async def use_instant_card(
                 players = await get_players_by_score(db)
                 for i, player in enumerate(players):
                     if player.id == current_user.id:
-                        change = i + 1
+                        change = (i + 1) * score_multiplier
                         await change_player_score(
                             db,
                             current_user,
@@ -367,7 +372,7 @@ async def use_instant_card(
                     continue
 
                 if player.id != current_user.id:
-                    change = 3
+                    change = 3 * score_multiplier
                     await change_player_score(
                         db,
                         player,
@@ -412,7 +417,7 @@ async def use_instant_card(
                     if player.total_score is None:
                         continue
 
-                    change = scores_lost[i]
+                    change = scores_lost[i] * score_multiplier
                     await change_player_score(
                         db,
                         player,
@@ -447,7 +452,7 @@ async def use_instant_card(
                     player.id == current_user.id for player in last_3_places
                 )
 
-                change = 8 if in_last_3_places else -4
+                change = (8 if in_last_3_places else -4) * score_multiplier
                 await change_player_score(
                     db,
                     current_user,
@@ -485,7 +490,7 @@ async def use_instant_card(
                 )
                 cards = cards_query.scalars().all()
                 if not cards:
-                    change = -6
+                    change = -6 * score_multiplier
                     await change_player_score(
                         db,
                         current_user,
@@ -517,7 +522,7 @@ async def use_instant_card(
             if not cards:
                 response.result = InstantCardResult.REROLL
             else:
-                change = len(cards) * 2
+                change = len(cards) * (1 + score_multiplier)
                 await change_player_score(
                     db,
                     current_user,

@@ -1884,10 +1884,6 @@
           "default": null,
           "title": "Vod Links"
         },
-        "scores": {
-          "title": "Scores",
-          "type": "number"
-        },
         "game_id": {
           "anyOf": [
             {
@@ -1906,8 +1902,7 @@
         "title",
         "review",
         "rating",
-        "length",
-        "scores"
+        "length"
       ],
       "title": "SavePlayerGameRequest",
       "type": "object"
