@@ -302,7 +302,7 @@ async def use_instant_card(
         #         bonus_card_owner=current_user.id,
         #     )
         case InstantCardType.RECEIVE_1_PERCENT_PLUS_20:
-            change = 20
+            change = 10
             await change_player_score(
                 db,
                 current_user,

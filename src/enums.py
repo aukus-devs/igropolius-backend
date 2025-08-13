@@ -118,7 +118,7 @@ class InstantCardType(Enum):
     # RECEIVE_3_PERCENT = "receive-3-percent"
     # 5 А вот это явно не моя проблема —  первые три места в таблице лидеров теряют (5, 4, 3) очков. В перый игровой день, пока места не распределены - получите (5) очков.
     LEADERS_LOSE_PERCENTS = "leaders-lose-percents"
-    # 6 Просто мы нашли резинку — получите (20) очков.
+    # 6 Просто мы нашли резинку — получите (10) очков.
     RECEIVE_1_PERCENT_PLUS_20 = "receive-1-percent-plus-20"
     # 7 Он собирает установку — плюс один тир следующего здания.
     UPGRADE_NEXT_BUILDING = "upgrade-next-building"
