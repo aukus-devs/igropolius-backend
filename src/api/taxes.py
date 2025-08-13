@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import PayTaxRequest
 from src.consts import (
+    MAP_TAX_MINIMUM,
     MAP_TAX_PERCENT,
     SCORES_BY_GAME_LENGTH,
     STREET_INCOME_GROUP_OWNER_MULTILIER,
@@ -47,17 +48,17 @@ async def pay_tax(
         )
 
     if request.tax_type == TaxType.MAP_TAX:
-        # tax is 5% from current player score
-        income_amount = round(current_user.total_score * MAP_TAX_PERCENT, 2)
+        tax_base = round(abs(current_user.total_score) * MAP_TAX_PERCENT, 2)
+        tax_amount = max(tax_base, MAP_TAX_MINIMUM)
         await change_player_score(
             db,
             player=current_user,
-            score_change=-income_amount,
+            score_change=-tax_amount,
             change_type=ScoreChangeType.MAP_TAX,
-            description="map tax 10%",
+            description="map tax 10% or 10",
         )
 
-        await create_map_tax_notification(db, current_user.id, income_amount)
+        await create_map_tax_notification(db, current_user.id, tax_amount)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     if request.tax_type == TaxType.STREET_TAX:
