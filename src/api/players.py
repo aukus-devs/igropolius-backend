@@ -520,7 +520,9 @@ async def save_player_game(
             is_building_sector = target_sector in BUILDING_SECTORS
             if target_sector == START_SECTOR_ID:
                 current_user.building_upgrade_bonus += 1
-            if target_sector == PARKING_SECTOR_ID:
+            elif target_sector == PARKING_SECTOR_ID:
+                current_user.building_upgrade_bonus += 2
+            elif target_sector in BONUS_SECTORS:
                 current_user.building_upgrade_bonus += 2
 
             if current_user.building_upgrade_bonus != 0 and is_building_sector:
@@ -537,9 +539,6 @@ async def save_player_game(
                     game.item_length = GAME_LENGTHS_IN_ORDER[current_stage_idx]
                     game.item_length_bonus += step
                     current_user.building_upgrade_bonus -= step
-
-            if target_sector in BONUS_SECTORS:
-                current_user.building_upgrade_bonus += 2
 
         case GameCompletionType.DROP:
             score_lost = max(
