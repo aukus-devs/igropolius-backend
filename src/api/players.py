@@ -33,6 +33,8 @@ from src.consts import (
     DROP_SCORE_LOST_MINIMUM,
     DROP_SCORE_LOST_PERCENT,
     GAME_LENGTHS_IN_ORDER,
+    PARKING_SECTOR_ID,
+    START_SECTOR_ID,
     TRAIN_MAP,
     BONUS_SECTORS,
 )
@@ -516,8 +518,10 @@ async def save_player_game(
             item_length_idx = GAME_LENGTHS_IN_ORDER.index(game.item_length)
 
             is_building_sector = target_sector in BUILDING_SECTORS
-            if target_sector == 1:
+            if target_sector == START_SECTOR_ID:
                 current_user.building_upgrade_bonus += 1
+            if target_sector == PARKING_SECTOR_ID:
+                current_user.building_upgrade_bonus += 2
 
             if current_user.building_upgrade_bonus != 0 and is_building_sector:
                 bonus = current_user.building_upgrade_bonus
