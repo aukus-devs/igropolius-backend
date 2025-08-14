@@ -2,8 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 
-from src.db.db_models import PlayerScoreChange, User
-from src.enums import BonusCardType, ScoreChangeType
+from src.db.db_models import PlayerCard, PlayerScoreChange, User
+from src.enums import ScoreChangeType
 
 
 async def get_players_by_score(
@@ -34,11 +34,13 @@ async def change_player_score(
     change_type: ScoreChangeType,
     description: str,
     income_from_player: User | None = None,
-    bonus_card: BonusCardType | None = None,
-    bonus_card_owner: int | None = None,
+    player_card: PlayerCard | None = None,
 ) -> User:
     if not db.in_transaction():
         raise ValueError("Database session must be in a transaction")
+
+    if change_type == ScoreChangeType.INSTANT_CARD and not player_card:
+        raise ValueError("Player card must be provided for INSTANT_CARD score change")
 
     if (
         player.sector_id is None
@@ -68,8 +70,9 @@ async def change_player_score(
         description=description,
         sector_id=sector_id,
         income_from_player=income_from_player_id,
-        bonus_card=bonus_card.value if bonus_card else None,
-        bonus_card_owner=bonus_card_owner,
+        bonus_card=player_card.card_type if player_card else None,
+        bonus_card_owner=player_card.player_id if player_card else None,
+        player_card_id=player_card.id if player_card else None,
     )
     db.add(score_change)
     player.total_score = after

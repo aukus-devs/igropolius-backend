@@ -273,8 +273,16 @@ async def get_player_events(
         select(PlayerScoreChange).where(PlayerScoreChange.player_id == player_id)
     )
     score_changes = scores_query.scalars().all()
-    score_change_events = [
-        ScoreChangeEvent(
+    score_change_events = []
+    for e in score_changes:
+        player_card = None
+        if e.player_card_id:
+            player_card_query = await db.execute(
+                select(PlayerCard).where(PlayerCard.id == e.player_card_id)
+            )
+            player_card = player_card_query.scalars().first()
+
+        event = ScoreChangeEvent(
             event_type="score-change",
             subtype=ScoreChangeType(e.change_type),
             amount=e.score_change,
@@ -286,9 +294,12 @@ async def get_player_events(
             income_from_player=e.income_from_player,
             bonus_card=e.bonus_card,
             bonus_card_owner=e.bonus_card_owner,
+            instant_card_score_multiplier=player_card.instant_card_score_multiplier
+            if player_card
+            else None,
         )
-        for e in score_changes
-    ]
+        score_change_events.append(event)
+
     all_events = chain(move_events, game_events, bonus_card_events, score_change_events)
     return {"events": all_events}
 

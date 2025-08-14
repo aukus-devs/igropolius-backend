@@ -19,7 +19,6 @@ from src.db.db_models import PlayerCard, User
 from src.db.queries.players import change_player_score, get_players_by_score
 from src.enums import (
     BonusCardStatus,
-    BonusCardType,
     EventSetting,
     InstantCardResult,
     InstantCardType,
@@ -293,6 +292,18 @@ async def use_instant_card(
         await get_event_setting(db, EventSetting.INSTANT_CARD_SCORE_MULTIPLIER) or 1
     )
 
+    bonus_card = PlayerCard(
+        player_id=current_user.id,
+        card_type=request.card_type.value,
+        received_on_sector=current_user.sector_id,
+        status=BonusCardStatus.USED.value,
+        used_at=utc_now_ts(),
+        used_on_sector=current_user.sector_id,
+        instant_card_score_multiplier=score_multiplier,
+    )
+    db.add(bonus_card)
+    await db.flush()
+
     response = UseInstantCardResponse()
     match request.card_type:
         # case InstantCardType.RECEIVE_3_PERCENT:
@@ -314,8 +325,7 @@ async def use_instant_card(
                 change,
                 ScoreChangeType.INSTANT_CARD,
                 "Received 20 scores from instant card",
-                bonus_card=BonusCardType(request.card_type.value),
-                bonus_card_owner=current_user.id,
+                player_card=bonus_card,
             )
             response.result = InstantCardResult.SCORE_CHANGE
             response.score_change = change
@@ -327,8 +337,7 @@ async def use_instant_card(
                 change,
                 ScoreChangeType.INSTANT_CARD,
                 "Lost 4 scores from instant card",
-                bonus_card=BonusCardType(request.card_type.value),
-                bonus_card_owner=current_user.id,
+                player_card=bonus_card,
             )
             response.result = InstantCardResult.SCORE_CHANGE
             response.score_change = change
@@ -342,8 +351,7 @@ async def use_instant_card(
                     change,
                     ScoreChangeType.INSTANT_CARD,
                     "Received first day bonus from instant card",
-                    bonus_card=BonusCardType(request.card_type.value),
-                    bonus_card_owner=current_user.id,
+                    player_card=bonus_card,
                 )
                 response.result = InstantCardResult.SCORE_CHANGE
                 response.score_change = change
@@ -358,8 +366,7 @@ async def use_instant_card(
                             change,
                             ScoreChangeType.INSTANT_CARD,
                             f"Received scores for place {i + 1} from instant card",
-                            bonus_card=BonusCardType(request.card_type.value),
-                            bonus_card_owner=current_user.id,
+                            player_card=bonus_card,
                         )
                         response.result = InstantCardResult.SCORE_CHANGE
                         response.score_change = change
@@ -379,8 +386,7 @@ async def use_instant_card(
                         -change,
                         ScoreChangeType.INSTANT_CARD,
                         f"Sent 3 to {current_user.username} from instant card",
-                        bonus_card=BonusCardType(request.card_type.value),
-                        bonus_card_owner=current_user.id,
+                        player_card=bonus_card,
                     )
                     receive_total += change
 
@@ -390,8 +396,7 @@ async def use_instant_card(
                 receive_total,
                 ScoreChangeType.INSTANT_CARD,
                 "Received 3 from all players from instant card",
-                bonus_card=BonusCardType(request.card_type.value),
-                bonus_card_owner=current_user.id,
+                player_card=bonus_card,
             )
             response.result = InstantCardResult.SCORE_CHANGE
             response.score_change = receive_total
@@ -405,8 +410,7 @@ async def use_instant_card(
                     change,
                     ScoreChangeType.INSTANT_CARD,
                     "Received first day bonus from instant card",
-                    bonus_card=BonusCardType(request.card_type.value),
-                    bonus_card_owner=current_user.id,
+                    player_card=bonus_card,
                 )
                 response.result = InstantCardResult.SCORE_CHANGE
                 response.score_change = change
@@ -424,8 +428,7 @@ async def use_instant_card(
                         change,
                         ScoreChangeType.INSTANT_CARD,
                         f"Place {i} lost {change} from instant card",
-                        bonus_card=BonusCardType(request.card_type.value),
-                        bonus_card_owner=current_user.id,
+                        player_card=bonus_card,
                     )
                     if player.id == current_user.id:
                         response.result = InstantCardResult.SCORE_CHANGE
@@ -441,8 +444,7 @@ async def use_instant_card(
                     change,
                     ScoreChangeType.INSTANT_CARD,
                     "Received first day bonus from instant card",
-                    bonus_card=BonusCardType(request.card_type.value),
-                    bonus_card_owner=current_user.id,
+                    player_card=bonus_card,
                 )
             else:
                 players = await get_players_by_score(db)
@@ -459,8 +461,7 @@ async def use_instant_card(
                     change,
                     ScoreChangeType.INSTANT_CARD,
                     "Received 8 bonus for being in last 3 places from instant card",
-                    bonus_card=BonusCardType(request.card_type.value),
-                    bonus_card_owner=current_user.id,
+                    player_card=bonus_card,
                 )
                 response.result = InstantCardResult.SCORE_CHANGE
                 response.score_change = change
@@ -497,8 +498,7 @@ async def use_instant_card(
                         change,
                         ScoreChangeType.INSTANT_CARD,
                         "Lost 3% for not losing a card",
-                        bonus_card=BonusCardType(request.card_type.value),
-                        bonus_card_owner=current_user.id,
+                        player_card=bonus_card,
                     )
                     response.result = InstantCardResult.SCORE_CHANGE
                     response.score_change = change
@@ -529,8 +529,7 @@ async def use_instant_card(
                     change,
                     ScoreChangeType.INSTANT_CARD,
                     f"Received scores for {len} active cards",
-                    bonus_card=BonusCardType(request.card_type.value),
-                    bonus_card_owner=current_user.id,
+                    player_card=bonus_card,
                 )
                 response.result = InstantCardResult.SCORE_CHANGE
                 response.score_change = change
@@ -539,15 +538,5 @@ async def use_instant_card(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid instant card type",
             )
-
-    bonus_card = PlayerCard(
-        player_id=current_user.id,
-        card_type=request.card_type.value,
-        received_on_sector=current_user.sector_id,
-        status=BonusCardStatus.USED.value,
-        used_at=utc_now_ts(),
-        used_on_sector=current_user.sector_id,
-    )
-    db.add(bonus_card)
 
     return response

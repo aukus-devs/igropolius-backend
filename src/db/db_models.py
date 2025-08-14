@@ -100,6 +100,7 @@ class PlayerScoreChange(DbBase):
     income_from_player: Mapped[int | None] = mapped_column(Integer, nullable=True)
     bonus_card: Mapped[str | None] = mapped_column(String(255), nullable=True)
     bonus_card_owner: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    player_card_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
 
 class PlayerCard(DbBase):
@@ -125,6 +126,9 @@ class PlayerCard(DbBase):
     stolen_from_player: Mapped[int | None] = mapped_column(Integer, nullable=True)
     player_move_id: Mapped[int | None] = mapped_column(
         Integer, nullable=True, index=True
+    )
+    instant_card_score_multiplier: Mapped[float | None] = mapped_column(
+        Float, nullable=True, default=None
     )
 
 

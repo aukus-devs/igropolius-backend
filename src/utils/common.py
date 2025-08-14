@@ -49,6 +49,7 @@ def get_bonus_cards_used_events(cards: list[PlayerCard]) -> list[BonusCardEvent]
                 bonus_type=BonusCardType(card.card_type),
                 sector_id=card.used_on_sector,
                 timestamp=card.used_at or card.updated_at,
+                instant_card_score_multiplier=card.instant_card_score_multiplier,
             )
             events.append(event)
     return events

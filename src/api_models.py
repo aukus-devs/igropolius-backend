@@ -135,6 +135,7 @@ class ScoreChangeEvent(PlayerEventBase):
     income_from_player: int | None = None
     bonus_card: BonusCardType | None = None
     bonus_card_owner: int | None = None
+    instant_card_score_multiplier: float | None = None
 
 
 class BonusCardEvent(PlayerEventBase):
@@ -144,6 +145,7 @@ class BonusCardEvent(PlayerEventBase):
     sector_id: int | None = None
     stolen_from_player: int | None = None
     stolen_by: int | None = None
+    instant_card_score_multiplier: float | None = None
 
 
 class GameEvent(PlayerEventBase):
