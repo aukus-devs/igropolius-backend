@@ -84,6 +84,18 @@
           ],
           "default": null,
           "title": "Stolen By"
+        },
+        "instant_card_score_multiplier": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Instant Card Score Multiplier"
         }
       },
       "required": [
@@ -1990,6 +2002,18 @@
           ],
           "default": null,
           "title": "Bonus Card Owner"
+        },
+        "instant_card_score_multiplier": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Instant Card Score Multiplier"
         }
       },
       "required": [
