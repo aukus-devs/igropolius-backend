@@ -65,17 +65,15 @@ async def pay_tax(
         games_query = await db.execute(
             select(PlayerGame)
             .where(PlayerGame.sector_id == current_user.sector_id)
-            .where(PlayerGame.player_id != current_user.id)
             .where(PlayerGame.type == GameCompletionType.COMPLETED.value)
         )
         games = list(games_query.scalars().all())
-        if not games:
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        other_players_ids = [
+            game.player_id for game in games if game.player_id != current_user.id
+        ]
 
         players_query = await db.execute(
-            select(User)
-            .where(User.id.in_([game.player_id for game in games]))
-            .with_for_update()
+            select(User).where(User.id.in_(other_players_ids)).with_for_update()
         )
         players = players_query.scalars().all()
 
@@ -119,16 +117,36 @@ async def pay_tax(
             )
 
         total_tax = sum(tax_payments) * STREET_TAX_PAYER_MULTILIER
+
+        my_games = [game for game in games if game.player_id == current_user.id]
+        my_multiplier = STREET_INCOME_MULTILIER
+        if sector_group:
+            owns_sector_group = await player_owns_sectors_group(
+                db, current_user, sector_group
+            )
+            if owns_sector_group:
+                my_multiplier = STREET_INCOME_GROUP_OWNER_MULTILIER
+
+        my_sector_bonus = 0
+        for game in my_games:
+            income_amount = (
+                SCORES_BY_GAME_LENGTH.get(game.item_length, 0) * my_multiplier
+            )
+            income_amount = round(income_amount, 2)
+            my_sector_bonus += income_amount
+
+        total_change = min(my_sector_bonus - total_tax, 0)
+
         await change_player_score(
             db,
             player=current_user,
-            score_change=-total_tax,
+            score_change=total_change,
             change_type=ScoreChangeType.STREET_TAX,
             description=f"street tax for {len(games)} games",
         )
 
         await create_sector_tax_notification(
-            db, current_user.id, total_tax, current_user.sector_id
+            db, current_user.id, total_change, current_user.sector_id
         )
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
