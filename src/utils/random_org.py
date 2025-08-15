@@ -100,10 +100,9 @@ async def get_random_numbers(
             else:
                 error_message = "no response"
             logger.error(error_message)
-
+            error = Exception(error_message)
             try:
                 async with get_session() as session:
-                    error = Exception(error_message)
                     await log_error_to_db(
                         session=session,
                         error=error,
