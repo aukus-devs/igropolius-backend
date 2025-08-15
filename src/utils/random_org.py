@@ -120,7 +120,7 @@ async def get_random_numbers(
                 random_org_check_form=None,
                 data=data,
                 random_org_response=response.text if response else None,
-                random_org_fail_reason=error_message,
+                random_org_fail_reason=f"{getattr(type(error), '__name__', 'UnknownError')}: {error_message}",
             )
             return result
 
@@ -145,6 +145,6 @@ async def get_random_numbers(
             random_org_check_form=None,
             data=data,
             random_org_response=None,
-            random_org_fail_reason=str(e),
+            random_org_fail_reason=f"{getattr(type(e), '__name__', 'UnknownError')}: {str(e)}",
         )
         return result

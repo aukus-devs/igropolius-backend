@@ -28,7 +28,7 @@ async def log_error_to_db(
 
     error_log = ErrorLog(
         player_id=player_id,
-        error_type=type(error).__name__,
+        error_type=getattr(type(error), "__name__", "UnknownError"),
         error_message=str(error),
         function_name=function_name,
         context=context,
@@ -47,8 +47,8 @@ async def reset_database(db: AsyncSession):
         PlayerGame,
         PlayerMove,
         PlayerScoreChange,
-        User,
         Rules,
+        User,
     )
     from src.enums import PlayerTurnState
 
