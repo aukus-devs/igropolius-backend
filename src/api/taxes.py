@@ -146,7 +146,7 @@ async def pay_tax(
         )
 
         await create_sector_tax_notification(
-            db, current_user.id, total_change, current_user.sector_id
+            db, current_user.id, abs(total_change), current_user.sector_id
         )
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
