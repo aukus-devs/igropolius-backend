@@ -52,16 +52,21 @@ async def reset_database(db: AsyncSession):
     )
     from src.enums import PlayerTurnState
 
-    # reset rules to the latest version for each category
-    rules_ids_by_category_query = select(
+    # reset rules to the before specific date
+    rules_max_ids_by_category_query = select(
         Rules.category, func.max(Rules.id).label("max_id")
     ).group_by(Rules.category)
 
-    rules_by_category = await db.execute(rules_ids_by_category_query)
+    delete_to_date = datetime(2025, 8, 14, 0, 0, tzinfo=timezone.utc)
+    date_ts = int(delete_to_date.timestamp())
+
+    rules_by_category = await db.execute(rules_max_ids_by_category_query)
     for category, max_id in rules_by_category:
         if max_id is not None:
             delete_rules_query = delete(Rules).where(
-                Rules.category == category, Rules.id != max_id
+                Rules.category == category,
+                Rules.id != max_id,
+                Rules.created_at < date_ts,
             )
             await db.execute(delete_rules_query)
 
