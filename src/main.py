@@ -1,4 +1,5 @@
 import logging
+
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -7,6 +8,7 @@ from src.api import (
     bonus_cards,
     dice,
     event_settings,
+    hltb,
     igdb,
     internal,
     notifications,
@@ -74,6 +76,7 @@ app.include_router(rules.router)
 app.include_router(bonus_cards.router)
 app.include_router(taxes.router)
 app.include_router(igdb.router)
+app.include_router(hltb.router)
 app.include_router(dice.router)
 app.include_router(event_settings.router)
 app.include_router(internal.router)

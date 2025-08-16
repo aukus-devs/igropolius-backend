@@ -230,6 +230,43 @@ class Notification(DbBase):
     message_text: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
+class HltbGame(DbBase):
+    __tablename__ = "hltb_games"
+
+    game_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    game_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    game_name_date: Mapped[int] = mapped_column(Integer, nullable=False)
+    game_alias: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    game_type: Mapped[str] = mapped_column(String(7), nullable=False)
+    game_image: Mapped[str] = mapped_column(String(99), nullable=False)
+    comp_lvl_combine: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_lvl_sp: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_lvl_co: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_lvl_mp: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_main: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_plus: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_100: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_all: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_main_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_plus_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_100_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    comp_all_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    invested_co: Mapped[int] = mapped_column(Integer, nullable=False)
+    invested_mp: Mapped[int] = mapped_column(Integer, nullable=False)
+    invested_co_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    invested_mp_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    count_comp: Mapped[int] = mapped_column(Integer, nullable=False)
+    count_speedrun: Mapped[int] = mapped_column(Integer, nullable=False)
+    count_backlog: Mapped[int] = mapped_column(Integer, nullable=False)
+    count_review: Mapped[int] = mapped_column(Integer, nullable=False)
+    review_score: Mapped[int] = mapped_column(Integer, nullable=False)
+    count_playing: Mapped[int] = mapped_column(Integer, nullable=False)
+    count_retired: Mapped[int] = mapped_column(Integer, nullable=False)
+    profile_platform: Mapped[str | None] = mapped_column(Text, nullable=True)
+    profile_popular: Mapped[int] = mapped_column(Integer, nullable=False)
+    release_world: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
 class EventSettings(DbBase):
     __tablename__ = "event_settings"
 
