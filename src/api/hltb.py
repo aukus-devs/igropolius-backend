@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException
-from sqlalchemy import and_, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
@@ -36,7 +36,12 @@ async def get_random_game(
             ]
         )
 
-    query = select(HltbGame).where(and_(*query_conditions)).limit(12)
+    query = (
+        select(HltbGame)
+        .where(and_(*query_conditions))
+        .order_by(func.random())
+        .limit(request.limit)
+    )
 
     result = await db.execute(query)
     games = result.scalars().all()

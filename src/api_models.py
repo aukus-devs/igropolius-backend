@@ -1,4 +1,5 @@
 from pydantic import BaseModel as PydanticBaseModel
+from pydantic import Field, field_validator
 from typing_extensions import Literal
 
 from src.enums import (
@@ -309,6 +310,24 @@ class HltbGameResponse(BaseModel):
 class HltbRandomGameRequest(BaseModel):
     min_length: int | None = None
     max_length: int | None = None
+    limit: int = Field(default=12, ge=1, le=16)
+
+    @field_validator("min_length", "max_length")
+    @classmethod
+    def validate_time_hours(cls, v):
+        if v is not None and (v < 1 or v > 300):
+            raise ValueError("Time must be between 1 and 300 hours")
+        return v
+
+    @field_validator("max_length")
+    @classmethod
+    def validate_max_greater_than_min(cls, v, info):
+        if v is not None and info.data.get("min_length") is not None:
+            if v < info.data["min_length"]:
+                raise ValueError(
+                    "max_length must be greater than or equal to min_length"
+                )
+        return v
 
 
 class HltbGamesListResponse(BaseModel):
