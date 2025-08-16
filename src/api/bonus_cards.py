@@ -359,13 +359,13 @@ async def use_instant_card(
                 players = await get_players_by_score(db)
                 for i, player in enumerate(players):
                     if player.id == current_user.id:
-                        change = (i + 1) * score_multiplier
+                        change = (i + 2) * score_multiplier
                         await change_player_score(
                             db,
                             current_user,
                             change,
                             ScoreChangeType.INSTANT_CARD,
-                            f"Received scores for place {i + 1} from instant card",
+                            f"Received 2x scores for place {i + 1} from instant card",
                             player_card=bonus_card,
                         )
                         response.result = InstantCardResult.SCORE_CHANGE
