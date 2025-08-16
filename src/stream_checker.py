@@ -335,7 +335,7 @@ async def _check_kick_stream(player: User, db: AsyncSession) -> bool:
             )
 
             if game_name != player.current_game or not player.is_online:
-                if not has_completed_game:
+                if not has_completed_game and game_name != "Slots & Casino":
                     player.is_online = 1
                     player.online_count = viewer_count
                     player.current_game = game_name
