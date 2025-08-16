@@ -379,13 +379,13 @@ async def use_instant_card(
                     continue
 
                 if player.id != current_user.id:
-                    change = 3 * score_multiplier
+                    change = 1 * score_multiplier
                     await change_player_score(
                         db,
                         player,
                         -change,
                         ScoreChangeType.INSTANT_CARD,
-                        f"Sent 3 to {current_user.username} from instant card",
+                        f"Sent 1 to {current_user.username} from instant card",
                         player_card=bonus_card,
                     )
                     receive_total += change
@@ -395,7 +395,7 @@ async def use_instant_card(
                 current_user,
                 receive_total,
                 ScoreChangeType.INSTANT_CARD,
-                "Received 3 from all players from instant card",
+                "Received 1 from all players from instant card",
                 player_card=bonus_card,
             )
             response.result = InstantCardResult.SCORE_CHANGE
