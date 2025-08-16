@@ -5,6 +5,7 @@ from src.enums import (
     BonusCardEventType,
     BonusCardType,
     GameCompletionType,
+    GameDifficulty,
     GameLength,
     InstantCardResult,
     InstantCardType,
@@ -43,6 +44,7 @@ class PlayerGame(BaseModel):
     vod_links: str | None = None
     cover: str | None = None
     game_id: int | None = None
+    difficulty_level: GameDifficulty
 
 
 class ActiveBonusCard(BaseModel):
@@ -81,7 +83,7 @@ class PlayerDetails(BaseModel):
     color: str
     model_name: str
     building_upgrade_bonus: int
-    game_difficulty_level: int
+    game_difficulty_level: GameDifficulty
 
 
 class PlayerListResponse(BaseModel):
@@ -206,6 +208,7 @@ class SavePlayerGameRequest(BaseModel):
     length: GameLength
     vod_links: str | None = None
     game_id: int | None = None
+    difficulty_level: GameDifficulty | None = None
 
 
 class SavePlayerGameResponse(BaseModel):

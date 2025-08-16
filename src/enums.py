@@ -193,3 +193,9 @@ class EventSetting(Enum):
     EVENT_START_TIME = "event_start_time"
     EVENT_END_TIME = "event_end_time"
     ENDPOINT_RESET_DB_ENABLED = "endpoint_reset_db_enabled"
+
+
+class GameDifficulty(Enum):
+    EASY = -1
+    NORMAL = 0
+    HARD = 1

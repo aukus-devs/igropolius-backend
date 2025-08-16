@@ -66,6 +66,7 @@ from src.db.queries.players import change_player_score
 from src.enums import (
     BonusCardStatus,
     GameCompletionType,
+    GameDifficulty,
     MainBonusCardType,
     PlayerMoveType,
     PlayerTurnState,
@@ -136,6 +137,7 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
                 game_id=g.game_id
                 if g.game_id and g.game_id in igdb_games_dict
                 else None,
+                difficulty_level=GameDifficulty(g.difficulty_level),
             )
             for g in games
             if g.player_id == user.id
@@ -564,6 +566,10 @@ async def save_player_game(
                     game.item_length = GAME_LENGTHS_IN_ORDER[current_stage_idx]
                     game.item_length_bonus += step
                     current_user.building_upgrade_bonus -= step
+
+            if request.difficulty_level:
+                game.difficulty_level = request.difficulty_level.value
+                current_user.game_difficulty_level = 0
 
         case GameCompletionType.DROP:
             score_lost = max(

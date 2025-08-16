@@ -652,6 +652,15 @@
       "title": "GameCompletionType",
       "type": "string"
     },
+    "GameDifficulty": {
+      "enum": [
+        -1,
+        0,
+        1
+      ],
+      "title": "GameDifficulty",
+      "type": "integer"
+    },
     "GameDurationRequest": {
       "additionalProperties": false,
       "properties": {
@@ -1455,8 +1464,7 @@
           "type": "integer"
         },
         "game_difficulty_level": {
-          "title": "Game Difficulty Level",
-          "type": "integer"
+          "$ref": "#/$defs/GameDifficulty"
         }
       },
       "required": [
@@ -1610,6 +1618,9 @@
           ],
           "default": null,
           "title": "Game Id"
+        },
+        "difficulty_level": {
+          "$ref": "#/$defs/GameDifficulty"
         }
       },
       "required": [
@@ -1622,7 +1633,8 @@
         "review",
         "rating",
         "length",
-        "length_bonus"
+        "length_bonus",
+        "difficulty_level"
       ],
       "title": "PlayerGame",
       "type": "object"
@@ -1916,6 +1928,17 @@
           ],
           "default": null,
           "title": "Game Id"
+        },
+        "difficulty_level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GameDifficulty"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
