@@ -53,6 +53,9 @@ class User(DbBase):
     color: Mapped[str | None] = mapped_column(String(255), nullable=True)
     model_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     moder_for: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    game_difficulty_level: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=False
+    )
 
     # default for pydantic conversions
     games = []

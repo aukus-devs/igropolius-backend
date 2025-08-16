@@ -533,6 +533,20 @@ async def use_instant_card(
                 )
                 response.result = InstantCardResult.SCORE_CHANGE
                 response.score_change = change
+        case InstantCardType.INCREASE_DIFFICULTY:
+            current_user.game_difficulty_level += 1
+            if current_user.game_difficulty_level > 1:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Cannot increase difficulty level beyond 1",
+                )
+        case InstantCardType.DECREASE_DIFFICULTY:
+            current_user.game_difficulty_level -= 1
+            if current_user.game_difficulty_level < -1:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Cannot decrease difficulty level below -1",
+                )
         case _:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

@@ -135,6 +135,9 @@ class InstantCardType(Enum):
     # 13 Коллекционер — получите количество очков, равное удвоенному количеству ваших карточек. Если карточек нет - реролл колеса.
     RECEVIE_SCORES_FOR_ACTIVE_CARDS = "receive-scores-for-active-cards"
 
+    INCREASE_DIFFICULTY = "increase-difficulty"
+    DECREASE_DIFFICULTY = "decrease-difficulty"
+
 
 class InstantCardResult(Enum):
     REROLL = "reroll"
@@ -164,6 +167,9 @@ class BonusCardType(Enum):
     REROLL_AND_ROLL = "reroll-and-roll"
     LOSE_CARD_OR_3_PERCENT = "lose-card-or-3-percent"
     RECEVIE_SCORES_FOR_ACTIVE_CARDS = "receive-scores-for-active-cards"
+
+    INCREASE_DIFFICULTY = "increase-difficulty"
+    DECREASE_DIFFICULTY = "decrease-difficulty"
 
 
 class GameLength(Enum):

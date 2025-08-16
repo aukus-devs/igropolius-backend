@@ -138,7 +138,9 @@
         "reroll",
         "reroll-and-roll",
         "lose-card-or-3-percent",
-        "receive-scores-for-active-cards"
+        "receive-scores-for-active-cards",
+        "increase-difficulty",
+        "decrease-difficulty"
       ],
       "title": "BonusCardType",
       "type": "string"
@@ -881,7 +883,9 @@
         "reroll",
         "reroll-and-roll",
         "lose-card-or-3-percent",
-        "receive-scores-for-active-cards"
+        "receive-scores-for-active-cards",
+        "increase-difficulty",
+        "decrease-difficulty"
       ],
       "title": "InstantCardType",
       "type": "string"
@@ -1449,6 +1453,10 @@
         "building_upgrade_bonus": {
           "title": "Building Upgrade Bonus",
           "type": "integer"
+        },
+        "game_difficulty_level": {
+          "title": "Game Difficulty Level",
+          "type": "integer"
         }
       },
       "required": [
@@ -1464,7 +1472,8 @@
         "bonus_cards",
         "color",
         "model_name",
-        "building_upgrade_bonus"
+        "building_upgrade_bonus",
+        "game_difficulty_level"
       ],
       "title": "PlayerDetails",
       "type": "object"

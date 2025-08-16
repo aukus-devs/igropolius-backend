@@ -81,6 +81,7 @@ class PlayerDetails(BaseModel):
     color: str
     model_name: str
     building_upgrade_bonus: int
+    game_difficulty_level: int
 
 
 class PlayerListResponse(BaseModel):
