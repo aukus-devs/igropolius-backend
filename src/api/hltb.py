@@ -15,7 +15,7 @@ from src.db.db_session import get_db
 router = APIRouter(tags=["hltb"])
 
 
-@router.post("/api/hltb/random_game", response_model=HltbGamesListResponse)
+@router.post("/api/hltb/random-game", response_model=HltbGamesListResponse)
 async def get_random_game(
     db: Annotated[AsyncSession, Depends(get_db)],
     request: HltbRandomGameRequest = Body(...),
