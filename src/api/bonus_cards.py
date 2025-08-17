@@ -28,7 +28,7 @@ from src.enums import (
     ScoreChangeType,
 )
 from src.utils.auth import get_current_user, get_current_user_for_update
-from src.utils.common import get_event_setting, is_first_day
+from src.utils.common import get_event_setting, get_prison_user, is_first_day
 from src.utils.db import utc_now_ts
 from src.db.queries.notifications import (
     create_card_lost_notification,
@@ -231,13 +231,7 @@ async def drop_bonus_card(
     match current_user.turn_state:
         case PlayerTurnState.ENTERING_PRISON.value:
             # move the card to prison storage
-            prison_query = (
-                select(User)
-                .where(User.role == Role.PRISON.value)
-                .where(User.is_active == 1)
-            )
-            prison = await db.execute(prison_query)
-            prison_user = prison.scalars().first()
+            prison_user = await get_prison_user(db)
             if not prison_user:
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -581,6 +575,50 @@ async def use_instant_card(
                 )
                 response.result = InstantCardResult.SCORE_CHANGE
                 response.score_change = change
+        case InstantCardType.POLICE_SEARCH:
+            card_to_lose = None
+            if request.card_to_lose:
+                cards_query = await db.execute(
+                    select(PlayerCard)
+                    .where(PlayerCard.player_id == current_user.id)
+                    .where(PlayerCard.status == BonusCardStatus.ACTIVE.value)
+                    .where(PlayerCard.card_type == request.card_to_lose.value)
+                    .with_for_update()
+                )
+                card_to_lose = cards_query.scalars().first()
+
+            if card_to_lose:
+                prison_user = await get_prison_user(db)
+                if not prison_user:
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Prison user not found",
+                    )
+                card_to_lose.status = BonusCardStatus.DROPPED.value
+                card_to_lose.lost_at = utc_now_ts()
+                card_to_lose.lost_on_sector = current_user.sector_id
+
+                new_card = PlayerCard(
+                    player_id=prison_user.id,
+                    card_type=card_to_lose.card_type,
+                    received_on_sector=current_user.sector_id,
+                    status=BonusCardStatus.ACTIVE.value,
+                )
+                db.add(new_card)
+                response.result = InstantCardResult.CARD_LOST
+            else:
+                change = 4 * score_multiplier
+                await change_player_score(
+                    db,
+                    current_user,
+                    change,
+                    ScoreChangeType.INSTANT_CARD,
+                    "Receive 4 for not losing a card to police search",
+                    player_card=bonus_card,
+                )
+                response.result = InstantCardResult.SCORE_CHANGE
+                response.score_change = change
+
         case _:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

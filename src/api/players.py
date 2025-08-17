@@ -82,6 +82,7 @@ from src.utils.common import (
     get_bonus_cards_used_events,
     get_closest_prison_sector,
     get_sector_score_multiplier,
+    get_prison_user,
 )
 from src.utils.db import utc_now_ts
 
@@ -172,15 +173,16 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
 
         users_models.append(model)
 
-    prison_player_ids_subquery = (
-        select(User.id)
-        .where(User.role == Role.PRISON.value, User.is_active == 1)
-        .scalar_subquery()
-    )
+    prison_user = await get_prison_user(db)
+    if not prison_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Prison user not found.",
+        )
 
     prison_query = await db.execute(
         select(PlayerCard).where(
-            PlayerCard.player_id.in_(prison_player_ids_subquery),
+            PlayerCard.player_id == prison_user.id,
             PlayerCard.status == BonusCardStatus.ACTIVE.value,
         )
     )
