@@ -18,6 +18,7 @@ class PlayerTurnState(Enum):
     USING_STREET_TAX_BONUSES = "using-street-tax-bonuses"
     DROPPING_CARD_AFTER_GAME_DROP = "dropping-card-after-game-drop"
     DROPPING_CARD_AFTER_INSTANT_ROLL = "dropping-card-after-instant-roll"
+    DROPPING_CARD_AFTER_POLICE_SEARCH = "dropping-card-after-police-search"
     ENTERING_PRISON = "entering-prison"
     STEALING_BONUS_CARD = "stealing-bonus-card"
     CHOOSING_BUILDING_SECTOR = "choosing-building-sector"
