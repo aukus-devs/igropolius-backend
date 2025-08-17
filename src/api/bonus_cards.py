@@ -522,13 +522,14 @@ async def use_instant_card(
             if not cards:
                 response.result = InstantCardResult.REROLL
             else:
-                change = len(cards) * (1 + score_multiplier)
+                cards_amount = len(cards)
+                change = cards_amount * (1 + score_multiplier)
                 await change_player_score(
                     db,
                     current_user,
                     change,
                     ScoreChangeType.INSTANT_CARD,
-                    f"Received scores for {len} active cards",
+                    f"Received scores for {cards_amount} active cards",
                     player_card=bonus_card,
                 )
                 response.result = InstantCardResult.SCORE_CHANGE
@@ -547,6 +548,39 @@ async def use_instant_card(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Cannot decrease difficulty level below -1",
                 )
+        case InstantCardType.ASKET:
+            my_cards_query = await db.execute(
+                select(PlayerCard)
+                .where(PlayerCard.player_id == current_user.id)
+                .where(PlayerCard.status == BonusCardStatus.ACTIVE.value)
+            )
+            my_cards = my_cards_query.scalars().all()
+            cards_amount = len(my_cards)
+            if cards_amount < 3:
+                change = 6 * score_multiplier
+                await change_player_score(
+                    db,
+                    current_user,
+                    change,
+                    ScoreChangeType.INSTANT_CARD,
+                    f"Received 6 scores for {cards_amount} cards",
+                    player_card=bonus_card,
+                )
+                response.result = InstantCardResult.SCORE_CHANGE
+                response.score_change = change
+            else:
+                excess_cards = cards_amount - 2
+                change = -2 * excess_cards * score_multiplier
+                await change_player_score(
+                    db,
+                    current_user,
+                    change,
+                    ScoreChangeType.INSTANT_CARD,
+                    f"Lost {change} scores for {cards_amount} cards",
+                    player_card=bonus_card,
+                )
+                response.result = InstantCardResult.SCORE_CHANGE
+                response.score_change = change
         case _:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

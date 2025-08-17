@@ -138,6 +138,9 @@ class InstantCardType(Enum):
     INCREASE_DIFFICULTY = "increase-difficulty"
     DECREASE_DIFFICULTY = "decrease-difficulty"
 
+    # Аскет - если у вас меньше трех (<3) карт бонусов, получите 6х1 очков, в противном случае потеряйте 2х1 за каждую карту, начиная с третьей (если карт всего 3, штраф за одну и тд).
+    ASKET = "asket"
+
 
 class InstantCardResult(Enum):
     REROLL = "reroll"
@@ -170,6 +173,7 @@ class BonusCardType(Enum):
 
     INCREASE_DIFFICULTY = "increase-difficulty"
     DECREASE_DIFFICULTY = "decrease-difficulty"
+    ASKET = "asket"
 
 
 class GameLength(Enum):
