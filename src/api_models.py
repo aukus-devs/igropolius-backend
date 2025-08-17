@@ -1,5 +1,5 @@
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from typing_extensions import Literal
 
 from src.enums import (
@@ -304,7 +304,9 @@ class HltbGameResponse(BaseModel):
     count_retired: int
     profile_platform: str | None = None
     profile_popular: int
-    release_world: int
+    release_world: int | None = None
+    created_at: int
+    updated_at: int
 
 
 class HltbRandomGameRequest(BaseModel):
@@ -315,19 +317,31 @@ class HltbRandomGameRequest(BaseModel):
     @field_validator("min_length", "max_length")
     @classmethod
     def validate_time_hours(cls, v):
-        if v is not None and (v < 1 or v > 300):
-            raise ValueError("Time must be between 1 and 300 hours")
+        if v is not None and v < 0:
+            raise ValueError("Time must be non-negative")
         return v
 
     @field_validator("max_length")
     @classmethod
     def validate_max_greater_than_min(cls, v, info):
-        if v is not None and info.data.get("min_length") is not None:
-            if v < info.data["min_length"]:
+        min_length = info.data.get("min_length")
+        if min_length is not None:
+            if v is None:
                 raise ValueError(
-                    "max_length must be greater than or equal to min_length"
+                    "max_length must be specified when min_length is provided"
                 )
+            if min_length == 0 and v != 0:
+                raise ValueError("If min_length is 0, max_length must also be 0")
+            if min_length > 0 and v <= min_length:
+                raise ValueError("max_length must be greater than min_length")
         return v
+
+    @model_validator(mode="after")
+    def set_none_if_both_zero(self):
+        if self.min_length == 0 and self.max_length == 0:
+            self.min_length = None
+            self.max_length = None
+        return self
 
 
 class HltbGamesListResponse(BaseModel):

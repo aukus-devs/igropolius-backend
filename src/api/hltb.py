@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
@@ -20,28 +20,57 @@ async def get_random_game(
     db: Annotated[AsyncSession, Depends(get_db)],
     request: HltbRandomGameRequest = Body(...),
 ):
-    query_conditions = [
-        HltbGame.profile_platform.like("%PC%"),
-        HltbGame.comp_main > 0,
-    ]
-
     if request.min_length is not None and request.max_length is not None:
         min_length_seconds = request.min_length * 3600
         max_length_seconds = request.max_length * 3600
 
-        query_conditions.extend(
-            [
-                HltbGame.comp_main >= min_length_seconds,
-                HltbGame.comp_main <= max_length_seconds,
-            ]
+        query = (
+            select(HltbGame)
+            .where(
+                and_(
+                    HltbGame.profile_platform.like("%PC%"),
+                    HltbGame.game_type == "game",
+                    or_(
+                        HltbGame.comp_main > 0,
+                        HltbGame.comp_plus > 0,
+                        HltbGame.comp_100 > 0,
+                        HltbGame.comp_all > 0,
+                    ),
+                    or_(
+                        and_(
+                            HltbGame.comp_main >= min_length_seconds,
+                            HltbGame.comp_main <= max_length_seconds,
+                        ),
+                        and_(
+                            HltbGame.comp_plus >= min_length_seconds,
+                            HltbGame.comp_plus <= max_length_seconds,
+                        ),
+                        and_(
+                            HltbGame.comp_100 >= min_length_seconds,
+                            HltbGame.comp_100 <= max_length_seconds,
+                        ),
+                        and_(
+                            HltbGame.comp_all >= min_length_seconds,
+                            HltbGame.comp_all <= max_length_seconds,
+                        ),
+                    ),
+                )
+            )
+            .order_by(func.random())
+            .limit(request.limit)
         )
-
-    query = (
-        select(HltbGame)
-        .where(and_(*query_conditions))
-        .order_by(func.random())
-        .limit(request.limit)
-    )
+    else:
+        query = (
+            select(HltbGame)
+            .where(
+                and_(
+                    HltbGame.profile_platform.like("%PC%"),
+                    HltbGame.game_type == "game",
+                )
+            )
+            .order_by(func.random())
+            .limit(request.limit)
+        )
 
     result = await db.execute(query)
     games = result.scalars().all()
@@ -86,6 +115,8 @@ async def get_random_game(
             profile_platform=game.profile_platform,
             profile_popular=game.profile_popular,
             release_world=game.release_world,
+            created_at=game.created_at,
+            updated_at=game.updated_at,
         )
         games_response.append(game_response)
 

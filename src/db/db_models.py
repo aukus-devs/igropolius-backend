@@ -264,7 +264,11 @@ class HltbGame(DbBase):
     count_retired: Mapped[int] = mapped_column(Integer, nullable=False)
     profile_platform: Mapped[str | None] = mapped_column(Text, nullable=True)
     profile_popular: Mapped[int] = mapped_column(Integer, nullable=False)
-    release_world: Mapped[int] = mapped_column(Integer, nullable=False)
+    release_world: Mapped[int] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
+    updated_at: Mapped[int] = mapped_column(
+        Integer, default=utc_now_ts, onupdate=utc_now_ts
+    )
 
 
 class EventSettings(DbBase):
