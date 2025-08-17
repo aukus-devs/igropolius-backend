@@ -140,7 +140,9 @@
         "lose-card-or-3-percent",
         "receive-scores-for-active-cards",
         "increase-difficulty",
-        "decrease-difficulty"
+        "decrease-difficulty",
+        "asket",
+        "police-search"
       ],
       "title": "BonusCardType",
       "type": "string"
@@ -791,6 +793,261 @@
       "title": "GiveBonusCardResponse",
       "type": "object"
     },
+    "HltbGameResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "game_id": {
+          "title": "Game Id",
+          "type": "integer"
+        },
+        "game_name": {
+          "title": "Game Name",
+          "type": "string"
+        },
+        "game_name_date": {
+          "title": "Game Name Date",
+          "type": "integer"
+        },
+        "game_alias": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Game Alias"
+        },
+        "game_type": {
+          "title": "Game Type",
+          "type": "string"
+        },
+        "game_image": {
+          "title": "Game Image",
+          "type": "string"
+        },
+        "comp_lvl_combine": {
+          "title": "Comp Lvl Combine",
+          "type": "integer"
+        },
+        "comp_lvl_sp": {
+          "title": "Comp Lvl Sp",
+          "type": "integer"
+        },
+        "comp_lvl_co": {
+          "title": "Comp Lvl Co",
+          "type": "integer"
+        },
+        "comp_lvl_mp": {
+          "title": "Comp Lvl Mp",
+          "type": "integer"
+        },
+        "comp_main": {
+          "title": "Comp Main",
+          "type": "integer"
+        },
+        "comp_plus": {
+          "title": "Comp Plus",
+          "type": "integer"
+        },
+        "comp_100": {
+          "title": "Comp 100",
+          "type": "integer"
+        },
+        "comp_all": {
+          "title": "Comp All",
+          "type": "integer"
+        },
+        "comp_main_count": {
+          "title": "Comp Main Count",
+          "type": "integer"
+        },
+        "comp_plus_count": {
+          "title": "Comp Plus Count",
+          "type": "integer"
+        },
+        "comp_100_count": {
+          "title": "Comp 100 Count",
+          "type": "integer"
+        },
+        "comp_all_count": {
+          "title": "Comp All Count",
+          "type": "integer"
+        },
+        "invested_co": {
+          "title": "Invested Co",
+          "type": "integer"
+        },
+        "invested_mp": {
+          "title": "Invested Mp",
+          "type": "integer"
+        },
+        "invested_co_count": {
+          "title": "Invested Co Count",
+          "type": "integer"
+        },
+        "invested_mp_count": {
+          "title": "Invested Mp Count",
+          "type": "integer"
+        },
+        "count_comp": {
+          "title": "Count Comp",
+          "type": "integer"
+        },
+        "count_speedrun": {
+          "title": "Count Speedrun",
+          "type": "integer"
+        },
+        "count_backlog": {
+          "title": "Count Backlog",
+          "type": "integer"
+        },
+        "count_review": {
+          "title": "Count Review",
+          "type": "integer"
+        },
+        "review_score": {
+          "title": "Review Score",
+          "type": "integer"
+        },
+        "count_playing": {
+          "title": "Count Playing",
+          "type": "integer"
+        },
+        "count_retired": {
+          "title": "Count Retired",
+          "type": "integer"
+        },
+        "profile_platform": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Profile Platform"
+        },
+        "profile_popular": {
+          "title": "Profile Popular",
+          "type": "integer"
+        },
+        "release_world": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Release World"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "integer"
+        },
+        "updated_at": {
+          "title": "Updated At",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "game_id",
+        "game_name",
+        "game_name_date",
+        "game_type",
+        "game_image",
+        "comp_lvl_combine",
+        "comp_lvl_sp",
+        "comp_lvl_co",
+        "comp_lvl_mp",
+        "comp_main",
+        "comp_plus",
+        "comp_100",
+        "comp_all",
+        "comp_main_count",
+        "comp_plus_count",
+        "comp_100_count",
+        "comp_all_count",
+        "invested_co",
+        "invested_mp",
+        "invested_co_count",
+        "invested_mp_count",
+        "count_comp",
+        "count_speedrun",
+        "count_backlog",
+        "count_review",
+        "review_score",
+        "count_playing",
+        "count_retired",
+        "profile_popular",
+        "created_at",
+        "updated_at"
+      ],
+      "title": "HltbGameResponse",
+      "type": "object"
+    },
+    "HltbGamesListResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "games": {
+          "items": {
+            "$ref": "#/$defs/HltbGameResponse"
+          },
+          "title": "Games",
+          "type": "array"
+        }
+      },
+      "required": [
+        "games"
+      ],
+      "title": "HltbGamesListResponse",
+      "type": "object"
+    },
+    "HltbRandomGameRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "min_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Length"
+        },
+        "max_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Length"
+        },
+        "limit": {
+          "default": 12,
+          "maximum": 16,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        }
+      },
+      "title": "HltbRandomGameRequest",
+      "type": "object"
+    },
     "IgdbGameSummary": {
       "additionalProperties": false,
       "properties": {
@@ -894,7 +1151,9 @@
         "lose-card-or-3-percent",
         "receive-scores-for-active-cards",
         "increase-difficulty",
-        "decrease-difficulty"
+        "decrease-difficulty",
+        "asket",
+        "police-search"
       ],
       "title": "InstantCardType",
       "type": "string"
