@@ -35,7 +35,7 @@ async def change_player_score(
     description: str,
     income_from_player: User | None = None,
     player_card: PlayerCard | None = None,
-) -> User:
+) -> PlayerScoreChange:
     if not db.in_transaction():
         raise ValueError("Database session must be in a transaction")
 
@@ -76,4 +76,4 @@ async def change_player_score(
     )
     db.add(score_change)
     player.total_score = after
-    return player
+    return score_change

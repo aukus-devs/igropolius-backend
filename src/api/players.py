@@ -114,6 +114,17 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
         igdb_games = igdb_games_query.scalars().all()
         igdb_games_dict = {game.id: game for game in igdb_games}
 
+    game_score_changes_query = select(PlayerScoreChange).where(
+        PlayerScoreChange.id.in_(
+            [g.score_change_id for g in games if g.score_change_id is not None]
+        ),
+    )
+    game_score_changes = await db.execute(game_score_changes_query)
+    game_score_changes = game_score_changes.scalars().all()
+    score_changes_by_id = {
+        change.id: change.score_change for change in game_score_changes
+    }
+
     users_models = []
     for user in players:
         model = PlayerDetails.model_validate(user)
@@ -138,6 +149,7 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
                 if g.game_id and g.game_id in igdb_games_dict
                 else None,
                 difficulty_level=GameDifficulty(g.difficulty_level),
+                score_change_amount=score_changes_by_id.get(g.score_change_id),
             )
             for g in games
             if g.player_id == user.id
@@ -530,13 +542,15 @@ async def save_player_game(
 
             total_bonus = base_scores * multiplier + map_completion_bonus
 
-            await change_player_score(
+            score_change = await change_player_score(
                 db,
                 current_user,
                 total_bonus,
                 ScoreChangeType.GAME_COMPLETED,
                 f"game completed: '{request.title}'",
             )
+            await db.flush()
+            game.score_change_id = score_change.id
 
             await create_game_completed_notification(
                 db, current_user.id, total_bonus, request.title
@@ -576,13 +590,15 @@ async def save_player_game(
                 current_user.total_score * DROP_SCORE_LOST_PERCENT,
                 DROP_SCORE_LOST_MINIMUM,
             )
-            await change_player_score(
+            score_change = await change_player_score(
                 db,
                 current_user,
                 -score_lost,
                 ScoreChangeType.GAME_DROPPED,
                 f"game dropped: '{request.title}'",
             )
+            await db.flush()
+            game.score_change_id = score_change.id
             await create_game_drop_notification(db, current_user.id, request.title)
         case GameCompletionType.REROLL:
             await create_game_reroll_notification(db, current_user.id, request.title)

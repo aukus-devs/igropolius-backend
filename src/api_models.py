@@ -45,6 +45,7 @@ class PlayerGame(BaseModel):
     cover: str | None = None
     game_id: int | None = None
     difficulty_level: GameDifficulty
+    score_change_amount: float | None = None
 
 
 class ActiveBonusCard(BaseModel):
