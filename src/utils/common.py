@@ -14,6 +14,7 @@ from src.enums import (
     EventSetting,
     GameCompletionType,
     InstantCardType,
+    Role,
 )
 from src.utils.db import utc_now_ts
 
@@ -149,3 +150,12 @@ async def is_first_day(db: AsyncSession) -> bool:
 
 def get_sector_score_multiplier(sector_id: int) -> float:
     return SECTOR_SCORE_MULTIPLIERS.get(sector_id, 1)
+
+
+async def get_prison_user(db: AsyncSession) -> User | None:
+    prison_query = (
+        select(User).where(User.role == Role.PRISON.value).where(User.is_active == 1)
+    )
+    prison = await db.execute(prison_query)
+    prison_user = prison.scalars().first()
+    return prison_user

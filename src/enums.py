@@ -138,6 +138,11 @@ class InstantCardType(Enum):
     INCREASE_DIFFICULTY = "increase-difficulty"
     DECREASE_DIFFICULTY = "decrease-difficulty"
 
+    # Аскет - если у вас меньше трех (<3) карт бонусов, получите 6х1 очков, в противном случае потеряйте 2х1 за каждую карту, начиная с третьей (если карт всего 3, штраф за одну и тд).
+    ASKET = "asket"
+    # Обыск - 50% шанс на перенос случайной карточки в хранилище тюрьмы. Если карточка не потеряна, получите 4х1 очка.
+    POLICE_SEARCH = "police-search"
+
 
 class InstantCardResult(Enum):
     REROLL = "reroll"
@@ -170,6 +175,8 @@ class BonusCardType(Enum):
 
     INCREASE_DIFFICULTY = "increase-difficulty"
     DECREASE_DIFFICULTY = "decrease-difficulty"
+    ASKET = "asket"
+    POLICE_SEARCH = "police-search"
 
 
 class GameLength(Enum):

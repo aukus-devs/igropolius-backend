@@ -84,6 +84,7 @@ class PlayerGame(DbBase):
     item_length_bonus: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     player_sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
     difficulty_level: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    score_change_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
 
 class PlayerScoreChange(DbBase):
