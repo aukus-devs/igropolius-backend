@@ -306,6 +306,9 @@ class HltbGameResponse(BaseModel):
     profile_platform: str | None = None
     profile_popular: int
     release_world: int | None = None
+    genres: str | None = None
+    steam_id: int | None = None
+    description: str | None = None
     created_at: int
     updated_at: int
 

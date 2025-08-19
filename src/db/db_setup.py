@@ -65,6 +65,9 @@ class HltbGameData(BaseModel):
     release_world: int
     created_at: int
     updated_at: int
+    genres: str | None = None
+    steam_id: int | None = None
+    description: str | None = None
 
 
 defined_users = [
@@ -160,6 +163,9 @@ defined_hltb_games = [
         count_playing=0,
         count_retired=44,
         profile_platform="Xbox 360",
+        genres="Action, Adventure, RPG",
+        steam_id=123,
+        description="The Witcher 3: Wild Hunt is a story-driven, open world RPG set in a visually stunning fantasy universe full of meaningful choices and impactful consequences.",
         profile_popular=24,
         release_world=2009,
         created_at=1723852800,
@@ -196,6 +202,9 @@ defined_hltb_games = [
         count_playing=3,
         count_retired=20,
         profile_platform="Nintendo Switch, PC, PlayStation 2, PlayStation 4",
+        genres="Action, Adventure, RPG",
+        steam_id=123,
+        description="The Witcher 3: Wild Hunt is a story-driven, open world RPG set in a visually stunning fantasy universe full of meaningful choices and impactful consequences.",
         profile_popular=15,
         release_world=2006,
         created_at=1723852800,
@@ -232,6 +241,9 @@ defined_hltb_games = [
         count_playing=3,
         count_retired=8,
         profile_platform="Nintendo Switch, PC, PlayStation 2, PlayStation 4",
+        genres="Action, Adventure, RPG",
+        steam_id=123,
+        description="The Witcher 3: Wild Hunt is a story-driven, open world RPG set in a visually stunning fantasy universe full of meaningful choices and impactful consequences.",
         profile_popular=15,
         release_world=2006,
         created_at=1723852800,
@@ -270,6 +282,9 @@ defined_hltb_games = [
         profile_platform="Nintendo Switch, PC, PlayStation 2, PlayStation 4",
         profile_popular=12,
         release_world=2007,
+        genres="Action, Adventure, RPG",
+        steam_id=123,
+        description="The Witcher 3: Wild Hunt is a story-driven, open world RPG set in a visually stunning fantasy universe full of meaningful choices and impactful consequences.",
         created_at=1723852800,
         updated_at=1723852800,
     ),
@@ -304,6 +319,9 @@ defined_hltb_games = [
         count_playing=2,
         count_retired=7,
         profile_platform="Nintendo Switch, PC, PlayStation 2, PlayStation 4",
+        genres="Action, Adventure, RPG",
+        steam_id=123,
+        description="The Witcher 3: Wild Hunt is a story-driven, open world RPG set in a visually stunning fantasy universe full of meaningful choices and impactful consequences.",
         profile_popular=12,
         release_world=2007,
         created_at=1723852800,
@@ -396,6 +414,9 @@ def make_hltb_game(hltb_game_data: HltbGameData):
         release_world=hltb_game_data.release_world,
         created_at=hltb_game_data.created_at,
         updated_at=hltb_game_data.updated_at,
+        genres=hltb_game_data.genres,
+        steam_id=hltb_game_data.steam_id,
+        description=hltb_game_data.description,
     )
 
 

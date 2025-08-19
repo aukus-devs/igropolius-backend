@@ -119,6 +119,9 @@ async def get_random_game(
             profile_platform=game.profile_platform,
             profile_popular=game.profile_popular,
             release_world=game.release_world,
+            genres=game.genres,
+            steam_id=game.steam_id,
+            description=game.description,
             created_at=game.created_at,
             updated_at=game.updated_at,
         )
