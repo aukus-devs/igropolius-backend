@@ -68,9 +68,11 @@ async def pay_tax(
             .where(PlayerGame.type == GameCompletionType.COMPLETED.value)
         )
         games = list(games_query.scalars().all())
-        other_players_ids = [
-            game.player_id for game in games if game.player_id != current_user.id
+
+        other_players_games = [
+            game for game in games if game.player_id != current_user.id
         ]
+        other_players_ids = [game.player_id for game in other_players_games]
 
         players_query = await db.execute(
             select(User).where(User.id.in_(other_players_ids)).with_for_update()
@@ -79,7 +81,7 @@ async def pay_tax(
 
         sector_group = find_sector_group(current_user.sector_id)
         tax_payments: list[float] = []
-        for game in games:
+        for game in other_players_games:
             player = next((p for p in players if p.id == game.player_id), None)
             if not player:
                 logger.error(
