@@ -339,12 +339,6 @@ class HltbRandomGameRequest(BaseModel):
                 raise ValueError("max_length must be greater than min_length")
         return v
 
-    @model_validator(mode="after")
-    def set_none_if_zero(self):
-        if self.min_length == 0 or self.max_length == 0:
-            self.min_length = None
-            self.max_length = None
-        return self
 
 
 class HltbGamesListResponse(BaseModel):

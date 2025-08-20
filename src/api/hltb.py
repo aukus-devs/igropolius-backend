@@ -24,45 +24,70 @@ async def get_random_game(
         min_length_seconds = request.min_length * 3600
         max_length_seconds = request.max_length * 3600
 
-        query = (
-            select(HltbGame)
-            .where(
-                and_(
-                    HltbGame.profile_platform.like("%PC%"),
-                    HltbGame.game_type == "game",
-                    or_(
-                        and_(
-                            HltbGame.comp_main > 0,
-                            HltbGame.comp_main >= min_length_seconds,
-                            HltbGame.comp_main <= max_length_seconds,
-                        ),
-                        and_(
-                            HltbGame.comp_main == 0,
-                            HltbGame.comp_plus > 0,
-                            HltbGame.comp_plus >= min_length_seconds,
-                            HltbGame.comp_plus <= max_length_seconds,
-                        ),
-                        and_(
-                            HltbGame.comp_main == 0,
-                            HltbGame.comp_plus == 0,
-                            HltbGame.comp_100 > 0,
-                            HltbGame.comp_100 >= min_length_seconds,
-                            HltbGame.comp_100 <= max_length_seconds,
-                        ),
-                        and_(
-                            HltbGame.comp_main == 0,
-                            HltbGame.comp_plus == 0,
-                            HltbGame.comp_100 == 0,
-                            HltbGame.comp_all > 0,
-                            HltbGame.comp_all >= min_length_seconds,
-                            HltbGame.comp_all <= max_length_seconds,
-                        ),
-                    ),
+        if min_length_seconds == 0 and max_length_seconds == 0:
+            query = (
+                select(HltbGame)
+                .where(
+                    and_(
+                        HltbGame.profile_platform.like("%PC%"),
+                        HltbGame.game_type == "game",
+                    )
                 )
+                .order_by(func.random())
+                .limit(request.limit)
             )
-            .order_by(func.random())
-            .limit(request.limit)
-        )
+        else:
+            include_unknown = min_length_seconds == 0 and max_length_seconds > 0
+            base_conditions = [
+                and_(
+                    HltbGame.comp_main > 0,
+                    HltbGame.comp_main >= min_length_seconds,
+                    HltbGame.comp_main <= max_length_seconds,
+                ),
+                and_(
+                    HltbGame.comp_main == 0,
+                    HltbGame.comp_plus > 0,
+                    HltbGame.comp_plus >= min_length_seconds,
+                    HltbGame.comp_plus <= max_length_seconds,
+                ),
+                and_(
+                    HltbGame.comp_main == 0,
+                    HltbGame.comp_plus == 0,
+                    HltbGame.comp_100 > 0,
+                    HltbGame.comp_100 >= min_length_seconds,
+                    HltbGame.comp_100 <= max_length_seconds,
+                ),
+                and_(
+                    HltbGame.comp_main == 0,
+                    HltbGame.comp_plus == 0,
+                    HltbGame.comp_100 == 0,
+                    HltbGame.comp_all > 0,
+                    HltbGame.comp_all >= min_length_seconds,
+                    HltbGame.comp_all <= max_length_seconds,
+                ),
+            ]
+            if include_unknown:
+                base_conditions.append(
+                    and_(
+                        HltbGame.comp_main == 0,
+                        HltbGame.comp_plus == 0,
+                        HltbGame.comp_100 == 0,
+                        HltbGame.comp_all == 0,
+                    )
+                )
+
+            query = (
+                select(HltbGame)
+                .where(
+                    and_(
+                        HltbGame.profile_platform.like("%PC%"),
+                        HltbGame.game_type == "game",
+                        or_(*base_conditions),
+                    )
+                )
+                .order_by(func.random())
+                .limit(request.limit)
+            )
     else:
         query = (
             select(HltbGame)
