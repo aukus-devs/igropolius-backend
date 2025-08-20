@@ -528,6 +528,14 @@ async def save_player_game(
     )
     db.add(game)
 
+    if (
+        request.difficulty_level
+        and request.difficulty_level != GameDifficulty.NORMAL
+        and request.status != GameCompletionType.REROLL
+    ):
+        game.difficulty_level = request.difficulty_level.value
+        current_user.game_difficulty_level = 0
+
     match request.status:
         case GameCompletionType.COMPLETED:
             if game.item_length not in GAME_LENGTHS_IN_ORDER:
@@ -582,13 +590,6 @@ async def save_player_game(
                     game.item_length = GAME_LENGTHS_IN_ORDER[current_stage_idx]
                     game.item_length_bonus += step
                     current_user.building_upgrade_bonus -= step
-
-            if (
-                request.difficulty_level
-                and request.difficulty_level != GameDifficulty.NORMAL
-            ):
-                game.difficulty_level = request.difficulty_level.value
-                current_user.game_difficulty_level = 0
 
         case GameCompletionType.DROP:
             score_lost = max(
