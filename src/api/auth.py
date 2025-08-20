@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import CurrentUserResponse, LoginRequest, LoginResponse
 from src.db.db_session import get_db
-from src.db.db_models import DiceRoll, User
+from src.db.db_models import BonusCard, DiceRoll, User
 from src.utils.auth import get_current_user
 from src.utils.jwt import create_access_token, verify_password
 
@@ -55,4 +55,9 @@ async def fetch_current_user(
     response = CurrentUserResponse.model_validate(current_user)
     if existing_roll:
         response.last_roll_result = json.loads(existing_roll.dice_values)
+
+    bonus_cards_query = select(BonusCard)
+    bonus_cards_result = await db.execute(bonus_cards_query)
+    bonus_cards = bonus_cards_result.scalars().all()
+    response.bonus_cards = bonus_cards
     return response

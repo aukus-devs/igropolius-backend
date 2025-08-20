@@ -93,6 +93,11 @@ class PlayerListResponse(BaseModel):
     prison_cards: list[MainBonusCardType]
 
 
+class BonusCardInfo(BaseModel):
+    card_type: BonusCardType
+    weight: float
+
+
 class CurrentUserResponse(BaseModel):
     id: int
     # url_handle: str
@@ -104,6 +109,7 @@ class CurrentUserResponse(BaseModel):
     turn_state: PlayerTurnState | None = None
     # maps_completed: int = 0
     last_roll_result: list[int]
+    bonus_cards: list[BonusCardInfo] = []
 
 
 class PlayerEventBase(BaseModel):
@@ -338,7 +344,6 @@ class HltbRandomGameRequest(BaseModel):
             if min_length > 0 and v <= min_length:
                 raise ValueError("max_length must be greater than min_length")
         return v
-
 
 
 class HltbGamesListResponse(BaseModel):

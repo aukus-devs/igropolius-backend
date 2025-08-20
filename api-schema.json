@@ -118,6 +118,24 @@
       "title": "BonusCardEventType",
       "type": "string"
     },
+    "BonusCardInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "card_type": {
+          "$ref": "#/$defs/BonusCardType"
+        },
+        "weight": {
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "card_type",
+        "weight"
+      ],
+      "title": "BonusCardInfo",
+      "type": "object"
+    },
     "BonusCardType": {
       "enum": [
         "adjust-roll-by1",
@@ -470,6 +488,14 @@
             "type": "integer"
           },
           "title": "Last Roll Result",
+          "type": "array"
+        },
+        "bonus_cards": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/BonusCardInfo"
+          },
+          "title": "Bonus Cards",
           "type": "array"
         }
       },

@@ -285,3 +285,15 @@ class EventSettings(DbBase):
     )
     key_name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     value: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class BonusCard(DbBase):
+    __tablename__ = "bonus_cards"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    created_at: Mapped[int] = mapped_column(Integer, default=utc_now_ts)
+    updated_at: Mapped[int] = mapped_column(
+        Integer, default=utc_now_ts, onupdate=utc_now_ts
+    )
+    card_type: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    weight: Mapped[float] = mapped_column(Float, nullable=False, default=1.0)
