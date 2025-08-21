@@ -14,6 +14,7 @@ from src.api import (
     notifications,
     players,
     rules,
+    stats,
     taxes,
 )
 from src.config import setup_logging
@@ -81,3 +82,4 @@ app.include_router(dice.router)
 app.include_router(event_settings.router)
 app.include_router(internal.router)
 app.include_router(notifications.router)
+app.include_router(stats.router)

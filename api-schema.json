@@ -2067,6 +2067,92 @@
       "title": "PlayerMoveType",
       "type": "string"
     },
+    "PlayerStats": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "total_score": {
+          "title": "Total Score",
+          "type": "number"
+        },
+        "username": {
+          "title": "Username",
+          "type": "string"
+        },
+        "games_completed": {
+          "title": "Games Completed",
+          "type": "integer"
+        },
+        "games_dropped": {
+          "title": "Games Dropped",
+          "type": "integer"
+        },
+        "score_from_games_completed": {
+          "title": "Score From Games Completed",
+          "type": "number"
+        },
+        "score_from_games_dropped": {
+          "title": "Score From Games Dropped",
+          "type": "number"
+        },
+        "instant_cards_used": {
+          "title": "Instant Cards Used",
+          "type": "integer"
+        },
+        "score_from_cards": {
+          "title": "Score From Cards",
+          "type": "number"
+        },
+        "score_lost_on_cards": {
+          "title": "Score Lost On Cards",
+          "type": "number"
+        },
+        "tax_paid": {
+          "title": "Tax Paid",
+          "type": "number"
+        },
+        "income_from_others": {
+          "title": "Income From Others",
+          "type": "number"
+        }
+      },
+      "required": [
+        "player_id",
+        "total_score",
+        "username",
+        "games_completed",
+        "games_dropped",
+        "score_from_games_completed",
+        "score_from_games_dropped",
+        "instant_cards_used",
+        "score_from_cards",
+        "score_lost_on_cards",
+        "tax_paid",
+        "income_from_others"
+      ],
+      "title": "PlayerStats",
+      "type": "object"
+    },
+    "PlayerStatsResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "stats": {
+          "items": {
+            "$ref": "#/$defs/PlayerStats"
+          },
+          "title": "Stats",
+          "type": "array"
+        }
+      },
+      "required": [
+        "stats"
+      ],
+      "title": "PlayerStatsResponse",
+      "type": "object"
+    },
     "PlayerTurnState": {
       "enum": [
         "rolling-dice",

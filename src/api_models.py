@@ -487,3 +487,23 @@ class GameDurationResponse(BaseModel):
 class UpdatePlayerRequest(BaseModel):
     model_name: str
     color: str
+
+
+class PlayerStats(BaseModel):
+    player_id: int
+    total_score: float
+    username: str
+    games_completed: int
+    games_dropped: int
+    score_from_games_completed: float
+    score_from_games_dropped: float
+    instant_cards_used: int
+    score_from_cards: float
+    score_lost_on_cards: float
+    street_tax_paid: float
+    map_tax_paid: float
+    income_from_others: float
+
+
+class PlayerStatsResponse(BaseModel):
+    stats: list[PlayerStats]
