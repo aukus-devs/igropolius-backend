@@ -9,8 +9,8 @@ from src.api_models import (
     NotificationItem,
     NotificationsResponse,
 )
-from src.db.db_session import get_db
 from src.db.db_models import Notification, User
+from src.db.db_session import get_db
 from src.enums import NotificationEventType
 from src.utils.auth import get_current_user
 

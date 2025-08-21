@@ -1,10 +1,12 @@
 import re
-from typing import Optional, Dict, Any, cast
-from sqlalchemy import select, text, func, desc, delete
+from typing import Any, Dict, Optional, cast
+
+from sqlalchemy import delete, desc, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.config import SAVE_STREAM_CATEGORIES
 from src.db.db_models import CategoryHistory
 from src.utils.db import utc_now_ts
-from src.config import SAVE_STREAM_CATEGORIES
 
 
 async def delete_old_category_records(

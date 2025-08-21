@@ -1,6 +1,6 @@
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, status
 
 from src.db.db_models import PlayerCard, PlayerScoreChange, User
 from src.enums import ScoreChangeType

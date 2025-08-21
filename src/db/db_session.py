@@ -7,11 +7,10 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from src.config import DATABASE_URL
 from src.db.db_models import (
     DbBase,
 )
-
-from src.config import DATABASE_URL
 
 is_sqlite = DATABASE_URL.startswith("sqlite")
 

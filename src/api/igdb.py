@@ -5,10 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import IgdbGamesListResponse
-from src.db.db_session import get_db
 from src.db.db_models import IgdbGame, User
+from src.db.db_session import get_db
 from src.utils.auth import get_current_user
-
 
 router = APIRouter(tags=["igdb"])
 

@@ -14,16 +14,16 @@ from src.consts import (
     STREET_INCOME_MULTILIER,
     STREET_TAX_PAYER_MULTILIER,
 )
-from src.db.db_session import get_db
 from src.db.db_models import PlayerGame, User
-from src.db.queries.players import change_player_score
-from src.enums import GameCompletionType, ScoreChangeType, TaxType
-from src.utils.auth import get_current_user_for_update
+from src.db.db_session import get_db
 from src.db.queries.notifications import (
     create_building_income_notification,
     create_map_tax_notification,
     create_sector_tax_notification,
 )
+from src.db.queries.players import change_player_score
+from src.enums import GameCompletionType, ScoreChangeType, TaxType
+from src.utils.auth import get_current_user_for_update
 from src.utils.common import find_sector_group, player_owns_sectors_group
 
 router = APIRouter(tags=["taxes"])

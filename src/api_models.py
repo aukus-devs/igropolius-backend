@@ -1,5 +1,5 @@
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, field_validator
 from typing_extensions import Literal
 
 from src.enums import (

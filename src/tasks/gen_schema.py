@@ -1,9 +1,9 @@
-from pydantic.json_schema import models_json_schema
-import json
 import inspect
+import json
+
+from pydantic.json_schema import models_json_schema
 
 import src.api_models
-
 
 if __name__ == "__main__":
     base_models = []

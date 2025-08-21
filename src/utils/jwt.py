@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
+
 from jose import jwt
 from passlib.hash import bcrypt
-from src.config import TOKEN_SECRET_KEY
 
+from src.config import TOKEN_SECRET_KEY
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30  # 30 days

@@ -1,6 +1,6 @@
 from itertools import chain
-from src.enums import GameLength
 
+from src.enums import GameLength
 
 SCORES_BY_GAME_LENGTH = {
     GameLength.TWO_TO_FIVE.value: 10,

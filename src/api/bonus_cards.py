@@ -5,17 +5,21 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
+    DropBonusCardRequest,
     GiveBonusCardRequest,
     GiveBonusCardResponse,
-    DropBonusCardRequest,
     StealBonusCardRequest,
     UseBonusCardRequest,
     UseInstantCardRequest,
     UseInstantCardResponse,
 )
 from src.consts import FIRST_DAY_SCORE_BONUS
-from src.db.db_session import get_db
 from src.db.db_models import PlayerCard, User
+from src.db.db_session import get_db
+from src.db.queries.notifications import (
+    create_card_lost_notification,
+    create_card_stolen_notification,
+)
 from src.db.queries.players import change_player_score, get_players_by_score
 from src.enums import (
     BonusCardStatus,
@@ -30,10 +34,6 @@ from src.enums import (
 from src.utils.auth import get_current_user, get_current_user_for_update
 from src.utils.common import get_event_setting, get_prison_user, is_first_day
 from src.utils.db import utc_now_ts
-from src.db.queries.notifications import (
-    create_card_lost_notification,
-    create_card_stolen_notification,
-)
 
 router = APIRouter(tags=["bonus_cards"])
 

@@ -4,12 +4,11 @@ from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api_models import RulesResponse, NewRulesVersionRequest
-from src.db.db_session import get_db
+from src.api_models import NewRulesVersionRequest, RulesResponse
 from src.db.db_models import Rules, User
+from src.db.db_session import get_db
 from src.enums import Role
 from src.utils.auth import get_current_user
-
 
 router = APIRouter(tags=["rules"])
 

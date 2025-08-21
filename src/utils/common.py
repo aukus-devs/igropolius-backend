@@ -1,10 +1,11 @@
-from sqlalchemy import distinct, select, func
+from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.api_models import BonusCardEvent
 from src.consts import (
     FIRST_DAY_SECONDS,
-    SECTORS_COLORS_GROUPS,
     SECTOR_SCORE_MULTIPLIERS,
+    SECTORS_COLORS_GROUPS,
 )
 from src.db.db_models import EventSettings, PlayerCard, PlayerGame, User
 from src.enums import (

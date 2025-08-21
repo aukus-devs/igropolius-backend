@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 ENV = os.getenv("ENV", "local")
 DB_URL = os.getenv("DB_URL", "")

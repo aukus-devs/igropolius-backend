@@ -29,6 +29,7 @@ from src.api_models import (
     PlayerGame as PlayerGameApiModel,
 )
 from src.consts import (
+    BONUS_SECTORS,
     BUILDING_SECTORS,
     DROP_SCORE_LOST_MINIMUM,
     DROP_SCORE_LOST_PERCENT,
@@ -38,7 +39,6 @@ from src.consts import (
     SCORES_BY_GAME_LENGTH,
     START_SECTOR_ID,
     TRAIN_MAP,
-    BONUS_SECTORS,
 )
 from src.db.db_models import (
     DiceRoll,
@@ -81,8 +81,8 @@ from src.utils.common import (
     get_bonus_cards_stolen_events,
     get_bonus_cards_used_events,
     get_closest_prison_sector,
-    get_sector_score_multiplier,
     get_prison_user,
+    get_sector_score_multiplier,
 )
 from src.utils.db import utc_now_ts
 
