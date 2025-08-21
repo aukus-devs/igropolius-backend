@@ -159,9 +159,9 @@ async def get_player_stats(
             score_from_games_dropped=ss.score_from_games_dropped if ss else 0,
             instant_cards_used=cs.instant_cards_used if cs else 0,
             score_from_cards=ss.score_from_cards if ss else 0,
-            score_lost_on_cards=abs(ss.score_lost_on_cards) if ss else 0,
-            street_tax_paid=abs(ss.street_tax_paid) if ss else 0,
-            map_tax_paid=abs(ss.map_tax_paid) if ss else 0,
+            score_lost_on_cards=ss.score_lost_on_cards if ss else 0,
+            street_tax_paid=ss.street_tax_paid if ss else 0,
+            map_tax_paid=ss.map_tax_paid if ss else 0,
             income_from_others=ss.income_from_others if ss else 0,
         )
         player_stats_list.append(player_stats)
