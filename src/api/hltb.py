@@ -105,9 +105,7 @@ async def get_random_game(
     games = result.scalars().all()
 
     if not games:
-        raise HTTPException(
-            status_code=404, detail="No games found with specified criteria"
-        )
+        return HltbGamesListResponse(games=[])
 
     games_response = []
     for game in games:
