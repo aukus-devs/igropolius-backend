@@ -155,14 +155,16 @@ async def get_player_stats(
             username=player.username,
             games_completed=gs.games_completed if gs else 0,
             games_dropped=gs.games_dropped if gs else 0,
-            score_from_games_completed=ss.score_from_games_completed if ss else 0,
-            score_from_games_dropped=ss.score_from_games_dropped if ss else 0,
+            score_from_games_completed=round(ss.score_from_games_completed, 2)
+            if ss
+            else 0,
+            score_from_games_dropped=round(ss.score_from_games_dropped, 2) if ss else 0,
             instant_cards_used=cs.instant_cards_used if cs else 0,
-            score_from_cards=ss.score_from_cards if ss else 0,
-            score_lost_on_cards=ss.score_lost_on_cards if ss else 0,
-            street_tax_paid=ss.street_tax_paid if ss else 0,
-            map_tax_paid=ss.map_tax_paid if ss else 0,
-            income_from_others=ss.income_from_others if ss else 0,
+            score_from_cards=round(ss.score_from_cards, 2) if ss else 0,
+            score_lost_on_cards=round(ss.score_lost_on_cards, 2) if ss else 0,
+            street_tax_paid=round(ss.street_tax_paid, 2) if ss else 0,
+            map_tax_paid=round(ss.map_tax_paid, 2) if ss else 0,
+            income_from_others=round(ss.income_from_others, 2) if ss else 0,
         )
         player_stats_list.append(player_stats)
 
