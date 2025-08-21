@@ -2110,8 +2110,12 @@
           "title": "Score Lost On Cards",
           "type": "number"
         },
-        "tax_paid": {
-          "title": "Tax Paid",
+        "street_tax_paid": {
+          "title": "Street Tax Paid",
+          "type": "number"
+        },
+        "map_tax_paid": {
+          "title": "Map Tax Paid",
           "type": "number"
         },
         "income_from_others": {
@@ -2130,7 +2134,8 @@
         "instant_cards_used",
         "score_from_cards",
         "score_lost_on_cards",
-        "tax_paid",
+        "street_tax_paid",
+        "map_tax_paid",
         "income_from_others"
       ],
       "title": "PlayerStats",
