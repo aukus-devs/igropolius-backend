@@ -72,6 +72,11 @@ class HltbGameData(BaseModel):
 
 defined_users = [
     UserData(
+        username="Prison",
+        first_name="",
+        role=Role.PRISON,
+    ),
+    UserData(
         username="Praden",
         first_name="Денис",
         role=Role.ADMIN,
@@ -357,6 +362,8 @@ def make_user(user_data: UserData):
         total_score=0.0,
         turn_state=PlayerTurnState.ROLLING_DICE.value,
         maps_completed=0,
+        model_name="",
+        color="",
     )
 
 
