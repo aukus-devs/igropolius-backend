@@ -151,6 +151,7 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
                 else None,
                 difficulty_level=GameDifficulty(g.difficulty_level),
                 score_change_amount=score_changes_by_id.get(g.score_change_id),
+                player_sector_id=g.player_sector_id,
             )
             for g in games
             if g.player_id == user.id
@@ -262,6 +263,7 @@ async def get_player_events(
             if e.game_id and e.game_id in igdb_games_dict
             else None,
             sector_id=e.sector_id,
+            player_sector_id=e.player_sector_id,
             timestamp=e.created_at,
         )
         for e in games

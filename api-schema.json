@@ -758,6 +758,10 @@
         "sector_id": {
           "title": "Sector Id",
           "type": "integer"
+        },
+        "player_sector_id": {
+          "title": "Player Sector Id",
+          "type": "integer"
         }
       },
       "required": [
@@ -765,7 +769,8 @@
         "event_type",
         "subtype",
         "game_title",
-        "sector_id"
+        "sector_id",
+        "player_sector_id"
       ],
       "title": "GameEvent",
       "type": "object"
@@ -1954,6 +1959,10 @@
           ],
           "default": null,
           "title": "Score Change Amount"
+        },
+        "player_sector_id": {
+          "title": "Player Sector Id",
+          "type": "integer"
         }
       },
       "required": [
@@ -1967,7 +1976,8 @@
         "rating",
         "length",
         "length_bonus",
-        "difficulty_level"
+        "difficulty_level",
+        "player_sector_id"
       ],
       "title": "PlayerGame",
       "type": "object"

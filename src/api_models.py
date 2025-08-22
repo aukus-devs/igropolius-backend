@@ -47,6 +47,7 @@ class PlayerGame(BaseModel):
     game_id: int | None = None
     difficulty_level: GameDifficulty
     score_change_amount: float | None = None
+    player_sector_id: int
 
 
 class ActiveBonusCard(BaseModel):
@@ -165,6 +166,7 @@ class GameEvent(PlayerEventBase):
     game_title: str
     game_cover: str | None = None
     sector_id: int
+    player_sector_id: int
 
 
 class PlayerEventsResponse(BaseModel):
