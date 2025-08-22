@@ -41,6 +41,7 @@ from src.consts import (
     TRAIN_MAP,
 )
 from src.db.db_models import (
+    BonusCard,
     DiceRoll,
     IgdbGame,
     PlayerCard,
@@ -80,6 +81,7 @@ from src.utils.common import (
     get_bonus_cards_received_events,
     get_bonus_cards_stolen_events,
     get_bonus_cards_used_events,
+    get_cards_used_in_last_moves,
     get_closest_prison_sector,
     get_prison_user,
     get_sector_score_multiplier,
@@ -105,6 +107,16 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
         select(PlayerCard).where(PlayerCard.status == "active")
     )
     cards = cards_query.scalars().all()
+
+    cards_data_query = await db.execute(select(BonusCard))
+    cards_data = cards_data_query.scalars().all()
+    cards_data_by_type = {
+        card.card_type: card for card in cards_data if card.cooldown_turns
+    }
+    max_cooldown = 0
+    if cards_data:
+        max_cooldown = max(card.cooldown_turns for card in cards_data)
+    last_cards_used_per_player = await get_cards_used_in_last_moves(db, max_cooldown)
 
     game_ids = {g.game_id for g in games if g.game_id is not None}
     igdb_games_dict = {}
@@ -158,15 +170,30 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
         ]
         model.games.sort(key=lambda x: x.created_at, reverse=True)
 
-        model.bonus_cards = [
-            ActiveBonusCard(
-                bonus_type=MainBonusCardType(c.card_type),
-                received_at=c.created_at,
-                received_on_sector=c.received_on_sector,
+        model.bonus_cards = []
+        for card in cards:
+            if card.player_id != user.id:
+                continue
+
+            last_used_cards = last_cards_used_per_player.get(user.id, {})
+            last_used_card = last_used_cards.get(card.card_type)
+
+            cooldown_turns_left = 0
+
+            card_data = cards_data_by_type.get(card.card_type)
+            if card_data and card_data.cooldown_turns:
+                if last_used_card and last_used_card.get("move_age") is not None:
+                    move_age = last_used_card.get("move_age")
+                    cooldown_turns_left = max(0, card_data.cooldown_turns - move_age)
+
+            model.bonus_cards.append(
+                ActiveBonusCard(
+                    bonus_type=MainBonusCardType(card.card_type),
+                    received_at=card.created_at,
+                    received_on_sector=card.received_on_sector,
+                    cooldown_turns_left=cooldown_turns_left,
+                )
             )
-            for c in cards
-            if c.player_id == user.id
-        ]
 
         model.current_game_duration = await get_current_game_duration(
             db, user.id, user.current_game

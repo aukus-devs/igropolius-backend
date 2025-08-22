@@ -54,6 +54,7 @@ class ActiveBonusCard(BaseModel):
     bonus_type: MainBonusCardType
     received_at: int
     received_on_sector: int
+    cooldown_turns_left: int
 
 
 class PlayerDetails(BaseModel):

@@ -1,6 +1,6 @@
 from itertools import chain
 
-from src.enums import GameLength
+from src.enums import GameLength, InstantCardType, MainBonusCardType
 
 SCORES_BY_GAME_LENGTH = {
     GameLength.TWO_TO_FIVE.value: 10,
@@ -66,3 +66,7 @@ SECTOR_SCORE_MULTIPLIERS = {
 SECTOR_SCORE_MULTIPLIERS.update({sector_id: 1.5 for sector_id in BONUS_SECTORS})
 
 SCORE_BONUS_PER_MAP_COMPLETION = 5
+
+
+INSTANT_CARD_TYPES = {i.value for i in InstantCardType}
+ACTIVE_CARD_TYPES = {i.value for i in MainBonusCardType}

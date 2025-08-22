@@ -8,7 +8,7 @@ from src.api_models import PlayerStats, PlayerStatsResponse
 from src.db.db_models import PlayerCard, PlayerGame, PlayerScoreChange, User
 from src.db.db_session import get_db
 from src.enums import GameCompletionType, ScoreChangeType
-from src.utils.common import InstantCardsValues
+from src.consts import INSTANT_CARD_TYPES
 
 router = APIRouter(tags=["stats"])
 
@@ -137,7 +137,7 @@ async def get_player_stats(
         .where(
             PlayerCard.player_id.in_(player_ids),
             PlayerCard.status == "used",
-            PlayerCard.card_type.in_(InstantCardsValues),
+            PlayerCard.card_type.in_(INSTANT_CARD_TYPES),
         )
         .group_by(PlayerCard.player_id)
     )

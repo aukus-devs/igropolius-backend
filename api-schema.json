@@ -13,12 +13,17 @@
         "received_on_sector": {
           "title": "Received On Sector",
           "type": "integer"
+        },
+        "cooldown_turns_left": {
+          "title": "Cooldown Turns Left",
+          "type": "integer"
         }
       },
       "required": [
         "bonus_type",
         "received_at",
-        "received_on_sector"
+        "received_on_sector",
+        "cooldown_turns_left"
       ],
       "title": "ActiveBonusCard",
       "type": "object"
@@ -32,8 +37,7 @@
         },
         "event_type": {
           "const": "bonus-card",
-          "title": "Event Type",
-          "type": "string"
+          "title": "Event Type"
         },
         "subtype": {
           "$ref": "#/$defs/BonusCardEventType"
@@ -733,8 +737,7 @@
         },
         "event_type": {
           "const": "game",
-          "title": "Event Type",
-          "type": "string"
+          "title": "Event Type"
         },
         "subtype": {
           "$ref": "#/$defs/GameCompletionType"
@@ -1297,8 +1300,7 @@
         },
         "event_type": {
           "const": "player-move",
-          "title": "Event Type",
-          "type": "string"
+          "title": "Event Type"
         },
         "subtype": {
           "$ref": "#/$defs/PlayerMoveType"
@@ -1671,7 +1673,11 @@
           "title": "Pointauc Token"
         },
         "main_platform": {
-          "$ref": "#/$defs/StreamPlatform",
+          "allOf": [
+            {
+              "$ref": "#/$defs/StreamPlatform"
+            }
+          ],
           "default": "none"
         },
         "twitch_stream_link": {
@@ -2409,8 +2415,7 @@
         },
         "event_type": {
           "const": "score-change",
-          "title": "Event Type",
-          "type": "string"
+          "title": "Event Type"
         },
         "subtype": {
           "$ref": "#/$defs/ScoreChangeType"
@@ -2577,7 +2582,6 @@
           "type": "boolean"
         },
         "stats": {
-          "additionalProperties": true,
           "title": "Stats",
           "type": "object"
         }

@@ -1,20 +1,24 @@
+from typing import cast
+from typing_extensions import TypedDict
 from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+
 from src.api_models import BonusCardEvent
 from src.consts import (
+    ACTIVE_CARD_TYPES,
     FIRST_DAY_SECONDS,
+    INSTANT_CARD_TYPES,
     SECTOR_SCORE_MULTIPLIERS,
     SECTORS_COLORS_GROUPS,
 )
-from src.db.db_models import EventSettings, PlayerCard, PlayerGame, User
+from src.db.db_models import EventSettings, PlayerCard, PlayerGame, PlayerMove, User
 from src.enums import (
     BonusCardEventType,
     BonusCardStatus,
     BonusCardType,
     EventSetting,
     GameCompletionType,
-    InstantCardType,
     Role,
 )
 from src.utils.db import utc_now_ts
@@ -124,11 +128,8 @@ async def player_owns_sectors_group(
     return sectors_owned == len(sectors_group)
 
 
-InstantCardsValues = {i.value for i in InstantCardType}
-
-
 def is_instant_card(value: str) -> bool:
-    return value in InstantCardsValues
+    return value in INSTANT_CARD_TYPES
 
 
 async def get_event_setting(db: AsyncSession, setting: EventSetting) -> str | None:
@@ -160,3 +161,85 @@ async def get_prison_user(db: AsyncSession) -> User | None:
     prison = await db.execute(prison_query)
     prison_user = prison.scalars().first()
     return prison_user
+
+
+async def get_last_card_usage(db: AsyncSession) -> list[tuple[int, str, int]]:
+    # Construct the query
+    query = (
+        select(
+            PlayerCard.player_id,
+            PlayerCard.card_type,
+            func.max(PlayerCard.used_at).label("last_used_at"),
+        )
+        .where(PlayerCard.card_type.in_(ACTIVE_CARD_TYPES))
+        .where(PlayerCard.status == BonusCardStatus.USED.value)
+        .where(PlayerCard.used_at.is_not(None))
+        .group_by(PlayerCard.player_id, PlayerCard.card_type)
+        .order_by(PlayerCard.player_id, PlayerCard.card_type)
+    )
+
+    result = await db.execute(query)
+    last_cards = result.all()
+    return cast(list[tuple[int, str, int]], last_cards)
+
+
+async def get_last_moves(db: AsyncSession, limit: int) -> list[PlayerMove]:
+    subquery = (
+        select(
+            PlayerMove,
+            func.row_number()
+            .over(partition_by=PlayerMove.player_id, order_by=PlayerMove.id.desc())
+            .label("row_num"),
+        )
+        .select_from(PlayerMove)
+        .subquery()
+    )
+    query = (
+        select(PlayerMove)
+        .join(subquery, PlayerMove.id == subquery.c.id)
+        .where(subquery.c.row_num <= limit)
+    )
+
+    # query = select(subquery).where(subquery.c.row_num <= limit)
+    result = await db.execute(query)
+    moves = result.scalars().all()
+    return moves
+
+
+class MoveWithAge(TypedDict):
+    age: int
+    move: PlayerMove
+
+
+async def get_cards_used_in_last_moves(
+    db: AsyncSession, moves: int
+) -> dict[int, dict[str, MoveWithAge]]:
+    last_moves = await get_last_moves(db, moves)
+    cards_usage = await get_last_card_usage(db)
+
+    moves_ordered = sorted(last_moves, key=lambda move: move.created_at, reverse=True)
+
+    moves_by_player = {}
+    for move in moves_ordered:
+        if move.player_id not in moves_by_player:
+            moves_by_player[move.player_id] = []
+        moves_by_player[move.player_id].append(move)
+
+    cards_used_per_player = {}
+    for card_usage in cards_usage:
+        player_id, card_type, last_used_at = card_usage
+        if player_id not in cards_used_per_player:
+            cards_used_per_player[player_id] = {}
+        if card_type not in cards_used_per_player[player_id]:
+            cards_used_per_player[player_id][card_type] = {}
+
+        player_moves = moves_by_player.get(player_id, [])
+        for idx, move in enumerate(player_moves):
+            if move.created_at <= last_used_at:
+                cards_used_per_player[player_id][card_type] = {
+                    "move_age": idx,
+                    "move": move,
+                }
+                break
+
+    return cards_used_per_player

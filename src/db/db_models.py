@@ -297,3 +297,4 @@ class BonusCard(DbBase):
     )
     card_type: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     weight: Mapped[float] = mapped_column(Float, nullable=False, default=1.0)
+    cooldown_turns: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
