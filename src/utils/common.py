@@ -19,6 +19,7 @@ from src.enums import (
     BonusCardType,
     EventSetting,
     GameCompletionType,
+    PlayerMoveType,
     Role,
 )
 from src.utils.db import utc_now_ts
@@ -192,6 +193,11 @@ async def get_last_moves(db: AsyncSession, limit: int) -> list[PlayerMove]:
             .label("row_num"),
         )
         .select_from(PlayerMove)
+        .where(
+            PlayerMove.move_type.in_(
+                [PlayerMoveType.DICE_ROLL.value, PlayerMoveType.DROP_TO_PRISON.value]
+            )
+        )
         .subquery()
     )
     query = (
@@ -235,7 +241,7 @@ async def get_cards_used_in_last_moves(
 
         player_moves = moves_by_player.get(player_id, [])
         for idx, move in enumerate(player_moves):
-            if move.created_at <= last_used_at:
+            if move.created_at < last_used_at:
                 cards_used_per_player[player_id][card_type] = {
                     "move_age": idx,
                     "move": move,
