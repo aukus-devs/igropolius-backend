@@ -131,11 +131,16 @@
         "weight": {
           "title": "Weight",
           "type": "number"
+        },
+        "cooldown_turns": {
+          "title": "Cooldown Turns",
+          "type": "integer"
         }
       },
       "required": [
         "card_type",
-        "weight"
+        "weight",
+        "cooldown_turns"
       ],
       "title": "BonusCardInfo",
       "type": "object"

@@ -98,6 +98,7 @@ class PlayerListResponse(BaseModel):
 class BonusCardInfo(BaseModel):
     card_type: BonusCardType
     weight: float
+    cooldown_turns: int
 
 
 class CurrentUserResponse(BaseModel):
