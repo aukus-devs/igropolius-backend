@@ -634,6 +634,7 @@ async def save_player_game(
             )
             await db.flush()
             game.score_change_id = score_change.id
+            game.item_length = ""
             await create_game_drop_notification(db, current_user.id, request.title)
         case GameCompletionType.REROLL:
             await create_game_reroll_notification(db, current_user.id, request.title)
