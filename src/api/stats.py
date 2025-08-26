@@ -194,7 +194,9 @@ async def get_player_stats(
 async def get_final_stats(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    active_players_query = await db.execute(select(User).filter(User.is_active == 1))
+    active_players_query = await db.execute(
+        select(User).filter(User.is_active == 1, User.sector_id.is_not(None))
+    )
     active_players = active_players_query.scalars().all()
 
     prison_user = await get_prison_user(db)
