@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_models import (
     FinalStatsResponse,
+    PlayerFinalStats,
+    PlayerGame as PlayerGameModel,
     PlayerStats,
     PlayerStatsResponse,
 )
@@ -25,6 +27,7 @@ from src.enums import (
     ScoreChangeType,
 )
 from src.consts import INSTANT_CARD_TYPES
+from src.utils.common import get_prison_user
 
 router = APIRouter(tags=["stats"])
 
@@ -191,19 +194,40 @@ async def get_player_stats(
 async def get_final_stats(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    active_players_query = await db.execute(
-        select(User).filter(User.is_active == 1, User.sector_id.is_not(None))
-    )
+    active_players_query = await db.execute(select(User).filter(User.is_active == 1))
     active_players = active_players_query.scalars().all()
+
+    prison_user = await get_prison_user(db)
 
     total_score = sum(player.total_score or 0 for player in active_players)
 
-    completed_games_query = await db.execute(
-        select(func.count(PlayerGame.id)).filter(
-            PlayerGame.type == GameCompletionType.COMPLETED.value
+    all_player_games_query = await db.execute(select(PlayerGame))
+    all_player_games: list[PlayerGame] = all_player_games_query.scalars().all()
+    games_by_player: dict[int, list[PlayerGame]] = {}
+    for game in all_player_games:
+        if game.player_id not in games_by_player:
+            games_by_player[game.player_id] = []
+        games_by_player[game.player_id].append(game)
+
+    all_player_cards_query = await db.execute(
+        select(PlayerCard).filter(
+            PlayerCard.player_id != prison_user.id if prison_user else True
         )
     )
-    completed_games = completed_games_query.scalar_one()
+    all_player_cards: list[PlayerCard] = all_player_cards_query.scalars().all()
+    cards_by_player: dict[int, list[PlayerCard]] = {}
+    for card in all_player_cards:
+        if card.player_id not in cards_by_player:
+            cards_by_player[card.player_id] = []
+        cards_by_player[card.player_id].append(card)
+
+    completed_games_list = [
+        game
+        for game in all_player_games
+        if game.type == GameCompletionType.COMPLETED.value
+    ]
+
+    completed_games = len(completed_games_list)
 
     dice_rolls_query = await db.execute(select(func.count(DiceRoll.id)))
     dice_rolls = dice_rolls_query.scalar_one()
@@ -211,29 +235,22 @@ async def get_final_stats(
     hours_spent_on_games_query = await db.execute(select(func.sum(PlayerGame.duration)))
     hours_spent_on_games = (hours_spent_on_games_query.scalar_one() or 0) / 3600
 
-    cards_received_query = await db.execute(select(func.count(PlayerCard.id)))
-    cards_received = cards_received_query.scalar_one()
+    cards_received = len(all_player_cards)
 
-    cards_used_query = await db.execute(
-        select(func.count(PlayerCard.id)).filter(
-            PlayerCard.status == BonusCardStatus.USED.value
-        )
+    cards_used = len(
+        [card for card in all_player_cards if card.status == BonusCardStatus.USED.value]
     )
-    cards_used = cards_used_query.scalar_one()
 
     maps_completed = sum(player.maps_completed or 0 for player in active_players)
 
-    games_dropped_or_rerolled_query = await db.execute(
-        select(func.count(PlayerGame.id)).filter(
-            PlayerGame.type.in_(
-                [
-                    GameCompletionType.DROP.value,
-                    GameCompletionType.REROLL.value,
-                ]
-            )
-        )
+    games_dropped_or_rerolled = len(
+        [
+            game
+            for game in all_player_games
+            if game.type
+            in (GameCompletionType.DROP.value, GameCompletionType.REROLL.value)
+        ]
     )
-    games_dropped_or_rerolled = games_dropped_or_rerolled_query.scalar_one()
 
     train_rides_query = await db.execute(
         select(func.count(PlayerMove.id)).filter(
@@ -242,24 +259,76 @@ async def get_final_stats(
     )
     train_rides = train_rides_query.scalar_one()
 
-    average_rating_of_completed_games_query = await db.execute(
-        select(func.avg(PlayerGame.item_rating)).filter(
-            PlayerGame.type == GameCompletionType.COMPLETED.value
+    average_rating_of_completed_games = 0.0
+    if completed_games_list:
+        average_rating_of_completed_games = round(
+            sum(game.item_rating for game in completed_games_list)
+            / len(completed_games_list),
+            2,
         )
-    )
-    average_rating_of_completed_games = (
-        average_rating_of_completed_games_query.scalar_one() or 0
-    )
+
+    player_stats_list = []
+    for player in active_players:
+        player_games = games_by_player.get(player.id, [])
+
+        games_completed = len(
+            [g for g in player_games if g.type == GameCompletionType.COMPLETED.value]
+        )
+        games_dropped = len(
+            [g for g in player_games if g.type == GameCompletionType.DROP.value]
+        )
+
+        durations = [g.duration for g in player_games if g.duration]
+        longest_game_hours = max(durations) / 3600 if durations else 0
+        shortest_game_hours = min(durations) / 3600 if durations else 0
+        hours_played = sum(durations) / 3600 if durations else 0
+
+        player_cards = cards_by_player.get(player.id, [])
+        cards_amount = len(player_cards)
+
+        completed_games_list = [
+            g for g in player_games if g.type == GameCompletionType.COMPLETED.value
+        ]
+        best_rated_game = (
+            max(completed_games_list, key=lambda g: g.item_rating)
+            if completed_games_list
+            else None
+        )
+        worst_rated_game = (
+            min(completed_games_list, key=lambda g: g.item_rating)
+            if completed_games_list
+            else None
+        )
+
+        player_stats = PlayerFinalStats(
+            player_id=player.id,
+            username=player.username,
+            total_score=player.total_score or 0,
+            games_completed=games_completed,
+            games_dropped=games_dropped,
+            longest_game_hours=longest_game_hours,
+            shortest_game_hours=shortest_game_hours,
+            cards_amount=cards_amount,
+            hours_played=hours_played,
+            best_rated_game=PlayerGameModel.model_validate(best_rated_game)
+            if best_rated_game
+            else None,
+            worst_rated_game=PlayerGameModel.model_validate(worst_rated_game)
+            if worst_rated_game
+            else None,
+        )
+        player_stats_list.append(player_stats)
 
     return FinalStatsResponse(
         total_score=total_score,
         completed_games=completed_games,
         dice_rolls=dice_rolls,
-        hours_spent_on_games=round(hours_spent_on_games, 2),
+        hours_spent_on_games=hours_spent_on_games,
         cards_received=cards_received,
         cards_used=cards_used,
         maps_completed=maps_completed,
         games_dropped_or_rerolled=games_dropped_or_rerolled,
         train_rides=train_rides,
-        average_rating_of_completed_games=round(average_rating_of_completed_games, 2),
+        average_rating_of_completed_games=average_rating_of_completed_games,
+        players=player_stats_list,
     )

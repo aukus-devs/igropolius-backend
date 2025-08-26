@@ -722,6 +722,13 @@
         "average_rating_of_completed_games": {
           "title": "Average Rating Of Completed Games",
           "type": "number"
+        },
+        "players": {
+          "items": {
+            "$ref": "#/$defs/PlayerFinalStats"
+          },
+          "title": "Players",
+          "type": "array"
         }
       },
       "required": [
@@ -734,7 +741,8 @@
         "maps_completed",
         "games_dropped_or_rerolled",
         "train_rides",
-        "average_rating_of_completed_games"
+        "average_rating_of_completed_games",
+        "players"
       ],
       "title": "FinalStatsResponse",
       "type": "object"
@@ -1926,6 +1934,82 @@
       "title": "PlayerEventsResponse",
       "type": "object"
     },
+    "PlayerFinalStats": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "username": {
+          "title": "Username",
+          "type": "string"
+        },
+        "total_score": {
+          "title": "Total Score",
+          "type": "number"
+        },
+        "games_completed": {
+          "title": "Games Completed",
+          "type": "integer"
+        },
+        "games_dropped": {
+          "title": "Games Dropped",
+          "type": "integer"
+        },
+        "longest_game_hours": {
+          "title": "Longest Game Hours",
+          "type": "number"
+        },
+        "shortest_game_hours": {
+          "title": "Shortest Game Hours",
+          "type": "number"
+        },
+        "cards_amount": {
+          "title": "Cards Amount",
+          "type": "integer"
+        },
+        "hours_played": {
+          "title": "Hours Played",
+          "type": "number"
+        },
+        "best_rated_game": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlayerGame"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "worst_rated_game": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlayerGame"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "player_id",
+        "username",
+        "total_score",
+        "games_completed",
+        "games_dropped",
+        "longest_game_hours",
+        "shortest_game_hours",
+        "cards_amount",
+        "hours_played"
+      ],
+      "title": "PlayerFinalStats",
+      "type": "object"
+    },
     "PlayerGame": {
       "additionalProperties": false,
       "properties": {
@@ -1941,30 +2025,30 @@
           "title": "Created At",
           "type": "integer"
         },
-        "status": {
+        "type": {
           "$ref": "#/$defs/GameCompletionType"
         },
         "sector_id": {
           "title": "Sector Id",
           "type": "integer"
         },
-        "title": {
-          "title": "Title",
+        "item_title": {
+          "title": "Item Title",
           "type": "string"
         },
-        "review": {
-          "title": "Review",
+        "item_review": {
+          "title": "Item Review",
           "type": "string"
         },
-        "rating": {
-          "title": "Rating",
+        "item_rating": {
+          "title": "Item Rating",
           "type": "number"
         },
-        "length": {
+        "item_length": {
           "$ref": "#/$defs/GameLength"
         },
-        "length_bonus": {
-          "title": "Length Bonus",
+        "item_length_bonus": {
+          "title": "Item Length Bonus",
           "type": "integer"
         },
         "duration": {
@@ -2039,13 +2123,13 @@
         "id",
         "player_id",
         "created_at",
-        "status",
+        "type",
         "sector_id",
-        "title",
-        "review",
-        "rating",
-        "length",
-        "length_bonus",
+        "item_title",
+        "item_review",
+        "item_rating",
+        "item_length",
+        "item_length_bonus",
         "difficulty_level",
         "player_sector_id"
       ],
