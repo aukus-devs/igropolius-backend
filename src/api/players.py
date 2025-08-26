@@ -141,33 +141,22 @@ async def get_players(db: Annotated[AsyncSession, Depends(get_db)]):
     users_models = []
     for user in players:
         model = PlayerDetails.model_validate(user)
-        model.games = [
-            PlayerGameApiModel(
-                id=g.id,
-                player_id=g.player_id,
-                sector_id=g.sector_id,
-                title=g.item_title,
-                length=g.item_length,
-                length_bonus=g.item_length_bonus,
-                created_at=g.created_at,
-                status=cast(GameCompletionType, g.type),
-                review=g.item_review,
-                rating=g.item_rating,
-                duration=g.duration,
-                vod_links=g.vod_links,
-                cover=igdb_games_dict[g.game_id].cover
+        model.games = []
+        for g in games:
+            if g.player_id != user.id:
+                continue
+            game_model = PlayerGameApiModel.model_validate(g)
+            game_model.cover = (
+                igdb_games_dict[g.game_id].cover
                 if g.game_id and g.game_id in igdb_games_dict
-                else None,
-                game_id=g.game_id
-                if g.game_id and g.game_id in igdb_games_dict
-                else None,
-                difficulty_level=GameDifficulty(g.difficulty_level),
-                score_change_amount=score_changes_by_id.get(g.score_change_id),
-                player_sector_id=g.player_sector_id,
+                else None
             )
-            for g in games
-            if g.player_id == user.id
-        ]
+            game_model.game_id = (
+                g.game_id if g.game_id and g.game_id in igdb_games_dict else None
+            )
+            game_model.score_change_amount = score_changes_by_id.get(g.score_change_id)
+            model.games.append(game_model)
+
         model.games.sort(key=lambda x: x.created_at, reverse=True)
 
         model.bonus_cards = []

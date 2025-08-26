@@ -34,13 +34,13 @@ class PlayerGame(BaseModel):
     id: int
     player_id: int
     created_at: int
-    status: GameCompletionType
+    status: GameCompletionType = Field(validation_alias="type")
     sector_id: int
-    title: str
-    review: str
-    rating: float
-    length: GameLength
-    length_bonus: int
+    title: str = Field(validation_alias="item_title")
+    review: str = Field(validation_alias="item_review")
+    rating: float = Field(validation_alias="item_rating")
+    length: GameLength = Field(validation_alias="item_length")
+    length_bonus: int = Field(validation_alias="item_length_bonus")
     duration: int | None = None
     vod_links: str | None = None
     cover: str | None = None
@@ -513,6 +513,20 @@ class PlayerStatsResponse(BaseModel):
     stats: list[PlayerStats]
 
 
+class PlayerFinalStats(BaseModel):
+    player_id: int
+    username: str
+    total_score: float
+    games_completed: int
+    games_dropped: int
+    longest_game_hours: float
+    shortest_game_hours: float
+    cards_amount: int
+    hours_played: float
+    best_rated_game: PlayerGame | None = None
+    worst_rated_game: PlayerGame | None = None
+
+
 class FinalStatsResponse(BaseModel):
     total_score: float
     completed_games: int
@@ -524,3 +538,4 @@ class FinalStatsResponse(BaseModel):
     games_dropped_or_rerolled: int
     train_rides: int
     average_rating_of_completed_games: float
+    players: list[PlayerFinalStats]
