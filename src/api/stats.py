@@ -306,10 +306,10 @@ async def get_final_stats(
             total_score=player.total_score or 0,
             games_completed=games_completed,
             games_dropped=games_dropped,
-            longest_game_hours=longest_game_hours,
-            shortest_game_hours=shortest_game_hours,
+            longest_game_hours=round(longest_game_hours, 2),
+            shortest_game_hours=round(shortest_game_hours, 2),
             cards_amount=cards_amount,
-            hours_played=hours_played,
+            hours_played=round(hours_played, 2),
             best_rated_game=PlayerGameModel.model_validate(best_rated_game)
             if best_rated_game
             else None,
@@ -323,7 +323,7 @@ async def get_final_stats(
         total_score=total_score,
         completed_games=completed_games,
         dice_rolls=dice_rolls,
-        hours_spent_on_games=hours_spent_on_games,
+        hours_spent_on_games=round(hours_spent_on_games, 2),
         cards_received=cards_received,
         cards_used=cards_used,
         maps_completed=maps_completed,
