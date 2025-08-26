@@ -511,3 +511,16 @@ class PlayerStats(BaseModel):
 
 class PlayerStatsResponse(BaseModel):
     stats: list[PlayerStats]
+
+
+class FinalStatsResponse(BaseModel):
+    total_score: float
+    completed_games: int
+    dice_rolls: int
+    hours_spent_on_games: float
+    cards_received: int
+    cards_used: int
+    maps_completed: int
+    games_dropped_or_rerolled: int
+    train_rides: int
+    average_rating_of_completed_games: float

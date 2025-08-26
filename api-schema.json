@@ -680,6 +680,65 @@
       "title": "EventSettingsResponse",
       "type": "object"
     },
+    "FinalStatsResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "total_score": {
+          "title": "Total Score",
+          "type": "number"
+        },
+        "completed_games": {
+          "title": "Completed Games",
+          "type": "integer"
+        },
+        "dice_rolls": {
+          "title": "Dice Rolls",
+          "type": "integer"
+        },
+        "hours_spent_on_games": {
+          "title": "Hours Spent On Games",
+          "type": "number"
+        },
+        "cards_received": {
+          "title": "Cards Received",
+          "type": "integer"
+        },
+        "cards_used": {
+          "title": "Cards Used",
+          "type": "integer"
+        },
+        "maps_completed": {
+          "title": "Maps Completed",
+          "type": "integer"
+        },
+        "games_dropped_or_rerolled": {
+          "title": "Games Dropped Or Rerolled",
+          "type": "integer"
+        },
+        "train_rides": {
+          "title": "Train Rides",
+          "type": "integer"
+        },
+        "average_rating_of_completed_games": {
+          "title": "Average Rating Of Completed Games",
+          "type": "number"
+        }
+      },
+      "required": [
+        "total_score",
+        "completed_games",
+        "dice_rolls",
+        "hours_spent_on_games",
+        "cards_received",
+        "cards_used",
+        "maps_completed",
+        "games_dropped_or_rerolled",
+        "train_rides",
+        "average_rating_of_completed_games"
+      ],
+      "title": "FinalStatsResponse",
+      "type": "object"
+    },
     "GameCompletionType": {
       "enum": [
         "completed",

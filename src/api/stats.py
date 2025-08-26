@@ -4,10 +4,26 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api_models import PlayerStats, PlayerStatsResponse
-from src.db.db_models import PlayerCard, PlayerGame, PlayerScoreChange, User
+from src.api_models import (
+    FinalStatsResponse,
+    PlayerStats,
+    PlayerStatsResponse,
+)
+from src.db.db_models import (
+    DiceRoll,
+    PlayerCard,
+    PlayerGame,
+    PlayerMove,
+    PlayerScoreChange,
+    User,
+)
 from src.db.db_session import get_db
-from src.enums import GameCompletionType, ScoreChangeType
+from src.enums import (
+    BonusCardStatus,
+    GameCompletionType,
+    PlayerMoveType,
+    ScoreChangeType,
+)
 from src.consts import INSTANT_CARD_TYPES
 
 router = APIRouter(tags=["stats"])
@@ -169,3 +185,81 @@ async def get_player_stats(
         player_stats_list.append(player_stats)
 
     return PlayerStatsResponse(stats=player_stats_list)
+
+
+@router.get("/api/stats/final", response_model=FinalStatsResponse)
+async def get_final_stats(
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    active_players_query = await db.execute(
+        select(User).filter(User.is_active == 1, User.sector_id.is_not(None))
+    )
+    active_players = active_players_query.scalars().all()
+
+    total_score = sum(player.total_score or 0 for player in active_players)
+
+    completed_games_query = await db.execute(
+        select(func.count(PlayerGame.id)).filter(
+            PlayerGame.type == GameCompletionType.COMPLETED.value
+        )
+    )
+    completed_games = completed_games_query.scalar_one()
+
+    dice_rolls_query = await db.execute(select(func.count(DiceRoll.id)))
+    dice_rolls = dice_rolls_query.scalar_one()
+
+    hours_spent_on_games_query = await db.execute(select(func.sum(PlayerGame.duration)))
+    hours_spent_on_games = (hours_spent_on_games_query.scalar_one() or 0) / 3600
+
+    cards_received_query = await db.execute(select(func.count(PlayerCard.id)))
+    cards_received = cards_received_query.scalar_one()
+
+    cards_used_query = await db.execute(
+        select(func.count(PlayerCard.id)).filter(
+            PlayerCard.status == BonusCardStatus.USED.value
+        )
+    )
+    cards_used = cards_used_query.scalar_one()
+
+    maps_completed = sum(player.maps_completed or 0 for player in active_players)
+
+    games_dropped_or_rerolled_query = await db.execute(
+        select(func.count(PlayerGame.id)).filter(
+            PlayerGame.type.in_(
+                [
+                    GameCompletionType.DROP.value,
+                    GameCompletionType.REROLL.value,
+                ]
+            )
+        )
+    )
+    games_dropped_or_rerolled = games_dropped_or_rerolled_query.scalar_one()
+
+    train_rides_query = await db.execute(
+        select(func.count(PlayerMove.id)).filter(
+            PlayerMove.move_type == PlayerMoveType.TRAIN_RIDE.value
+        )
+    )
+    train_rides = train_rides_query.scalar_one()
+
+    average_rating_of_completed_games_query = await db.execute(
+        select(func.avg(PlayerGame.item_rating)).filter(
+            PlayerGame.type == GameCompletionType.COMPLETED.value
+        )
+    )
+    average_rating_of_completed_games = (
+        average_rating_of_completed_games_query.scalar_one() or 0
+    )
+
+    return FinalStatsResponse(
+        total_score=total_score,
+        completed_games=completed_games,
+        dice_rolls=dice_rolls,
+        hours_spent_on_games=round(hours_spent_on_games, 2),
+        cards_received=cards_received,
+        cards_used=cards_used,
+        maps_completed=maps_completed,
+        games_dropped_or_rerolled=games_dropped_or_rerolled,
+        train_rides=train_rides,
+        average_rating_of_completed_games=round(average_rating_of_completed_games, 2),
+    )
