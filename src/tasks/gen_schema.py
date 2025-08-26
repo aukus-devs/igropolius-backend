@@ -17,7 +17,7 @@ if __name__ == "__main__":
             base_models.append((obj, "validation"))
 
     # Generate JSON schema for all models in the current module
-    schema_dict, root_schema = models_json_schema(base_models)
+    schema_dict, root_schema = models_json_schema(base_models, by_alias=False)
 
     # Optionally, save the schema to a file
     with open("api-schema.json", "w") as f:

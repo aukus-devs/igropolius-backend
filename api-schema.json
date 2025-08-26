@@ -2025,30 +2025,30 @@
           "title": "Created At",
           "type": "integer"
         },
-        "type": {
+        "status": {
           "$ref": "#/$defs/GameCompletionType"
         },
         "sector_id": {
           "title": "Sector Id",
           "type": "integer"
         },
-        "item_title": {
-          "title": "Item Title",
+        "title": {
+          "title": "Title",
           "type": "string"
         },
-        "item_review": {
-          "title": "Item Review",
+        "review": {
+          "title": "Review",
           "type": "string"
         },
-        "item_rating": {
-          "title": "Item Rating",
+        "rating": {
+          "title": "Rating",
           "type": "number"
         },
-        "item_length": {
+        "length": {
           "$ref": "#/$defs/GameLength"
         },
-        "item_length_bonus": {
-          "title": "Item Length Bonus",
+        "length_bonus": {
+          "title": "Length Bonus",
           "type": "integer"
         },
         "duration": {
@@ -2123,13 +2123,13 @@
         "id",
         "player_id",
         "created_at",
-        "type",
+        "status",
         "sector_id",
-        "item_title",
-        "item_review",
-        "item_rating",
-        "item_length",
-        "item_length_bonus",
+        "title",
+        "review",
+        "rating",
+        "length",
+        "length_bonus",
         "difficulty_level",
         "player_sector_id"
       ],
