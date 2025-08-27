@@ -535,7 +535,8 @@ class FinalStatsResponse(BaseModel):
     cards_received: int
     cards_used: int
     maps_completed: int
-    games_dropped_or_rerolled: int
+    games_dropped: int
+    games_rerolled: int
     train_rides: int
     average_rating_of_completed_games: float
     players: list[PlayerFinalStats]

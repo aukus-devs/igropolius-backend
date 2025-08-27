@@ -711,8 +711,12 @@
           "title": "Maps Completed",
           "type": "integer"
         },
-        "games_dropped_or_rerolled": {
-          "title": "Games Dropped Or Rerolled",
+        "games_dropped": {
+          "title": "Games Dropped",
+          "type": "integer"
+        },
+        "games_rerolled": {
+          "title": "Games Rerolled",
           "type": "integer"
         },
         "train_rides": {
@@ -739,7 +743,8 @@
         "cards_received",
         "cards_used",
         "maps_completed",
-        "games_dropped_or_rerolled",
+        "games_dropped",
+        "games_rerolled",
         "train_rides",
         "average_rating_of_completed_games",
         "players"

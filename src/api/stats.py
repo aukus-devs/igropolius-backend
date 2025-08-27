@@ -245,12 +245,18 @@ async def get_final_stats(
 
     maps_completed = sum(player.maps_completed or 0 for player in active_players)
 
-    games_dropped_or_rerolled = len(
+    games_dropped = len(
         [
             game
             for game in all_player_games
-            if game.type
-            in (GameCompletionType.DROP.value, GameCompletionType.REROLL.value)
+            if game.type == GameCompletionType.DROP.value
+        ]
+    )
+    games_rerolled = len(
+        [
+            game
+            for game in all_player_games
+            if game.type == GameCompletionType.REROLL.value
         ]
     )
 
@@ -329,7 +335,8 @@ async def get_final_stats(
         cards_received=cards_received,
         cards_used=cards_used,
         maps_completed=maps_completed,
-        games_dropped_or_rerolled=games_dropped_or_rerolled,
+        games_dropped=games_dropped,
+        games_rerolled=games_rerolled,
         train_rides=train_rides,
         average_rating_of_completed_games=average_rating_of_completed_games,
         players=player_stats_list,
