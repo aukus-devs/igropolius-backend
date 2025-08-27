@@ -312,7 +312,7 @@ async def use_instant_card(
         #         bonus_card_owner=current_user.id,
         #     )
         case InstantCardType.RECEIVE_1_PERCENT_PLUS_20:
-            change = 10 * score_multiplier
+            change = 9 * score_multiplier
             await change_player_score(
                 db,
                 current_user,
@@ -410,7 +410,7 @@ async def use_instant_card(
                 response.score_change = change
             else:
                 players = await get_players_by_score(db, for_update=True, limit=3)
-                scores_lost = [-5, -4, -3]
+                scores_lost = [-6, -5, -4]
                 for i, player in enumerate(players[:3]):
                     if player.total_score is None:
                         continue
