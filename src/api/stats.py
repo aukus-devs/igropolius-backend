@@ -18,6 +18,7 @@ from src.db.db_models import (
     PlayerMove,
     PlayerScoreChange,
     User,
+    IgdbGame,
 )
 from src.db.db_session import get_db
 from src.enums import (
@@ -275,6 +276,7 @@ async def get_final_stats(
             2,
         )
 
+    game_ids = []
     player_stats_list = []
     for player in active_players:
         player_games = games_by_player.get(player.id, [])
@@ -326,6 +328,29 @@ async def get_final_stats(
             else None,
         )
         player_stats_list.append(player_stats)
+
+        if best_rated_game and best_rated_game.game_id:
+            game_ids.append(best_rated_game.game_id)
+        if worst_rated_game and worst_rated_game.game_id:
+            game_ids.append(worst_rated_game.game_id)
+
+    igdb_games_dict = {}
+    if game_ids:
+        igdb_games_query = await db.execute(
+            select(IgdbGame).where(IgdbGame.id.in_(game_ids))
+        )
+        igdb_games = igdb_games_query.scalars().all()
+        igdb_games_dict = {game.id: game for game in igdb_games}
+
+    for stats in player_stats_list:
+        if stats.best_rated_game and stats.best_rated_game.game_id:
+            igdb_game = igdb_games_dict.get(stats.best_rated_game.game_id)
+            if igdb_game:
+                stats.best_rated_game.cover = igdb_game.cover
+        if stats.worst_rated_game and stats.worst_rated_game.game_id:
+            igdb_game = igdb_games_dict.get(stats.worst_rated_game.game_id)
+            if igdb_game:
+                stats.worst_rated_game.cover = igdb_game.cover
 
     return FinalStatsResponse(
         total_score=total_score,

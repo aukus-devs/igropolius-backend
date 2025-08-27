@@ -1,6 +1,6 @@
 import json
 from itertools import chain
-from typing import Annotated, cast
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
