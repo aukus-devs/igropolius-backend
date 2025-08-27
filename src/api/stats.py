@@ -245,14 +245,14 @@ async def get_final_stats(
 
     maps_completed = sum(player.maps_completed or 0 for player in active_players)
 
-    games_dropped = len(
+    total_games_dropped = len(
         [
             game
             for game in all_player_games
             if game.type == GameCompletionType.DROP.value
         ]
     )
-    games_rerolled = len(
+    total_games_rerolled = len(
         [
             game
             for game in all_player_games
@@ -279,17 +279,17 @@ async def get_final_stats(
     for player in active_players:
         player_games = games_by_player.get(player.id, [])
 
-        games_completed = len(
+        player_games_completed = len(
             [g for g in player_games if g.type == GameCompletionType.COMPLETED.value]
         )
-        games_dropped = len(
+        player_games_dropped = len(
             [g for g in player_games if g.type == GameCompletionType.DROP.value]
         )
 
         durations = [g.duration for g in player_games if g.duration]
-        longest_game_hours = max(durations) / 3600 if durations else 0
-        shortest_game_hours = min(durations) / 3600 if durations else 0
-        hours_played = sum(durations) / 3600 if durations else 0
+        longest_game_hours = max(durations) if durations else 0
+        shortest_game_hours = min(durations) if durations else 0
+        hours_played = sum(durations) if durations else 0
 
         player_cards = cards_by_player.get(player.id, [])
         cards_amount = len(player_cards)
@@ -312,8 +312,8 @@ async def get_final_stats(
             player_id=player.id,
             username=player.username,
             total_score=player.total_score or 0,
-            games_completed=games_completed,
-            games_dropped=games_dropped,
+            games_completed=player_games_completed,
+            games_dropped=player_games_dropped,
             longest_game_hours=round(longest_game_hours, 2),
             shortest_game_hours=round(shortest_game_hours, 2),
             cards_amount=cards_amount,
@@ -335,8 +335,8 @@ async def get_final_stats(
         cards_received=cards_received,
         cards_used=cards_used,
         maps_completed=maps_completed,
-        games_dropped=games_dropped,
-        games_rerolled=games_rerolled,
+        games_dropped=total_games_dropped,
+        games_rerolled=total_games_rerolled,
         train_rides=train_rides,
         average_rating_of_completed_games=average_rating_of_completed_games,
         players=player_stats_list,
