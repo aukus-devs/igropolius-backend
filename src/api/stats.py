@@ -56,8 +56,12 @@ async def get_player_stats(
                 case(
                     (
                         PlayerGame.type == GameCompletionType.COMPLETED.value,
-                        func.coalesce(
-                            SCORES_BY_GAME_LENGTH.get(PlayerGame.item_length, 0), 0
+                        case(
+                            *[
+                                (PlayerGame.item_length == key, value)
+                                for key, value in SCORES_BY_GAME_LENGTH.items()
+                            ],
+                            else_=0,
                         ),
                     ),
                     else_=0,
