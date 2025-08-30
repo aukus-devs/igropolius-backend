@@ -2290,6 +2290,10 @@
         "income_from_others": {
           "title": "Income From Others",
           "type": "number"
+        },
+        "building_scores_sum": {
+          "title": "Building Scores Sum",
+          "type": "number"
         }
       },
       "required": [
@@ -2305,7 +2309,8 @@
         "score_lost_on_cards",
         "street_tax_paid",
         "map_tax_paid",
-        "income_from_others"
+        "income_from_others",
+        "building_scores_sum"
       ],
       "title": "PlayerStats",
       "type": "object"

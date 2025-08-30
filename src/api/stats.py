@@ -27,7 +27,7 @@ from src.enums import (
     PlayerMoveType,
     ScoreChangeType,
 )
-from src.consts import INSTANT_CARD_TYPES
+from src.consts import INSTANT_CARD_TYPES, SCORES_BY_GAME_LENGTH
 from src.utils.common import get_prison_user
 
 router = APIRouter(tags=["stats"])
@@ -52,6 +52,17 @@ async def get_player_stats(
             func.count(
                 case((PlayerGame.type == GameCompletionType.DROP.value, 1))
             ).label("games_dropped"),
+            func.sum(
+                case(
+                    (
+                        PlayerGame.type == GameCompletionType.COMPLETED.value,
+                        func.coalesce(
+                            SCORES_BY_GAME_LENGTH.get(PlayerGame.item_length, 0), 0
+                        ),
+                    ),
+                    else_=0,
+                )
+            ).label("building_scores_sum"),
         )
         .select_from(PlayerGame)
         .where(PlayerGame.player_id.in_(player_ids))
@@ -185,6 +196,7 @@ async def get_player_stats(
             street_tax_paid=round(ss.street_tax_paid, 2) if ss else 0,
             map_tax_paid=round(ss.map_tax_paid, 2) if ss else 0,
             income_from_others=round(ss.income_from_others, 2) if ss else 0,
+            building_scores_sum=round(gs.building_scores_sum, 2) if gs else 0,
         )
         player_stats_list.append(player_stats)
 

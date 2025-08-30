@@ -507,6 +507,7 @@ class PlayerStats(BaseModel):
     street_tax_paid: float
     map_tax_paid: float
     income_from_others: float
+    building_scores_sum: float
 
 
 class PlayerStatsResponse(BaseModel):
