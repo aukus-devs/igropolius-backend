@@ -297,24 +297,24 @@ async def get_final_stats(
     for player in active_players:
         player_games = games_by_player.get(player.id, [])
 
-        player_games_completed = len(
-            [g for g in player_games if g.type == GameCompletionType.COMPLETED.value]
-        )
+        completed_games_list = [
+            g for g in player_games if g.type == GameCompletionType.COMPLETED.value
+        ]
+
+        player_games_completed = len(completed_games_list)
         player_games_dropped = len(
             [g for g in player_games if g.type == GameCompletionType.DROP.value]
         )
 
-        durations = [g.duration for g in player_games if g.duration]
+        durations = [g.duration for g in completed_games_list if g.duration]
         longest_game_hours = max(durations) if durations else 0
+
         shortest_game_hours = min(durations) if durations else 0
         hours_played = sum(durations) if durations else 0
 
         player_cards = cards_by_player.get(player.id, [])
         cards_amount = len(player_cards)
 
-        completed_games_list = [
-            g for g in player_games if g.type == GameCompletionType.COMPLETED.value
-        ]
         best_rated_game = (
             max(completed_games_list, key=lambda g: g.item_rating)
             if completed_games_list
