@@ -196,7 +196,7 @@ async def _check_twitch_stream(player: User, db: AsyncSession) -> bool:
 
         if len(data) != 0 and data[0]["type"] == "live":
             stream = data[0]
-            game_name = stream["game_name"]
+            game_name = stream["game_name"].strip()
             viewer_count = int(stream["viewer_count"])
 
             has_completed_game = await _player_has_completed_game(
@@ -260,7 +260,7 @@ async def _check_vk_stream(player: User, db: AsyncSession) -> bool:
         )
 
         if len(category_xpath) != 0 and "StreamStatus_text" in response.text:
-            category = category_xpath[0].text
+            category = category_xpath[0].text.strip()
             online_count = int(online_count_xpath[0].text.replace(",", ""))
 
             has_completed_game = await _player_has_completed_game(
